@@ -1,0 +1,128 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+:root {
+  --bg-cream: #FAF7F2;
+  --bg-cream-card: #FFFFFF;
+  --bg-cream-dark: #EFEADF;
+  --text-brown: #231F20;
+  --text-brown-muted: #6E655B;
+  --border-cream: #E8E1D5;
+
+  --bg-dark-sheet: #1C1D22;
+  --bg-dark-card: #282930;
+  --bg-dark-input: #23242A;
+  
+  --accent-blue: #6366F1;
+  --accent-green: #16A34A;
+  --accent-red: #DC2626;
+  --accent-gold: #D97706;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  width: 100%;
+  min-height: 100vh;
+  overflow-x: hidden;
+  background-color: var(--bg-cream);
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: var(--bg-cream);
+  color: var(--text-brown);
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.08);
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+/* Background circles decoration */
+.bg-blob {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(224, 214, 198, 0.5) 0%, rgba(250, 247, 242, 0) 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.12);
+  border-radius: 6px;
+}
+
+/* Level badge style */
+.level-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #231F20;
+  color: #FACC15;
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  transition: transform 0.15s ease;
+}
+
+.level-badge-pill:active {
+  transform: scale(0.96);
+}
+
+/* Bottom Nav */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 480px;
+  background: rgba(250, 247, 242, 0.95);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid var(--border-cream);
+  padding: 10px 24px 22px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  z-index: 50;
+}
+
+.bottom-nav-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-brown-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px 24px;
+  border-radius: 999px;
+  transition: all 0.2s ease;
+}
+
+.bottom-nav-tab.active {
+  background-color: #EFEADF;
+  color: var(--text-brown);
+  font-weight: 700;
+}
