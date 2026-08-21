@@ -2,99 +2,138 @@
 
 import { useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Flame, CheckCircle2, Info, X } from 'lucide-react'
+import { CheckCircle2, Info, X } from 'lucide-react'
 import { useAppStore } from '@/lib/store'
 
 export default function ToastNotification() {
-  const { activeToast, clearToast } = useAppStore()
+  const { activeToast, clearToast, theme } = useAppStore()
 
   useEffect(() => {
     if (activeToast) {
       const timer = setTimeout(() => {
         clearToast()
-      }, 4000)
+      }, 3500)
       return () => clearTimeout(timer)
     }
   }, [activeToast, clearToast])
 
   if (!activeToast) return null
 
+  const isDark = theme === 'dark'
+
   const getIcon = () => {
-    if (activeToast.type === 'info') return <Info size={24} color="#7C8BFF" />
-    return <CheckCircle2 size={24} color="#48BB78" />
+    if (activeToast.type === 'info') return <Info size={22} color={isDark ? '#8C9AFF' : '#6366F1'} />
+    return <CheckCircle2 size={22} color={isDark ? '#48BB78' : '#16A34A'} />
   }
 
-  const getBg = () => {
-    return '#1E2028'
-  }
-
-  const getBorder = () => {
-    if (activeToast.type === 'info') return '#7C8BFF'
-    return '#48BB78'
+  const getBorderColor = () => {
+    if (activeToast.type === 'info') return isDark ? '#4F5699' : '#C7D2FE'
+    return isDark ? '#27523C' : '#BBF7D0'
   }
 
   return (
     <AnimatePresence>
       {activeToast && (
-        <motion.div
-          initial={{ opacity: 0, y: -40, scale: 0.9 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: -30, scale: 0.9 }}
-          transition={{ type: 'spring', damping: 20, stiffness: 300 }}
+        <div
           style={{
             position: 'fixed',
-            top: '20px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            width: 'calc(100% - 40px)',
-            maxWidth: '440px',
-            zIndex: 9999,
-            background: getBg(),
-            border: `1.5px solid ${getBorder()}`,
-            borderRadius: '18px',
-            padding: '14px 16px',
-            boxShadow: '0 10px 30px rgba(0, 0, 0, 0.4)',
-            color: '#FFFFFF',
+            top: 'max(16px, env(safe-area-inset-top) + 12px)',
+            left: 0,
+            right: 0,
             display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: '12px',
+            justifyContent: 'center',
+            zIndex: 10000,
+            pointerEvents: 'none',
+            padding: '0 16px',
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div
+          <motion.div
+            initial={{ opacity: 0, y: -24, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -16, scale: 0.95 }}
+            transition={{ type: 'spring', damping: 25, stiffness: 350 }}
+            style={{
+              pointerEvents: 'auto',
+              width: '100%',
+              maxWidth: '440px',
+              backgroundColor: isDark ? '#23242A' : '#FFFFFF',
+              color: isDark ? '#FFFFFF' : '#2C2418',
+              border: `1.5px solid ${getBorderColor()}`,
+              borderRadius: '16px',
+              padding: '12px 16px',
+              boxShadow: isDark
+                ? '0 10px 30px rgba(0, 0, 0, 0.5)'
+                : '0 10px 30px rgba(44, 36, 24, 0.12)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '12px',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0, flex: 1 }}>
+              <div
+                style={{
+                  width: '38px',
+                  height: '38px',
+                  borderRadius: '10px',
+                  backgroundColor: isDark ? '#1C1D22' : '#F3EFE6',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                }}
+              >
+                {getIcon()}
+              </div>
+              <div style={{ minWidth: 0, flex: 1 }}>
+                <h4
+                  style={{
+                    fontSize: '14px',
+                    fontWeight: '700',
+                    color: isDark ? '#FFFFFF' : '#2C2418',
+                    lineHeight: 1.3,
+                    margin: 0,
+                    wordBreak: 'break-word',
+                  }}
+                >
+                  {activeToast.message}
+                </h4>
+                {activeToast.submessage && (
+                  <p
+                    style={{
+                      fontSize: '12px',
+                      color: isDark ? '#A0A5B5' : '#7A6F60',
+                      marginTop: '2px',
+                      margin: 0,
+                      lineHeight: 1.3,
+                    }}
+                  >
+                    {activeToast.submessage}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <button
+              onClick={clearToast}
+              aria-label="Tutup Notifikasi"
               style={{
-                width: '40px',
-                height: '40px',
-                borderRadius: '12px',
-                backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                background: 'none',
+                border: 'none',
+                color: isDark ? '#A0A5B5' : '#7A6F60',
+                cursor: 'pointer',
+                padding: '6px',
+                borderRadius: '50%',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 flexShrink: 0,
               }}
             >
-              {getIcon()}
-            </div>
-            <div>
-              <h4 style={{ fontSize: '15px', fontWeight: '700', color: '#FFFFFF', lineHeight: 1.2 }}>
-                {activeToast.message}
-              </h4>
-              {activeToast.submessage && (
-                <p style={{ fontSize: '12px', color: '#A0A5B5', marginTop: '2px' }}>
-                  {activeToast.submessage}
-                </p>
-              )}
-            </div>
-          </div>
-
-          <button
-            onClick={clearToast}
-            style={{ background: 'none', border: 'none', color: '#A0A5B5', cursor: 'pointer', padding: '4px' }}
-          >
-            <X size={18} />
-          </button>
-        </motion.div>
+              <X size={18} />
+            </button>
+          </motion.div>
+        </div>
       )}
     </AnimatePresence>
   )
