@@ -18,6 +18,7 @@ export interface NabarActivity {
   action: string
   amount: number
   isIncome: boolean
+  status: 'pending' | 'approved' | 'rejected'
   createdAt: string
   timeAgo: string
 }
@@ -36,6 +37,7 @@ export interface SupabaseNabarRoom {
   members: NabarMember[]
   pendingMembers: NabarMember[]
   recentActivities: NabarActivity[]
+  pendingActivities: NabarActivity[]
   userStatus?: 'owner' | 'approved' | 'pending' | 'none'
 }
 
@@ -58,41 +60,23 @@ export function formatTimeAgo(dateStr: string): string {
   const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
 
   if (diffMinutes < 2) return 'Baru saja'
-  if (diffMinutes < 60) return `${diffMinutes} menit lalu`
-  if (diffHours < 24 && date.getDate() === now.getDate()) {
-    const hours = date.getHours().toString().padStart(2, '0')
-    const mins = date.getMinutes().toString().padStart(2, '0')
-    return `Hari ini, ${hours}.${mins}`
-  }
-
-  const yesterday = new Date(now)
-  yesterday.setDate(now.getDate() - 1)
-  if (date.getDate() === yesterday.getDate()) {
-    const hours = date.getHours().toString().padStart(2, '0')
-    const mins = date.getMinutes().toString().padStart(2, '0')
-    return `Kemarin, ${hours}.${mins}`
-  }
-
+  if (diffMinutes < 60) return `${diffMinutes}m lalu`
+  if (diffHours < 24) return `${diffHours}j lalu`
   return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })
 }
 
 export async function getCurrentUser() {
   const supabase = createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const { data: { user }, error } = await supabase.auth.getUser()
+  if (error || !user) return null
   return user
 }
 
-function getUserProfileInfo(user: any) {
-  if (!user) return { name: 'Anggota', avatarUrl: undefined }
-  const name =
-    user.user_metadata?.full_name ||
-    user.user_metadata?.name ||
-    user.email?.split('@')[0] ||
-    'Anggota'
-  const avatarUrl =
-    user.user_metadata?.avatar_url ||
-    user.user_metadata?.picture ||
-    undefined
+export function getUserProfileInfo(user: any) {
+  if (!user) return { name: 'Pengguna', avatarUrl: undefined }
+  const meta = user.user_metadata || {}
+  const name = meta.full_name || meta.name || user.email?.split('@')[0] || 'Pengguna'
+  const avatarUrl = meta.avatar_url || meta.picture || undefined
   return { name, avatarUrl }
 }
 
@@ -110,13 +94,12 @@ export async function createRoom(data: {
 
   const profile = getUserProfileInfo(user)
 
-  // 1. Insert room
+  // 1. Create room
   const { data: room, error: roomError } = await supabase
     .from('rooms')
     .insert({
       title: data.title,
       target_amount: data.targetAmount,
-      current_amount: 0,
       start_date: data.startDate || null,
       deadline_date: data.deadlineDate || null,
       note: data.note || null,
@@ -149,7 +132,6 @@ export async function getUserRooms(): Promise<SupabaseNabarRoom[]> {
   const user = await getCurrentUser()
   if (!user) return []
 
-  // Get room_ids where user is member or owner
   const { data: memberRows } = await supabase
     .from('room_members')
     .select('room_id')
@@ -194,7 +176,7 @@ export async function getRoomById(roomId: string): Promise<SupabaseNabarRoom | n
     .select('*')
     .eq('room_id', roomId)
     .order('created_at', { ascending: false })
-    .limit(30)
+    .limit(40)
 
   const allMembers: NabarMember[] = (rawMembers || []).map((m) => {
     const isCurrentUser = user && m.user_id === user.id
@@ -224,7 +206,7 @@ export async function getRoomById(roomId: string): Promise<SupabaseNabarRoom | n
   const approvedMembers = allMembers.filter((m) => m.status === 'approved')
   const pendingMembers = allMembers.filter((m) => m.status === 'pending')
 
-  const recentActivities: NabarActivity[] = (rawTx || []).map((tx) => {
+  const allActivities: NabarActivity[] = (rawTx || []).map((tx) => {
     const isCurrentUser = user && tx.user_id === user.id
     const currentUserProfile = isCurrentUser ? getUserProfileInfo(user) : null
     const memberObj = allMembers.find((m) => m.userId === tx.user_id)
@@ -249,10 +231,14 @@ export async function getRoomById(roomId: string): Promise<SupabaseNabarRoom | n
       action: tx.action_label,
       amount: Number(tx.amount),
       isIncome: tx.is_income,
+      status: (tx.status || 'approved') as 'pending' | 'approved' | 'rejected',
       createdAt: tx.created_at,
       timeAgo: formatTimeAgo(tx.created_at),
     }
   })
+
+  const recentActivities = allActivities.filter((a) => a.status === 'approved')
+  const pendingActivities = allActivities.filter((a) => a.status === 'pending')
 
   let userStatus: 'owner' | 'approved' | 'pending' | 'none' = 'none'
   if (user) {
@@ -270,7 +256,7 @@ export async function getRoomById(roomId: string): Promise<SupabaseNabarRoom | n
     id: room.id,
     title: room.title,
     targetAmount: Number(room.target_amount),
-    currentAmount: Number(room.currentAmount || room.current_amount),
+    currentAmount: Number(room.current_amount),
     startDate: room.start_date || undefined,
     deadlineDate: room.deadline_date || undefined,
     note: room.note || undefined,
@@ -280,6 +266,7 @@ export async function getRoomById(roomId: string): Promise<SupabaseNabarRoom | n
     members: approvedMembers,
     pendingMembers,
     recentActivities,
+    pendingActivities,
     userStatus,
   }
 }
@@ -302,37 +289,29 @@ export async function requestJoinRoom(roomId: string) {
     })
 
   if (error) {
-    if (error.code === '23505') {
-      throw new Error('Anda sudah mengajukan bergabung di ruang ini.')
-    }
+    if (error.code === '23505') throw new Error('Anda sudah mengajukan bergabung di room ini')
     throw new Error(error.message)
   }
 }
 
 export async function approveMember(roomId: string, memberUserId: string) {
   const supabase = createClient()
-  const user = await getCurrentUser()
-  if (!user) throw new Error('Pengguna belum terautentikasi')
 
   const { error } = await supabase
     .from('room_members')
     .update({ status: 'approved' })
-    .eq('room_id', roomId)
-    .eq('user_id', memberUserId)
+    .match({ room_id: roomId, user_id: memberUserId })
 
   if (error) throw new Error(error.message)
 }
 
 export async function rejectMember(roomId: string, memberUserId: string) {
   const supabase = createClient()
-  const user = await getCurrentUser()
-  if (!user) throw new Error('Pengguna belum terautentikasi')
 
   const { error } = await supabase
     .from('room_members')
     .delete()
-    .eq('room_id', roomId)
-    .eq('user_id', memberUserId)
+    .match({ room_id: roomId, user_id: memberUserId })
 
   if (error) throw new Error(error.message)
 }
@@ -349,6 +328,16 @@ export async function addRoomTransaction(
 
   const profile = getUserProfileInfo(user)
 
+  // Check if current user is room owner
+  const { data: room } = await supabase
+    .from('rooms')
+    .select('owner_id')
+    .eq('id', roomId)
+    .single()
+
+  const isOwner = room && room.owner_id === user.id
+  const txStatus = isOwner ? 'approved' : 'pending'
+
   const { error } = await supabase
     .from('room_transactions')
     .insert({
@@ -359,7 +348,31 @@ export async function addRoomTransaction(
       amount,
       is_income: isIncome,
       action_label: actionLabel,
+      status: txStatus,
     })
+
+  if (error) throw new Error(error.message)
+  return txStatus
+}
+
+export async function approveRoomTransaction(transactionId: string) {
+  const supabase = createClient()
+
+  const { error } = await supabase
+    .from('room_transactions')
+    .update({ status: 'approved' })
+    .eq('id', transactionId)
+
+  if (error) throw new Error(error.message)
+}
+
+export async function rejectRoomTransaction(transactionId: string) {
+  const supabase = createClient()
+
+  const { error } = await supabase
+    .from('room_transactions')
+    .update({ status: 'rejected' })
+    .eq('id', transactionId)
 
   if (error) throw new Error(error.message)
 }

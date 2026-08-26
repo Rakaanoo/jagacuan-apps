@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowDown, ArrowUp, Plus, X, Share2, UserPlus, Users, Download, Loader2, CheckCircle2, LogOut } from 'lucide-react'
+import { ArrowDown, ArrowUp, Plus, X, Share2, UserPlus, Users, Download, Loader2, CheckCircle2, LogOut, Clock } from 'lucide-react'
 import { useAppStore, formatRupiah } from '@/lib/store'
 import { createClient } from '@/lib/supabase/client'
 import {
@@ -12,6 +12,8 @@ import {
   addRoomTransaction,
   approveMember,
   rejectMember,
+  approveRoomTransaction,
+  rejectRoomTransaction,
   subscribeToRoom,
   SupabaseNabarRoom,
 } from '@/lib/supabase/nabar'
@@ -106,9 +108,14 @@ export default function NabarRoomModal({ isOpen, onClose }: Props) {
 
     setSubmittingSetor(true)
     try {
-      await addRoomTransaction(activeRoom.id, amt, true, 'Setoran tabungan')
+      const status = await addRoomTransaction(activeRoom.id, amt, true, 'Setoran tabungan')
       setShowQuickSetor(false)
-      showToast('Setoran berhasil!', `${formatRupiah(amt)} telah ditambahkan ke room.`, 'success')
+
+      if (status === 'approved') {
+        showToast('Setoran berhasil!', `${formatRupiah(amt)} telah ditambahkan ke room.`, 'success')
+      } else {
+        showToast('Setoran terkirim!', `${formatRupiah(amt)} menunggu verifikasi dari Pemilik Ruang (Host).`, 'info')
+      }
 
       const updated = await getRoomById(activeRoom.id)
       if (updated) {
@@ -118,6 +125,36 @@ export default function NabarRoomModal({ isOpen, onClose }: Props) {
       showToast('Gagal melakukan setoran:', err.message || 'Terjadi kesalahan', 'info')
     } finally {
       setSubmittingSetor(false)
+    }
+  }
+
+  const handleApproveTx = async (txId: string, name: string, amount: number) => {
+    if (!activeRoom) return
+    try {
+      await approveRoomTransaction(txId)
+      showToast('Setoran Disetujui!', `Setoran ${formatRupiah(amount)} dari ${name} telah diverifikasi.`, 'success')
+
+      const updated = await getRoomById(activeRoom.id)
+      if (updated) {
+        setRooms((prev) => prev.map((r) => (r.id === updated.id ? updated : r)))
+      }
+    } catch (err: any) {
+      showToast('Gagal menyetujui setoran:', err.message, 'info')
+    }
+  }
+
+  const handleRejectTx = async (txId: string, name: string, amount: number) => {
+    if (!activeRoom) return
+    try {
+      await rejectRoomTransaction(txId)
+      showToast('Setoran Ditolak', `Setoran ${formatRupiah(amount)} dari ${name} telah ditolak.`, 'info')
+
+      const updated = await getRoomById(activeRoom.id)
+      if (updated) {
+        setRooms((prev) => prev.map((r) => (r.id === updated.id ? updated : r)))
+      }
+    } catch (err: any) {
+      showToast('Gagal menolak setoran:', err.message, 'info')
     }
   }
 
@@ -694,6 +731,104 @@ export default function NabarRoomModal({ isOpen, onClose }: Props) {
                                       color: 'white',
                                       fontSize: '12px',
                                       fontWeight: '600',
+                                      border: 'none',
+                                      cursor: 'pointer',
+                                    }}
+                                  >
+                                    Tolak
+                                  </button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Pending Deposit Approvals Section (for Owner) */}
+                      {activeRoom.userStatus === 'owner' && activeRoom.pendingActivities && activeRoom.pendingActivities.length > 0 && (
+                        <div
+                          style={{
+                            backgroundColor: cardBg,
+                            border: `1px solid ${cardBorder}`,
+                            borderRadius: '18px',
+                            padding: '16px',
+                          }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                            <Clock size={16} color="#D97706" />
+                            <h4 style={{ fontSize: '14px', fontWeight: '700', color: textColor, margin: 0 }}>
+                              Setoran Menunggu Verifikasi ({activeRoom.pendingActivities.length})
+                            </h4>
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                            {activeRoom.pendingActivities.map((act) => (
+                              <div
+                                key={act.id}
+                                style={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'space-between',
+                                  backgroundColor: isDark ? '#1C1D22' : '#EFEADF',
+                                  padding: '10px 12px',
+                                  borderRadius: '12px',
+                                }}
+                              >
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                  <div
+                                    style={{
+                                      width: '32px',
+                                      height: '32px',
+                                      borderRadius: '50%',
+                                      backgroundColor: isDark ? '#3D331A' : '#FEF3C7',
+                                      color: '#D97706',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      overflow: 'hidden',
+                                      flexShrink: 0,
+                                    }}
+                                  >
+                                    {act.avatarUrl ? (
+                                      <img src={act.avatarUrl} alt={act.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                    ) : (
+                                      <span style={{ fontSize: '12px', fontWeight: '700' }}>{act.name[0]}</span>
+                                    )}
+                                  </div>
+                                  <div>
+                                    <p style={{ fontSize: '13px', fontWeight: '700', margin: 0 }}>
+                                      {act.name} - <span style={{ color: '#16A34A' }}>+{formatRupiah(act.amount)}</span>
+                                    </p>
+                                    <p style={{ fontSize: '11px', color: subText, margin: '2px 0 0' }}>
+                                      {act.timeAgo} • Pending Host
+                                    </p>
+                                  </div>
+                                </div>
+
+                                <div style={{ display: 'flex', gap: '6px' }}>
+                                  <button
+                                    onClick={() => handleApproveTx(act.id, act.name, act.amount)}
+                                    style={{
+                                      padding: '5px 12px',
+                                      borderRadius: '8px',
+                                      backgroundColor: '#16A34A',
+                                      color: 'white',
+                                      fontSize: '12px',
+                                      fontWeight: '700',
+                                      border: 'none',
+                                      cursor: 'pointer',
+                                    }}
+                                  >
+                                    Terima
+                                  </button>
+                                  <button
+                                    onClick={() => handleRejectTx(act.id, act.name, act.amount)}
+                                    style={{
+                                      padding: '5px 12px',
+                                      borderRadius: '8px',
+                                      backgroundColor: '#DC2626',
+                                      color: 'white',
+                                      fontSize: '12px',
+                                      fontWeight: '700',
                                       border: 'none',
                                       cursor: 'pointer',
                                     }}

@@ -13,6 +13,8 @@ import {
   addRoomTransaction,
   approveMember,
   rejectMember,
+  approveRoomTransaction,
+  rejectRoomTransaction,
   subscribeToRoom,
   SupabaseNabarRoom,
 } from '@/lib/supabase/nabar'
@@ -85,12 +87,40 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
     if (!room || amt <= 0) return
 
     try {
-      await addRoomTransaction(room.id, amt, true, 'Setoran tabungan')
+      const status = await addRoomTransaction(room.id, amt, true, 'Setoran tabungan')
       setShowQuickSetor(false)
-      showToast('Setoran berhasil!', `${formatRupiah(amt)} telah ditambahkan ke room.`, 'success')
+
+      if (status === 'approved') {
+        showToast('Setoran berhasil!', `${formatRupiah(amt)} telah ditambahkan ke room.`, 'success')
+      } else {
+        showToast('Setoran terkirim!', `${formatRupiah(amt)} menunggu verifikasi dari Pemilik Ruang (Host).`, 'info')
+      }
+
       await fetchRoomData()
     } catch (err: any) {
       showToast('Gagal melempar transaksi:', err.message, 'info')
+    }
+  }
+
+  const handleApproveTx = async (txId: string, name: string, amount: number) => {
+    if (!room) return
+    try {
+      await approveRoomTransaction(txId)
+      showToast('Setoran Disetujui!', `Setoran ${formatRupiah(amount)} dari ${name} telah diverifikasi.`, 'success')
+      await fetchRoomData()
+    } catch (err: any) {
+      showToast('Gagal menyetujui setoran:', err.message, 'info')
+    }
+  }
+
+  const handleRejectTx = async (txId: string, name: string, amount: number) => {
+    if (!room) return
+    try {
+      await rejectRoomTransaction(txId)
+      showToast('Setoran Ditolak', `Setoran ${formatRupiah(amount)} dari ${name} telah ditolak.`, 'info')
+      await fetchRoomData()
+    } catch (err: any) {
+      showToast('Gagal menolak setoran:', err.message, 'info')
     }
   }
 
@@ -545,6 +575,79 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
                         <button
                           onClick={() => handleReject(mem.userId, mem.name)}
                           style={{ padding: '6px 12px', borderRadius: '8px', backgroundColor: '#DC2626', color: 'white', fontSize: '12px', fontWeight: '600', border: 'none', cursor: 'pointer' }}
+                        >
+                          Tolak
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Pending Deposit Approvals Section (for owner) */}
+            {room.userStatus === 'owner' && room.pendingActivities && room.pendingActivities.length > 0 && (
+              <div style={{ backgroundColor: cardBg, borderRadius: '20px', padding: '18px', border: `1px solid ${cardBorder}` }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                  <Clock size={16} color="#D97706" />
+                  <h4 style={{ fontSize: '15px', fontWeight: '700', margin: 0 }}>
+                    Setoran Menunggu Verifikasi ({room.pendingActivities.length})
+                  </h4>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {room.pendingActivities.map((act) => (
+                    <div
+                      key={act.id}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        backgroundColor: isDark ? '#1C1D22' : '#EFEADF',
+                        padding: '10px 14px',
+                        borderRadius: '12px',
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <div
+                          style={{
+                            width: '32px',
+                            height: '32px',
+                            borderRadius: '50%',
+                            backgroundColor: isDark ? '#3D331A' : '#FEF3C7',
+                            color: '#D97706',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            overflow: 'hidden',
+                            flexShrink: 0,
+                          }}
+                        >
+                          {act.avatarUrl ? (
+                            <img src={act.avatarUrl} alt={act.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          ) : (
+                            <span style={{ fontSize: '12px', fontWeight: '700' }}>{act.name[0]}</span>
+                          )}
+                        </div>
+                        <div>
+                          <p style={{ fontSize: '13px', fontWeight: '700', margin: 0 }}>
+                            {act.name} - <span style={{ color: '#16A34A' }}>+{formatRupiah(act.amount)}</span>
+                          </p>
+                          <p style={{ fontSize: '11px', color: subText, margin: '2px 0 0' }}>
+                            {act.timeAgo} • Pending Host
+                          </p>
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button
+                          onClick={() => handleApproveTx(act.id, act.name, act.amount)}
+                          style={{ padding: '6px 12px', borderRadius: '8px', backgroundColor: '#16A34A', color: 'white', fontSize: '12px', fontWeight: '700', border: 'none', cursor: 'pointer' }}
+                        >
+                          Terima
+                        </button>
+                        <button
+                          onClick={() => handleRejectTx(act.id, act.name, act.amount)}
+                          style={{ padding: '6px 12px', borderRadius: '8px', backgroundColor: '#DC2626', color: 'white', fontSize: '12px', fontWeight: '700', border: 'none', cursor: 'pointer' }}
                         >
                           Tolak
                         </button>
