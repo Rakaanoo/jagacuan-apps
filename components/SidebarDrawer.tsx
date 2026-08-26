@@ -1,10 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Archive, Globe, RefreshCw, Palette, ArrowUpDown, Info, Star, X, Sun, Moon } from 'lucide-react'
+import { Archive, Globe, RefreshCw, ArrowUpDown, Info, Star, X, Sun, Moon, LogIn, CheckCircle2, User } from 'lucide-react'
 import { useAppStore } from '@/lib/store'
 import { useTranslation } from '@/lib/i18n'
+import { getCurrentUser } from '@/lib/supabase/nabar'
 
 interface Props {
   isOpen: boolean
@@ -16,6 +17,15 @@ export default function SidebarDrawer({ isOpen, onClose, onOpenBackup }: Props) 
   const { theme, toggleTheme, showToast, language, setLanguage } = useAppStore()
   const { t } = useTranslation()
   const [activeModal, setActiveModal] = useState<string | null>(null)
+  const [currentUser, setCurrentUser] = useState<any>(null)
+
+  useEffect(() => {
+    if (isOpen) {
+      getCurrentUser()
+        .then((usr) => setCurrentUser(usr))
+        .catch(() => setCurrentUser(null))
+    }
+  }, [isOpen])
 
   const menuItems = [
     { id: 'arsip', label: t('sidebar.archive'), icon: <Archive size={22} />, desc: t('sidebar.archive_desc') },
@@ -49,6 +59,10 @@ export default function SidebarDrawer({ isOpen, onClose, onOpenBackup }: Props) 
     }
   }
 
+  const isDark = theme === 'dark'
+  const cardBg = isDark ? '#262832' : '#FAF6EF'
+  const cardBorder = isDark ? '#353846' : '#E0D5C3'
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -80,8 +94,8 @@ export default function SidebarDrawer({ isOpen, onClose, onOpenBackup }: Props) 
               bottom: 0,
               width: '82%',
               maxWidth: '360px',
-              backgroundColor: theme === 'dark' ? '#1C1D22' : '#EFEADF',
-              color: theme === 'dark' ? '#FFFFFF' : '#2C2418',
+              backgroundColor: isDark ? '#1C1D22' : '#EFEADF',
+              color: isDark ? '#FFFFFF' : '#2C2418',
               padding: '24px 20px',
               display: 'flex',
               flexDirection: 'column',
@@ -94,8 +108,8 @@ export default function SidebarDrawer({ isOpen, onClose, onOpenBackup }: Props) 
                 fontSize: '22px',
                 fontWeight: '700',
                 paddingBottom: '16px',
-                borderBottom: `1.5px solid ${theme === 'dark' ? '#2A2C35' : '#D8CFBE'}`,
-                marginBottom: '20px',
+                borderBottom: `1.5px solid ${isDark ? '#2A2C35' : '#D8CFBE'}`,
+                marginBottom: '16px',
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
@@ -106,8 +120,69 @@ export default function SidebarDrawer({ isOpen, onClose, onOpenBackup }: Props) 
                 onClick={onClose}
                 style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}
               >
-                <X size={22} color={theme === 'dark' ? '#A0A5B5' : '#2C2418'} />
+                <X size={22} color={isDark ? '#A0A5B5' : '#2C2418'} />
               </button>
+            </div>
+
+            {/* Google Account Status Badge */}
+            <div
+              style={{
+                backgroundColor: cardBg,
+                border: `1px solid ${cardBorder}`,
+                borderRadius: '14px',
+                padding: '12px 14px',
+                marginBottom: '16px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+              }}
+            >
+              <div
+                style={{
+                  width: '34px',
+                  height: '34px',
+                  borderRadius: '50%',
+                  backgroundColor: isDark ? '#333644' : '#E0D5C3',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: isDark ? '#FFFFFF' : '#2C2418',
+                  flexShrink: 0,
+                }}
+              >
+                {currentUser?.user_metadata?.avatar_url ? (
+                  <img
+                    src={currentUser.user_metadata.avatar_url}
+                    alt="User"
+                    style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
+                  />
+                ) : (
+                  <User size={18} />
+                )}
+              </div>
+
+              <div style={{ flex: 1, minWidth: 0 }}>
+                {currentUser ? (
+                  <>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <span style={{ fontSize: '13px', fontWeight: '700', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {currentUser.user_metadata?.full_name || currentUser.email?.split('@')[0]}
+                      </span>
+                      <CheckCircle2 size={13} color="#16A34A" />
+                    </div>
+                    <p style={{ fontSize: '11px', color: isDark ? '#A0A5B5' : '#7A6F60', margin: 0 }}>
+                      Google Terhubung (Ruang Nabar)
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p style={{ fontSize: '13px', fontWeight: '700', margin: 0 }}>Google Belum Terhubung</p>
+                    <p style={{ fontSize: '11px', color: isDark ? '#A0A5B5' : '#7A6F60', margin: 0 }}>
+                      Hanya diperlukan untuk Ruang Nabar
+                    </p>
+                  </>
+                )}
+              </div>
             </div>
 
             {/* Menu List */}
@@ -122,16 +197,16 @@ export default function SidebarDrawer({ isOpen, onClose, onOpenBackup }: Props) 
                     gap: '16px',
                     padding: '14px 12px',
                     borderRadius: '12px',
-                    backgroundColor: item.id === 'tema' ? (theme === 'dark' ? '#282A34' : '#E4DCCF') : 'transparent',
+                    backgroundColor: item.id === 'tema' ? (isDark ? '#282A34' : '#E4DCCF') : 'transparent',
                     border: 'none',
                     textAlign: 'left',
                     cursor: 'pointer',
-                    color: theme === 'dark' ? '#FFFFFF' : '#2C2418',
+                    color: isDark ? '#FFFFFF' : '#2C2418',
                     fontFamily: 'inherit',
                     transition: 'background-color 0.15s ease',
                   }}
                 >
-                  <div style={{ color: theme === 'dark' ? '#8C9AFF' : '#2C2418', display: 'flex', alignItems: 'center' }}>
+                  <div style={{ color: isDark ? '#8C9AFF' : '#2C2418', display: 'flex', alignItems: 'center' }}>
                     {item.icon}
                   </div>
                   <span style={{ fontSize: '15px', fontWeight: '600', flex: 1 }}>
@@ -153,11 +228,11 @@ export default function SidebarDrawer({ isOpen, onClose, onOpenBackup }: Props) 
                     bottom: '24px',
                     left: '20px',
                     right: '20px',
-                    backgroundColor: theme === 'dark' ? '#262832' : '#FAF6EF',
+                    backgroundColor: isDark ? '#262832' : '#FAF6EF',
                     borderRadius: '16px',
                     padding: '18px',
                     boxShadow: '0 8px 30px rgba(0,0,0,0.2)',
-                    border: `1px solid ${theme === 'dark' ? '#353846' : '#E0D5C3'}`,
+                    border: `1px solid ${isDark ? '#353846' : '#E0D5C3'}`,
                   }}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
@@ -168,10 +243,10 @@ export default function SidebarDrawer({ isOpen, onClose, onOpenBackup }: Props) 
                       onClick={() => setActiveModal(null)}
                       style={{ background: 'none', border: 'none', cursor: 'pointer' }}
                     >
-                      <X size={16} color={theme === 'dark' ? '#A0A5B5' : '#7A6F60'} />
+                      <X size={16} color={isDark ? '#A0A5B5' : '#7A6F60'} />
                     </button>
                   </div>
-                  <p style={{ fontSize: '13px', color: theme === 'dark' ? '#A0A5B5' : '#7A6F60', lineHeight: 1.4 }}>
+                  <p style={{ fontSize: '13px', color: isDark ? '#A0A5B5' : '#7A6F60', lineHeight: 1.4 }}>
                     {menuItems.find((m) => m.id === activeModal)?.desc}
                   </p>
                 </motion.div>

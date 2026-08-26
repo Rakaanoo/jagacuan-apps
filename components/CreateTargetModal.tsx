@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Calendar, Trash2, X, Image as ImageIcon } from 'lucide-react'
 import { useAppStore } from '@/lib/store'
+import { useTranslation } from '@/lib/i18n'
 
 interface Props {
   isOpen: boolean
@@ -13,6 +14,7 @@ interface Props {
 
 export default function CreateTargetModal({ isOpen, onClose, targetType }: Props) {
   const { addTarget, theme } = useAppStore()
+  const { t } = useTranslation()
   const isDark = theme === 'dark'
 
   const [title, setTitle] = useState('')
@@ -178,7 +180,7 @@ export default function CreateTargetModal({ isOpen, onClose, targetType }: Props
 
             {/* Title */}
             <h2 style={{ fontSize: '22px', fontWeight: '700', marginBottom: '20px' }}>
-              {targetType === 'berkala' ? 'Buat Nabung Berkala' : 'Buat Nabung'}
+              {targetType === 'berkala' ? t('create.title_berkala') : t('create.title_nabung')}
             </h2>
 
             {/* Form Fields */}
@@ -194,11 +196,11 @@ export default function CreateTargetModal({ isOpen, onClose, targetType }: Props
                   }}
                 >
                   <label style={{ fontSize: '11px', color: accentCol, fontWeight: '600', display: 'block' }}>
-                    Judul
+                    {t('create.name_label')}
                   </label>
                   <input
                     type="text"
-                    placeholder="Judul target tabungan..."
+                    placeholder={t('create.name_placeholder')}
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     style={{
@@ -226,7 +228,7 @@ export default function CreateTargetModal({ isOpen, onClose, targetType }: Props
                   }}
                 >
                   <label style={{ fontSize: '11px', color: subText, fontWeight: '500', display: 'block' }}>
-                    Target nominal (Rp)
+                    {t('create.amount_label')}
                   </label>
                   <input
                     type="text"
@@ -251,7 +253,7 @@ export default function CreateTargetModal({ isOpen, onClose, targetType }: Props
               {/* Field: Tanggal mulai */}
               <div>
                 <label style={{ fontSize: '13px', color: subText, marginBottom: '6px', display: 'block' }}>
-                  Tanggal mulai
+                  {t('create.start_date')}
                 </label>
                 <div
                   style={{
@@ -379,7 +381,7 @@ export default function CreateTargetModal({ isOpen, onClose, targetType }: Props
                   fontFamily: 'inherit',
                 }}
               >
-                Batal
+                {t('common.cancel')}
               </button>
               <button
                 onClick={handleSave}
@@ -396,7 +398,7 @@ export default function CreateTargetModal({ isOpen, onClose, targetType }: Props
                   fontFamily: 'inherit',
                 }}
               >
-                Simpan
+                {t('create.button_save')}
               </button>
             </div>
           </motion.div>

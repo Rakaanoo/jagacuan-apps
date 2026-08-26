@@ -1,7 +1,10 @@
-const CACHE = "jagacuan-v2";
+const CACHE = "jagacuan-v4";
 const PRECACHE_ASSETS = [
   "/",
   "/manifest.webmanifest",
+  "/jagacuan-logo-dark.png",
+  "/jagacuan-logo-light.png",
+  "/jagacuan-logo.png",
   "/icons/icon-192.png",
   "/icons/icon-512.png",
   "/icons/icon-maskable-512.png",
@@ -33,6 +36,7 @@ self.addEventListener("fetch", (event) => {
 
   const url = new URL(request.url);
 
+  // HTML Page Navigation Strategy: Network First, fallback to Cache
   if (request.mode === "navigate") {
     event.respondWith(
       fetch(request)
@@ -50,6 +54,7 @@ self.addEventListener("fetch", (event) => {
 
   if (url.origin !== self.location.origin) return;
 
+  // Asset Strategy: Stale While Revalidate
   event.respondWith(
     caches.match(request).then((cached) => {
       const fetchAndCache = fetch(request)

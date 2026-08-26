@@ -312,8 +312,9 @@ export default function Home() {
       <div style={{ padding: '0 20px', position: 'relative', zIndex: 10 }}>
         {displayedList.length === 0 ? (
           activeTab === 'berjalan' ? (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '60px 0 40px', textAlign: 'center' }}>
+            <div className="empty-state-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '60px 0 40px', textAlign: 'center' }}>
               <img
+                className="empty-state-logo"
                 src={isDark ? '/jagacuan-logo-dark.png' : '/jagacuan-logo-light.png'}
                 alt="Jagacuan"
                 style={{
@@ -324,10 +325,11 @@ export default function Home() {
                 }}
               />
 
-              <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '8px', color: isDark ? '#FFFFFF' : '#2C2418' }}>
+              <h3 className="empty-state-title" style={{ fontSize: '18px', fontWeight: '700', marginBottom: '8px', color: isDark ? '#FFFFFF' : '#2C2418' }}>
                 {t('page.no_active')}
               </h3>
               <p
+                className="empty-state-hint"
                 style={{ fontSize: '14px', color: isDark ? '#A0A5B5' : '#7A6F60', maxWidth: '240px', lineHeight: '1.5' }}
                 dangerouslySetInnerHTML={{ __html: t('page.no_active_hint') }}
               />

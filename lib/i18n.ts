@@ -36,7 +36,7 @@ const id: Record<string, string> = {
   'sidebar.backup': 'Backup & Restore',
   'sidebar.backup_desc': 'Simpan / Pulihkan data catat tabungan',
   'sidebar.info': 'Info Aplikasi',
-  'sidebar.info_desc': 'Jagacuan v1.0.0 - Pencatat Tabungan Impian',
+  'sidebar.info_desc': 'Jagacuan v1.1.0 — Aplikasi Pencatat Tabungan Digital & Ruang Nabung Kolaborasi Realtime (Powered by Supabase)',
   'sidebar.rating': 'Beri Rating',
   'sidebar.rating_desc': 'Dukung pengembangan aplikasi ini',
 
@@ -226,6 +226,12 @@ const id: Record<string, string> = {
   // === Language Names ===
   'lang.id': 'Bahasa Indonesia',
   'lang.en': 'English',
+
+  // === Common ===
+  'common.cancel': 'Batal',
+  'common.save': 'Simpan',
+  'common.back': 'Kembali',
+  'common.delete': 'Hapus',
 }
 
 const en: Record<string, string> = {
@@ -260,7 +266,7 @@ const en: Record<string, string> = {
   'sidebar.backup': 'Backup & Restore',
   'sidebar.backup_desc': 'Save / Restore savings data',
   'sidebar.info': 'App Info',
-  'sidebar.info_desc': 'Jagacuan v1.0.0 - Dream Savings Tracker',
+  'sidebar.info_desc': 'Jagacuan v1.1.0 — Digital Savings Tracker & Realtime Group Savings Room (Powered by Supabase)',
   'sidebar.rating': 'Rate App',
   'sidebar.rating_desc': 'Support the development of this app',
 
@@ -450,6 +456,12 @@ const en: Record<string, string> = {
   // === Language Names ===
   'lang.id': 'Bahasa Indonesia',
   'lang.en': 'English',
+
+  // === Common ===
+  'common.cancel': 'Cancel',
+  'common.save': 'Save',
+  'common.back': 'Back',
+  'common.delete': 'Delete',
 }
 
 const dictionaries: Record<string, Record<string, string>> = { id, en }

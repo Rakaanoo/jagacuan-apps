@@ -126,3 +126,34 @@ body {
   color: var(--text-brown);
   font-weight: 700;
 }
+
+/* Landscape / Screen Rotation & Short Viewport Adaptations */
+@media (max-height: 600px) {
+  main {
+    padding-bottom: 75px !important;
+  }
+  .empty-state-container {
+    padding: 16px 0 12px !important;
+  }
+  .empty-state-logo {
+    height: 32px !important;
+    margin-bottom: 12px !important;
+  }
+  .empty-state-title {
+    font-size: 16px !important;
+    margin-bottom: 4px !important;
+  }
+  .empty-state-hint {
+    font-size: 13px !important;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 550px) {
+  body {
+    max-width: 580px;
+  }
+  .bottom-nav {
+    max-width: 580px;
+    padding: 6px 20px 12px;
+  }
+}

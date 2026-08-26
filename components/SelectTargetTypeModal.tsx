@@ -3,6 +3,7 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { Flag, Trophy, Users } from 'lucide-react'
 import { useAppStore } from '@/lib/store'
+import { useTranslation } from '@/lib/i18n'
 
 interface Props {
   isOpen: boolean
@@ -12,6 +13,7 @@ interface Props {
 
 export default function SelectTargetTypeModal({ isOpen, onClose, onSelectType }: Props) {
   const { theme } = useAppStore()
+  const { t } = useTranslation()
   const isDark = theme === 'dark'
 
   const bg = isDark ? '#1C1D22' : '#EFEADF'
@@ -25,9 +27,9 @@ export default function SelectTargetTypeModal({ isOpen, onClose, onSelectType }:
   const cancelColor = isDark ? '#FFFFFF' : '#2C2418'
 
   const options = [
-    { type: 'nabung' as const, icon: <Flag size={24} />, title: 'Nabung', desc: 'Buat target tabungan biasa' },
-    { type: 'berkala' as const, icon: <Trophy size={24} />, title: 'Nabung Berkala', desc: 'Target dengan setoran rutin' },
-    { type: 'nabar' as const, icon: <Users size={24} />, title: 'Nabar / Room Kolaborasi', desc: 'Nabung bersama teman atau keluarga' },
+    { type: 'nabung' as const, icon: <Flag size={24} />, title: t('select_type.nabung'), desc: t('select_type.nabung_desc') },
+    { type: 'berkala' as const, icon: <Trophy size={24} />, title: t('select_type.berkala'), desc: t('select_type.berkala_desc') },
+    { type: 'nabar' as const, icon: <Users size={24} />, title: t('select_type.nabar'), desc: t('select_type.nabar_desc') },
   ]
 
   return (
@@ -59,7 +61,7 @@ export default function SelectTargetTypeModal({ isOpen, onClose, onSelectType }:
             }}
           >
             <h2 style={{ fontSize: '22px', fontWeight: '700', color: titleColor, marginBottom: '20px' }}>
-              Pilih Tipe Target
+              {t('select_type.title')}
             </h2>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '24px' }}>
@@ -113,7 +115,7 @@ export default function SelectTargetTypeModal({ isOpen, onClose, onSelectType }:
                   fontFamily: 'inherit',
                 }}
               >
-                Batal
+                {t('common.cancel')}
               </button>
             </div>
           </motion.div>
