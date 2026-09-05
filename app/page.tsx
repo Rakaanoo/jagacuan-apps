@@ -30,6 +30,24 @@ export default function Home() {
     document.documentElement.style.setProperty('--app-bg', bg)
   }, [isDark])
 
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search)
+      const code = urlParams.get('code')
+      if (code) {
+        import('@/lib/supabase/client').then(({ createClient }) => {
+          const supabase = createClient()
+          supabase.auth.exchangeCodeForSession(code).then(() => {
+            window.history.replaceState({}, document.title, window.location.pathname)
+          })
+        })
+        if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+          window.location.href = `io.supabase.jagacuan://login-callback?code=${code}`
+        }
+      }
+    }
+  }, [])
+
   const [activeTab, setActiveTab] = useState<TabType>('berjalan')
   const [searchQuery, setSearchQuery] = useState('')
   const [sortBy, setSortBy] = useState<SortType>('terbaru')
