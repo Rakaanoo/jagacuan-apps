@@ -12,7 +12,7 @@ interface Props {
 }
 
 export default function SelectTargetTypeModal({ isOpen, onClose, onSelectType }: Props) {
-  const { theme } = useAppStore()
+  const { theme, currency, language } = useAppStore()
   const { t } = useTranslation()
   const isDark = theme === 'dark'
 

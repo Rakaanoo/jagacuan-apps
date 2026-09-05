@@ -13,8 +13,11 @@ interface Props {
   onRoomCreated?: (roomId: string) => void
 }
 
+import { useTranslation } from '@/lib/i18n'
+
 export default function CreateNabarModal({ isOpen, onClose, onRoomCreated }: Props) {
-  const { theme, showToast } = useAppStore()
+  const { theme, showToast, currency, language } = useAppStore()
+  const { t } = useTranslation()
   const isDark = theme === 'dark'
 
   const [user, setUser] = useState<any>(null)

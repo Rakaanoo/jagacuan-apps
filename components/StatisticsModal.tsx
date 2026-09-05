@@ -3,6 +3,7 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { PieChart, CheckCircle2, Sparkles, X, Banknote } from 'lucide-react'
 import { useAppStore, formatRupiah } from '@/lib/store'
+import { useTranslation } from '@/lib/i18n'
 
 interface Props {
   isOpen: boolean
@@ -10,7 +11,8 @@ interface Props {
 }
 
 export default function StatisticsModal({ isOpen, onClose }: Props) {
-  const { targets, transactions, theme } = useAppStore()
+  const { targets, transactions, theme, currency, language } = useAppStore()
+  const { t } = useTranslation()
   const isDark = theme === 'dark'
 
   if (!isOpen) return null

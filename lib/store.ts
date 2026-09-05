@@ -41,6 +41,8 @@ export interface NabarRoom {
   recentActivities: { name: string; action: string; amount: number; isIncome: boolean; timeAgo: string }[]
 }
 
+export type CurrencyCode = 'IDR' | 'USD' | 'EUR' | 'JPY' | 'CNY' | 'THB' | 'INR' | 'GBP'
+
 export interface ToastData {
   message: string
   submessage?: string
@@ -52,12 +54,14 @@ interface AppState {
   transactions: TransactionRecord[]
   nabarRooms: NabarRoom[]
   theme: 'dark' | 'cream'
-  language: 'id' | 'en'
+  language: 'id' | 'en' | 'de' | 'fr' | 'it' | 'es' | 'ja' | 'zh' | 'th' | 'hi'
+  currency: CurrencyCode
   activeToast: ToastData | null
 
   // Actions
   toggleTheme: () => void
-  setLanguage: (lang: 'id' | 'en') => void
+  setLanguage: (lang: 'id' | 'en' | 'de' | 'fr' | 'it' | 'es' | 'ja' | 'zh' | 'th' | 'hi') => void
+  setCurrency: (cur: CurrencyCode) => void
   showToast: (message: string, submessage?: string, type?: 'success' | 'info') => void
   clearToast: () => void
   addTarget: (target: Omit<TargetItem, 'id' | 'createdAt' | 'currentAmount' | 'isFinished'>) => void
@@ -101,25 +105,28 @@ export const useAppStore = create<AppState>()(
       ],
       theme: 'dark',
       language: 'id',
+      currency: 'IDR',
       activeToast: null,
 
       toggleTheme: () => set((state) => ({ theme: state.theme === 'dark' ? 'cream' : 'dark' })),
       setLanguage: (lang) => set({ language: lang }),
-      showToast: (message, submessage, type = 'success') => set({ activeToast: { message, submessage, type } }),
+      setCurrency: (cur) => set({ currency: cur }),
+      showToast: (message, submessage = '', type = 'success') =>
+        set({ activeToast: { message, submessage, type } }),
       clearToast: () => set({ activeToast: null }),
 
-      addTarget: (data) => {
+      addTarget: (target) => {
+        const id = 'target-' + Date.now()
         const newTarget: TargetItem = {
-          ...data,
-          id: crypto.randomUUID(),
+          ...target,
+          id,
           currentAmount: 0,
           isFinished: false,
           createdAt: new Date().toISOString(),
-          deadlineType: data.deadlineType || 'fleksibel',
         }
         set((state) => ({ targets: [newTarget, ...state.targets] }))
         const t = getTranslator(get().language)
-        get().showToast(t('toast.target_created'), data.title, 'success')
+        get().showToast(t('toast.target_created'), target.title, 'success')
       },
 
       updateTarget: (id, updated) => {
@@ -127,7 +134,7 @@ export const useAppStore = create<AppState>()(
           targets: state.targets.map((t) => (t.id === id ? { ...t, ...updated } : t)),
         }))
         const t = getTranslator(get().language)
-        get().showToast(t('toast.target_updated'), '', 'info')
+        get().showToast(t('toast.target_updated'), '', 'success')
       },
 
       deleteTarget: (id) => {
@@ -139,61 +146,59 @@ export const useAppStore = create<AppState>()(
         get().showToast(t('toast.target_deleted'), '', 'info')
       },
 
-      addTransaction: (targetId, type, amount, keterangan) => {
+      addTransaction: (targetId, type, amount, keterangan = '') => {
+        const id = 'tx-' + Date.now()
         const newTx: TransactionRecord = {
-          id: crypto.randomUUID(),
+          id,
           targetId,
           type,
           amount,
           keterangan,
           date: new Date().toISOString(),
         }
-
         set((state) => {
-          const updatedTargets = state.targets.map((target) => {
-            if (target.id === targetId) {
-              const delta = type === 'setor' ? amount : -amount
-              const newCurrent = Math.max(0, target.currentAmount + delta)
-              const isNowFinished = newCurrent >= target.targetAmount
-              return { ...target, currentAmount: newCurrent, isFinished: isNowFinished }
+          const updatedTargets = state.targets.map((t) => {
+            if (t.id === targetId) {
+              const newAmount =
+                type === 'setor'
+                  ? t.currentAmount + amount
+                  : Math.max(0, t.currentAmount - amount)
+              const isFinished = newAmount >= t.targetAmount
+              return { ...t, currentAmount: newAmount, isFinished }
             }
-            return target
+            return t
           })
-
           return {
             transactions: [newTx, ...state.transactions],
             targets: updatedTargets,
           }
         })
-
+        const target = get().targets.find((t) => t.id === targetId)
         const t = getTranslator(get().language)
-        const currentTarget = get().targets.find((tgt) => tgt.id === targetId)
-        if (type === 'setor') {
-          if (currentTarget?.isFinished) {
-            get().showToast(t('toast.target_achieved'), t('toast.target_achieved_sub', { title: currentTarget.title }), 'success')
-          } else {
-            get().showToast(t('toast.deposit_success'), t('toast.deposit_sub', { amount: formatRupiah(amount) }), 'success')
-          }
+        if (target && target.currentAmount >= target.targetAmount) {
+          get().showToast(t('toast.target_achieved'), t('toast.target_achieved_sub', { title: target.title }), 'success')
+        } else if (type === 'setor') {
+          get().showToast(t('toast.deposit_success'), t('toast.deposit_sub', { amount: formatCurrency(amount, get().currency) }), 'success')
         } else {
-          get().showToast(t('toast.withdraw_success'), t('toast.withdraw_sub', { amount: formatRupiah(amount) }), 'info')
+          get().showToast(t('toast.withdraw_success'), t('toast.withdraw_sub', { amount: formatCurrency(amount, get().currency) }), 'info')
         }
       },
 
       undoTransaction: (transactionId) => {
+        const tx = get().transactions.find((t) => t.id === transactionId)
+        if (!tx) return
         set((state) => {
-          const tx = state.transactions.find((t) => t.id === transactionId)
-          if (!tx) return state
-
-          const updatedTargets = state.targets.map((target) => {
-            if (target.id === tx.targetId) {
-              const delta = tx.type === 'setor' ? -tx.amount : tx.amount
-              const newCurrent = Math.max(0, target.currentAmount + delta)
-              const isFinished = newCurrent >= target.targetAmount
-              return { ...target, currentAmount: newCurrent, isFinished }
+          const updatedTargets = state.targets.map((t) => {
+            if (t.id === tx.targetId) {
+              const newAmount =
+                tx.type === 'setor'
+                  ? Math.max(0, t.currentAmount - tx.amount)
+                  : t.currentAmount + tx.amount
+              const isFinished = newAmount >= t.targetAmount
+              return { ...t, currentAmount: newAmount, isFinished }
             }
-            return target
+            return t
           })
-
           return {
             transactions: state.transactions.filter((t) => t.id !== transactionId),
             targets: updatedTargets,
@@ -203,31 +208,34 @@ export const useAppStore = create<AppState>()(
         get().showToast(t('toast.undo_success'), '', 'info')
       },
 
-      addNabarRoom: (roomData) => {
+      addNabarRoom: (room) => {
+        const id = 'nabar-' + Date.now()
         const newRoom: NabarRoom = {
-          ...roomData,
-          id: crypto.randomUUID(),
+          ...room,
+          id,
           currentAmount: 0,
           membersCount: 1,
-          members: [{ name: 'Saya', avatarBg: '#93C5FD' }],
-          pendingMembers: [],
+          members: [{ name: 'Saya (Owner)', avatarBg: '#93C5FD' }],
           recentActivities: [],
         }
         set((state) => ({ nabarRooms: [newRoom, ...state.nabarRooms] }))
         const t = getTranslator(get().language)
-        get().showToast(t('toast.nabar_created'), roomData.title, 'success')
+        get().showToast(t('toast.nabar_created'), room.title, 'success')
       },
 
       addNabarTransaction: (roomId, amount, isIncome, name, action) => {
+        const timeAgoStr = 'Baru saja'
         set((state) => ({
           nabarRooms: state.nabarRooms.map((r) => {
             if (r.id === roomId) {
-              const newCurrent = Math.max(0, r.currentAmount + (isIncome ? amount : -amount))
+              const newAmount = isIncome
+                ? r.currentAmount + amount
+                : Math.max(0, r.currentAmount - amount)
               return {
                 ...r,
-                currentAmount: newCurrent,
+                currentAmount: newAmount,
                 recentActivities: [
-                  { name, action, amount, isIncome, timeAgo: 'Baru saja' },
+                  { name, action, amount, isIncome, timeAgo: timeAgoStr },
                   ...r.recentActivities,
                 ],
               }
@@ -236,7 +244,7 @@ export const useAppStore = create<AppState>()(
           }),
         }))
         const t = getTranslator(get().language)
-        get().showToast(t('toast.nabar_activity'), t('toast.nabar_activity_sub', { name, amount: formatRupiah(amount) }), 'success')
+        get().showToast(t('toast.nabar_activity'), t('toast.nabar_activity_sub', { name, amount: formatCurrency(amount, get().currency) }), 'success')
       },
 
       joinNabarRoom: (roomId, name) => {
@@ -305,10 +313,68 @@ export const useAppStore = create<AppState>()(
   )
 )
 
-export const formatRupiah = (val: number) => {
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    minimumFractionDigits: 0,
-  }).format(val)
+export const exchangeRates: Record<CurrencyCode, number> = {
+  IDR: 1,
+  USD: 1 / 15500, // 1 USD = 15.500 IDR
+  EUR: 1 / 17000, // 1 EUR = 17.000 IDR
+  JPY: 1 / 105,   // 1 JPY = 105 IDR
+  CNY: 1 / 2150,  // 1 CNY = 2.150 IDR
+  THB: 1 / 450,   // 1 THB = 450 IDR
+  INR: 1 / 185,   // 1 INR = 185 IDR
+  GBP: 1 / 20000, // 1 GBP = 20.000 IDR
 }
+
+export const currencySymbolMap: Record<CurrencyCode, string> = {
+  IDR: 'Rp',
+  USD: '$',
+  EUR: '€',
+  JPY: '¥',
+  CNY: '¥',
+  THB: '฿',
+  INR: '₹',
+  GBP: '£',
+}
+
+// Convert user input entered in `activeCurrency` into base IDR amount
+export const toBaseIDR = (amountInActiveCurrency: number, currency: CurrencyCode = 'IDR'): number => {
+  const rate = exchangeRates[currency] || 1
+  return Math.round(amountInActiveCurrency / rate)
+}
+
+// Convert base IDR amount into active currency amount (numeric)
+export const fromBaseIDR = (baseAmountIDR: number, currency: CurrencyCode = 'IDR'): number => {
+  const rate = exchangeRates[currency] || 1
+  return baseAmountIDR * rate
+}
+
+export const formatCurrency = (val: number, currency: CurrencyCode = 'IDR') => {
+  const localeMap: Record<CurrencyCode, string> = {
+    IDR: 'id-ID',
+    USD: 'en-US',
+    EUR: 'de-DE',
+    JPY: 'ja-JP',
+    CNY: 'zh-CN',
+    THB: 'th-TH',
+    INR: 'hi-IN',
+    GBP: 'en-GB',
+  }
+  const rate = exchangeRates[currency] || 1
+  const converted = val * rate
+  const locale = localeMap[currency] || 'id-ID'
+
+  const maxDecimals = currency === 'IDR' || currency === 'JPY' ? 0 : 2
+
+  return new Intl.NumberFormat(locale, {
+    style: 'currency',
+    currency: currency,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: maxDecimals,
+  }).format(converted)
+}
+
+export const formatRupiah = (val: number) => {
+  const currentCurrency = useAppStore.getState().currency || 'IDR'
+  return formatCurrency(val, currentCurrency)
+}
+
+

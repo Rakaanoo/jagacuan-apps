@@ -3,7 +3,8 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Plus, Minus, X, Banknote, Menu } from 'lucide-react'
-import { useAppStore } from '@/lib/store'
+import { useAppStore, toBaseIDR, currencySymbolMap, CurrencyCode } from '@/lib/store'
+import { useTranslation } from '@/lib/i18n'
 
 interface Props {
   isOpen: boolean
@@ -12,20 +13,32 @@ interface Props {
 }
 
 export default function CatatTabunganModal({ isOpen, onClose, targetId }: Props) {
-  const { addTransaction, theme } = useAppStore()
+  const { addTransaction, theme, currency, language } = useAppStore()
+  const { t } = useTranslation()
   const isDark = theme === 'dark'
 
   const [txType, setTxType] = useState<'setor' | 'tarik'>('setor')
   const [nominalStr, setNominalStr] = useState('10.000')
   const [keterangan, setKeterangan] = useState('')
 
-  const quickAmounts = [10000, 20000, 100000]
+  const quickAmountsMap: Record<CurrencyCode, number[]> = {
+    IDR: [10000, 50000, 100000],
+    USD: [10, 50, 100],
+    EUR: [10, 50, 100],
+    JPY: [1000, 5000, 10000],
+    CNY: [50, 100, 500],
+    THB: [100, 500, 1000],
+    INR: [500, 1000, 5000],
+    GBP: [10, 50, 100],
+  }
+  const quickAmounts = quickAmountsMap[currency] || [10000, 50000, 100000]
 
   const handleSave = () => {
-    const amount = parseInt(nominalStr.replace(/\D/g, '')) || 0
-    if (amount <= 0) return
+    const enteredAmount = parseInt(nominalStr.replace(/\D/g, '')) || 0
+    if (enteredAmount <= 0) return
 
-    addTransaction(targetId, txType, amount, keterangan)
+    const baseAmount = toBaseIDR(enteredAmount, currency)
+    addTransaction(targetId, txType, baseAmount, keterangan)
     onClose()
   }
 
@@ -171,7 +184,7 @@ export default function CatatTabunganModal({ isOpen, onClose, targetId }: Props)
                   </div>
                   <div style={{ flex: 1 }}>
                     <label style={{ fontSize: '11px', color: inputBorder, fontWeight: '600', display: 'block' }}>
-                      Nominal
+                      Nominal ({currencySymbolMap[currency] || currency})
                     </label>
                     <input
                       type="text"
@@ -215,13 +228,12 @@ export default function CatatTabunganModal({ isOpen, onClose, targetId }: Props)
                     border: `1px solid ${quickBtnBorder}`,
                     backgroundColor: quickBtnBg,
                     color: textColor,
-                    fontSize: '14px',
+                    fontSize: '13px',
                     fontWeight: '600',
                     cursor: 'pointer',
-                    fontFamily: 'inherit',
                   }}
                 >
-                  {amt.toLocaleString('id-ID')}
+                  +{currencySymbolMap[currency] || ''}{amt.toLocaleString('id-ID')}
                 </button>
               ))}
             </div>

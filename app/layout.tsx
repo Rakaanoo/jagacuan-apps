@@ -1,5 +1,5 @@
-import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import type { Metadata, Viewport } from "next";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 
 export const metadata: Metadata = {
@@ -25,7 +25,27 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="id">
-      <body>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  const savedTheme = localStorage.getItem("jagacuan-theme");
+                  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+                  const html = document.documentElement;
+                  if (savedTheme) {
+                    html.setAttribute("data-theme", savedTheme);
+                  } else if (prefersDark) {
+                    html.setAttribute("data-theme", "dark");
+                  }
+                } catch (e) {}
+              })();
+            `,
+          }}
+        />
+      </head>
+      <body data-theme="light">
         {children}
         <ServiceWorkerRegister />
       </body>

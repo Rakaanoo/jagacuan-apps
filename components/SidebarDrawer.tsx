@@ -14,7 +14,7 @@ interface Props {
 }
 
 export default function SidebarDrawer({ isOpen, onClose, onOpenBackup }: Props) {
-  const { theme, toggleTheme, showToast, language, setLanguage } = useAppStore()
+  const { theme, toggleTheme, showToast, language, setLanguage, currency, setCurrency } = useAppStore()
   const { t } = useTranslation()
   const [activeModal, setActiveModal] = useState<string | null>(null)
   const [currentUser, setCurrentUser] = useState<any>(null)
@@ -42,6 +42,30 @@ export default function SidebarDrawer({ isOpen, onClose, onOpenBackup }: Props) 
     { id: 'rating', label: t('sidebar.rating'), icon: <Star size={22} />, desc: t('sidebar.rating_desc') },
   ]
 
+  const languagesList = [
+    { code: 'id', name: 'Bahasa Indonesia', flag: '🇮🇩', currency: 'IDR' },
+    { code: 'en', name: 'English (US)', flag: '🇺🇸', currency: 'USD' },
+    { code: 'de', name: 'Deutsch (Jerman)', flag: '🇩🇪', currency: 'EUR' },
+    { code: 'fr', name: 'Français (Prancis)', flag: '🇫🇷', currency: 'EUR' },
+    { code: 'it', name: 'Italiano (Italia)', flag: '🇮🇹', currency: 'EUR' },
+    { code: 'es', name: 'Español (Spanyol)', flag: '🇪🇸', currency: 'EUR' },
+    { code: 'ja', name: '日本語 (Jepang)', flag: '🇯🇵', currency: 'JPY' },
+    { code: 'zh', name: '中文 (China)', flag: '🇨🇳', currency: 'CNY' },
+    { code: 'th', name: 'ไทย (Thailand)', flag: '🇹🇭', currency: 'THB' },
+    { code: 'hi', name: 'हिन्दी (India)', flag: '🇮🇳', currency: 'INR' },
+  ] as const
+
+  const currenciesList = [
+    { code: 'IDR', name: 'Rupiah (Rp)', flag: '🇮🇩' },
+    { code: 'USD', name: 'US Dollar ($)', flag: '🇺🇸' },
+    { code: 'EUR', name: 'Euro (€)', flag: '🇪🇺' },
+    { code: 'JPY', name: 'Yen (¥)', flag: '🇯🇵' },
+    { code: 'CNY', name: 'Yuan (¥)', flag: '🇨🇳' },
+    { code: 'THB', name: 'Baht (฿)', flag: '🇹🇭' },
+    { code: 'INR', name: 'Rupee (₹)', flag: '🇮🇳' },
+    { code: 'GBP', name: 'Pound (£)', flag: '🇬🇧' },
+  ] as const
+
   const handleMenuClick = (id: string) => {
     if (id === 'backup') {
       onClose()
@@ -50,10 +74,6 @@ export default function SidebarDrawer({ isOpen, onClose, onOpenBackup }: Props) 
       toggleTheme()
       const newThemeStr = t(theme === 'dark' ? 'sidebar.theme_cream' : 'sidebar.theme_dark')
       showToast(t('toast.theme_changed', { theme: newThemeStr }), '', 'info')
-    } else if (id === 'bahasa') {
-      const newLang = language === 'id' ? 'en' : 'id'
-      setLanguage(newLang)
-      showToast(newLang === 'en' ? 'Language changed to English' : 'Bahasa diubah ke Bahasa Indonesia', '', 'info')
     } else {
       setActiveModal(id)
     }
@@ -100,6 +120,7 @@ export default function SidebarDrawer({ isOpen, onClose, onOpenBackup }: Props) 
               display: 'flex',
               flexDirection: 'column',
               zIndex: 101,
+              overflowY: 'auto',
             }}
           >
             {/* Header */}
@@ -233,9 +254,11 @@ export default function SidebarDrawer({ isOpen, onClose, onOpenBackup }: Props) 
                     padding: '18px',
                     boxShadow: '0 8px 30px rgba(0,0,0,0.2)',
                     border: `1px solid ${isDark ? '#353846' : '#E0D5C3'}`,
+                    maxHeight: '340px',
+                    overflowY: 'auto',
                   }}
                 >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
                     <h4 style={{ fontWeight: '700', fontSize: '15px' }}>
                       {menuItems.find((m) => m.id === activeModal)?.label}
                     </h4>
@@ -246,9 +269,79 @@ export default function SidebarDrawer({ isOpen, onClose, onOpenBackup }: Props) 
                       <X size={16} color={isDark ? '#A0A5B5' : '#7A6F60'} />
                     </button>
                   </div>
-                  <p style={{ fontSize: '13px', color: isDark ? '#A0A5B5' : '#7A6F60', lineHeight: 1.4 }}>
-                    {menuItems.find((m) => m.id === activeModal)?.desc}
-                  </p>
+
+                  {activeModal === 'bahasa' ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                      {languagesList.map((l) => (
+                        <button
+                          key={l.code}
+                          onClick={() => {
+                            setLanguage(l.code as any)
+                            setCurrency(l.currency as any)
+                            setActiveModal(null)
+                            showToast(`Bahasa: ${l.name} • Mata Uang: ${l.currency}`, '', 'info')
+                          }}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                            padding: '10px 12px',
+                            borderRadius: '10px',
+                            backgroundColor: language === l.code ? (isDark ? '#7C8BFF' : '#2C2418') : 'transparent',
+                            color: language === l.code ? '#FFFFFF' : (isDark ? '#FFFFFF' : '#2C2418'),
+                            border: 'none',
+                            cursor: 'pointer',
+                            fontSize: '13px',
+                            fontWeight: '600',
+                            textAlign: 'left',
+                          }}
+                        >
+                          <span>{l.flag}</span>
+                          <span style={{ flex: 1 }}>{l.name}</span>
+                          <span style={{ fontSize: '11px', opacity: 0.75 }}>({l.currency})</span>
+                        </button>
+                      ))}
+                    </div>
+                  ) : activeModal === 'mata_uang' ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                      {currenciesList.map((c) => {
+                        const isSel = currency === c.code
+                        return (
+                          <button
+                            key={c.code}
+                            onClick={() => {
+                              setCurrency(c.code as any)
+                              setActiveModal(null)
+                              showToast(`Mata Uang diubah ke ${c.code} (${c.name})`, '', 'info')
+                            }}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                              padding: '10px 12px',
+                              borderRadius: '10px',
+                              backgroundColor: isSel ? (isDark ? '#7C8BFF' : '#2C2418') : 'transparent',
+                              color: isSel ? '#FFFFFF' : (isDark ? '#FFFFFF' : '#2C2418'),
+                              border: 'none',
+                              cursor: 'pointer',
+                              fontSize: '13px',
+                              fontWeight: '600',
+                            }}
+                          >
+                            <span style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                              <span>{c.flag}</span>
+                              <span>{c.code}</span>
+                            </span>
+                            <span style={{ fontSize: '12px', opacity: 0.8 }}>{c.name}</span>
+                          </button>
+                        )
+                      })}
+                    </div>
+                  ) : (
+                    <p style={{ fontSize: '13px', color: isDark ? '#A0A5B5' : '#7A6F60', lineHeight: 1.4 }}>
+                      {menuItems.find((m) => m.id === activeModal)?.desc}
+                    </p>
+                  )}
                 </motion.div>
               )}
             </AnimatePresence>
@@ -258,3 +351,4 @@ export default function SidebarDrawer({ isOpen, onClose, onOpenBackup }: Props) 
     </AnimatePresence>
   )
 }
+

@@ -76,6 +76,8 @@ const id: Record<string, string> = {
   'detail.progress': 'Progres',
   'detail.target': 'Target',
   'detail.remaining': 'Sisa',
+  'detail.collected': 'Terkumpul',
+  'detail.shortage': 'Kekurangan',
   'detail.deadline': 'Deadline',
   'detail.deadline_flexible': 'Fleksibel',
   'detail.days_remaining': '{{days}} hari lagi',
@@ -306,6 +308,8 @@ const en: Record<string, string> = {
   'detail.progress': 'Progress',
   'detail.target': 'Target',
   'detail.remaining': 'Remaining',
+  'detail.collected': 'Collected',
+  'detail.shortage': 'Shortage',
   'detail.deadline': 'Deadline',
   'detail.deadline_flexible': 'Flexible',
   'detail.days_remaining': '{{days}} days left',
@@ -464,13 +468,298 @@ const en: Record<string, string> = {
   'common.delete': 'Delete',
 }
 
-const dictionaries: Record<string, Record<string, string>> = { id, en }
+const de: Record<string, string> = {
+  ...en,
+  'page.calendar': 'Kalender',
+  'page.statistics': 'Statistiken',
+  'page.rooms': 'Räume',
+  'page.search_placeholder': 'Sparziel suchen...',
+  'page.tab_active': 'Aktiv',
+  'page.tab_finished': 'Beendet',
+  'sidebar.menu': 'Menü',
+  'sidebar.archive': 'Zielarchiv',
+  'sidebar.language': 'Sprache',
+  'sidebar.currency': 'Währung',
+  'sidebar.theme': 'Thema: {{mode}}',
+  'sidebar.backup': 'Sicherung & Wiederherstellung',
+  'sidebar.info': 'App-Info',
+  'sidebar.rating': 'Bewerten',
+  'select_type.title': 'Zieltyp wählen',
+  'select_type.nabung': 'Sparziel',
+  'select_type.berkala': 'Regelmäßiges Sparen',
+  'select_type.nabar': 'Gruppensparen',
+  'create.title_nabung': 'Neues Sparziel',
+  'create.button_save': 'Ziel speichern',
+  'detail.progress': 'Fortschritt',
+  'detail.target': 'Ziel',
+  'detail.remaining': 'Verbleibend',
+  'detail.deposit': 'Einzahlen',
+  'detail.withdraw': 'Abheben',
+  'detail.transaction_history': 'Transaktionsverlauf',
+  'common.cancel': 'Abbrechen',
+  'common.save': 'Speichern',
+  'common.back': 'Zurück',
+  'common.delete': 'Löschen',
+}
+
+const fr: Record<string, string> = {
+  ...en,
+  'page.calendar': 'Calendrier',
+  'page.statistics': 'Statistiques',
+  'page.rooms': 'Groupes',
+  'page.search_placeholder': 'Rechercher un objectif...',
+  'page.tab_active': 'En cours',
+  'page.tab_finished': 'Terminé',
+  'sidebar.menu': 'Menu',
+  'sidebar.archive': 'Archives',
+  'sidebar.language': 'Langue',
+  'sidebar.currency': 'Devise',
+  'sidebar.theme': 'Thème : {{mode}}',
+  'sidebar.backup': 'Sauvegarde et Restauration',
+  'sidebar.info': 'Infos App',
+  'sidebar.rating': 'Évaluer',
+  'select_type.title': 'Choisir un objectif',
+  'select_type.nabung': 'Objectif d’épargne',
+  'select_type.berkala': 'Épargne périodique',
+  'select_type.nabar': 'Épargne de groupe',
+  'create.title_nabung': 'Nouvel objectif',
+  'create.button_save': 'Enregistrer',
+  'detail.progress': 'Progrès',
+  'detail.target': 'Objectif',
+  'detail.remaining': 'Reste',
+  'detail.deposit': 'Déposer',
+  'detail.withdraw': 'Retirer',
+  'detail.transaction_history': 'Historique des transactions',
+  'common.cancel': 'Annuler',
+  'common.save': 'Enregistrer',
+  'common.back': 'Retour',
+  'common.delete': 'Supprimer',
+}
+
+const it: Record<string, string> = {
+  ...en,
+  'page.calendar': 'Calendario',
+  'page.statistics': 'Statistiche',
+  'page.rooms': 'Stanze',
+  'page.search_placeholder': 'Cerca obiettivo...',
+  'page.tab_active': 'Attivo',
+  'page.tab_finished': 'Completato',
+  'sidebar.menu': 'Menu',
+  'sidebar.archive': 'Archivio',
+  'sidebar.language': 'Lingua',
+  'sidebar.currency': 'Valuta',
+  'sidebar.theme': 'Tema: {{mode}}',
+  'sidebar.backup': 'Backup e Ripristino',
+  'sidebar.info': 'Info App',
+  'sidebar.rating': 'Valuta',
+  'select_type.title': 'Scegli tipo obiettivo',
+  'select_type.nabung': 'Obiettivo risparmio',
+  'select_type.berkala': 'Risparmio periodico',
+  'select_type.nabar': 'Risparmio di gruppo',
+  'create.title_nabung': 'Nuovo obiettivo',
+  'create.button_save': 'Salva obiettivo',
+  'detail.progress': 'Progresso',
+  'detail.target': 'Obiettivo',
+  'detail.remaining': 'Rimanente',
+  'detail.deposit': 'Deposita',
+  'detail.withdraw': 'Preleva',
+  'detail.transaction_history': 'Cronologia transazioni',
+  'common.cancel': 'Annulla',
+  'common.save': 'Salva',
+  'common.back': 'Indietro',
+  'common.delete': 'Elimina',
+}
+
+const es: Record<string, string> = {
+  ...en,
+  'page.calendar': 'Calendario',
+  'page.statistics': 'Estadísticas',
+  'page.rooms': 'Grupos',
+  'page.search_placeholder': 'Buscar meta de ahorro...',
+  'page.tab_active': 'Activo',
+  'page.tab_finished': 'Completado',
+  'sidebar.menu': 'Menú',
+  'sidebar.archive': 'Archivo de metas',
+  'sidebar.language': 'Idioma',
+  'sidebar.currency': 'Moneda',
+  'sidebar.theme': 'Tema: {{mode}}',
+  'sidebar.backup': 'Copia de seguridad y restauración',
+  'sidebar.info': 'Info de app',
+  'sidebar.rating': 'Calificar',
+  'select_type.title': 'Elegir tipo de meta',
+  'select_type.nabung': 'Meta de ahorro',
+  'select_type.berkala': 'Ahorro periódico',
+  'select_type.nabar': 'Ahorro grupal',
+  'create.title_nabung': 'Nueva meta de ahorro',
+  'create.button_save': 'Guardar meta',
+  'detail.progress': 'Progreso',
+  'detail.target': 'Meta',
+  'detail.remaining': 'Restante',
+  'detail.deposit': 'Depositar',
+  'detail.withdraw': 'Retirar',
+  'detail.transaction_history': 'Historial de transacciones',
+  'common.cancel': 'Cancelar',
+  'common.save': 'Guardar',
+  'common.back': 'Volver',
+  'common.delete': 'Eliminar',
+}
+
+const ja: Record<string, string> = {
+  ...en,
+  'page.calendar': 'カレンダー',
+  'page.statistics': '統計',
+  'page.rooms': 'グループ',
+  'page.search_placeholder': '貯金目標を検索...',
+  'page.tab_active': '進行中',
+  'page.tab_finished': '完了',
+  'sidebar.menu': 'メニュー',
+  'sidebar.archive': 'アーカイブ',
+  'sidebar.language': '言語',
+  'sidebar.currency': '通貨',
+  'sidebar.theme': 'テーマ: {{mode}}',
+  'sidebar.backup': 'バックアップと復元',
+  'sidebar.info': 'アプリ情報',
+  'sidebar.rating': 'アプリを評価',
+  'select_type.title': '目標タイプを選択',
+  'select_type.nabung': '目標貯金',
+  'select_type.berkala': '定期貯金',
+  'select_type.nabar': '共同貯金',
+  'create.title_nabung': '新規貯金目標',
+  'create.button_save': '目標を保存',
+  'detail.progress': '進捗',
+  'detail.target': '目標',
+  'detail.remaining': '残り',
+  'detail.deposit': '入金',
+  'detail.withdraw': '出金',
+  'detail.transaction_history': '取引履歴',
+  'common.cancel': 'キャンセル',
+  'common.save': '保存',
+  'common.back': '戻る',
+  'common.delete': '削除',
+}
+
+const zh: Record<string, string> = {
+  ...en,
+  'page.calendar': '日历',
+  'page.statistics': '统计',
+  'page.rooms': '群组',
+  'page.search_placeholder': '搜索储蓄目标...',
+  'page.tab_active': '进行中',
+  'page.tab_finished': '已完成',
+  'sidebar.menu': '菜单',
+  'sidebar.archive': '目标归档',
+  'sidebar.language': '语言',
+  'sidebar.currency': '货币',
+  'sidebar.theme': '主题: {{mode}}',
+  'sidebar.backup': '备份与恢复',
+  'sidebar.info': '应用信息',
+  'sidebar.rating': '评价应用',
+  'select_type.title': '选择目标类型',
+  'select_type.nabung': '个人目标储蓄',
+  'select_type.berkala': '定期储蓄',
+  'select_type.nabar': '多人共同储蓄',
+  'create.title_nabung': '新建储蓄目标',
+  'create.button_save': '保存目标',
+  'detail.progress': '进度',
+  'detail.target': '目标',
+  'detail.remaining': '剩余',
+  'detail.deposit': '存入',
+  'detail.withdraw': '取出',
+  'detail.transaction_history': '交易记录',
+  'common.cancel': '取消',
+  'common.save': '保存',
+  'common.back': '返回',
+  'common.delete': '删除',
+}
+
+const th: Record<string, string> = {
+  ...en,
+  'page.calendar': 'ปฏิทิน',
+  'page.statistics': 'สถิติ',
+  'page.rooms': 'กลุ่มออมเงิน',
+  'page.search_placeholder': 'ค้นหาเป้าหมายการออม...',
+  'page.tab_active': 'กำลังออม',
+  'page.tab_finished': 'สำเร็จแล้ว',
+  'sidebar.menu': 'เมนู',
+  'sidebar.archive': 'คลังเป้าหมาย',
+  'sidebar.language': 'ภาษา',
+  'sidebar.currency': 'สกุลเงิน',
+  'sidebar.theme': 'ธีม: {{mode}}',
+  'sidebar.backup': 'สำรองและฟื้นฟูข้อมูล',
+  'sidebar.info': 'เกี่ยวกับแอป',
+  'sidebar.rating': 'ให้คะแนนแอป',
+  'select_type.title': 'เลือกประเภทเป้าหมาย',
+  'select_type.nabung': 'เป้าหมายออมเงินส่วนตัว',
+  'select_type.berkala': 'การออมเงินประจำ',
+  'select_type.nabar': 'ออมเงินร่วมกัน',
+  'create.title_nabung': 'สร้างเป้าหมายการออมใหม่',
+  'create.button_save': 'บันทึกเป้าหมาย',
+  'detail.progress': 'ความคืบหน้า',
+  'detail.target': 'เป้าหมาย',
+  'detail.remaining': 'คงเหลือ',
+  'detail.deposit': 'ฝากเงิน',
+  'detail.withdraw': 'ถอนเงิน',
+  'detail.transaction_history': 'ประวัติธุรกรรม',
+  'common.cancel': 'ยกเลิก',
+  'common.save': 'บันทึก',
+  'common.back': 'ย้อนกลับ',
+  'common.delete': 'ลบ',
+}
+
+const hi: Record<string, string> = {
+  ...en,
+  'page.calendar': 'कैलेण्डर',
+  'page.statistics': 'आंकड़े',
+  'page.rooms': 'समूह',
+  'page.search_placeholder': 'बचत लक्ष्य खोजें...',
+  'page.tab_active': 'सक्रिय',
+  'page.tab_finished': 'पूरा हुआ',
+  'sidebar.menu': 'मेनू',
+  'sidebar.archive': 'लक्ष्य संग्रह',
+  'sidebar.language': 'भाषा',
+  'sidebar.currency': 'मुद्रा',
+  'sidebar.theme': 'थीम: {{mode}}',
+  'sidebar.backup': 'बैकअप और पुनर्प्राप्ति',
+  'sidebar.info': 'ऐप जानकारी',
+  'sidebar.rating': 'रेटिंग दें',
+  'select_type.title': 'लक्ष्य प्रकार चुनें',
+  'select_type.nabung': 'व्यक्तिगत बचत लक्ष्य',
+  'select_type.berkala': 'नियमित बचत',
+  'select_type.nabar': 'सामूहिक बचत',
+  'create.title_nabung': 'नया बचत लक्ष्य',
+  'create.button_save': 'लक्ष्य सहेजें',
+  'detail.progress': 'प्रगति',
+  'detail.target': 'लक्ष्य',
+  'detail.remaining': 'शेष',
+  'detail.deposit': 'जमा करें',
+  'detail.withdraw': 'निकासी करें',
+  'detail.transaction_history': 'लेनदेन इतिहास',
+  'common.cancel': 'रद्द करें',
+  'common.save': 'सहेजें',
+  'common.back': 'पीछे जाएं',
+  'common.delete': 'हटाएं',
+}
+
+export type LanguageCode = 'id' | 'en' | 'de' | 'fr' | 'it' | 'es' | 'ja' | 'zh' | 'th' | 'hi'
+
+const dictionaries: Record<LanguageCode, Record<string, string>> = {
+  id,
+  en,
+  de,
+  fr,
+  it,
+  es,
+  ja,
+  zh,
+  th,
+  hi,
+}
 
 // ===== Translation Function =====
 
 type TranslateVars = Record<string, string | number>
 
-function translate(lang: 'id' | 'en', key: string, vars?: TranslateVars): string {
+function translate(lang: LanguageCode, key: string, vars?: TranslateVars): string {
   const dict = dictionaries[lang] || dictionaries['id']
   let text = dict[key] || dictionaries['id'][key] || key
 
@@ -483,21 +772,24 @@ function translate(lang: 'id' | 'en', key: string, vars?: TranslateVars): string
   return text
 }
 
+
 // ===== React Hook =====
 
 export function useTranslation() {
   const language = useAppStore((s) => s.language)
+  const currency = useAppStore((s) => s.currency)
 
   const t = (key: string, vars?: TranslateVars): string => {
     return translate(language, key, vars)
   }
 
-  return { t, language }
+  return { t, language, currency }
 }
 
 // ===== Non-hook translate for store actions =====
-export function getTranslator(lang: 'id' | 'en') {
+export function getTranslator(lang: LanguageCode) {
   return (key: string, vars?: TranslateVars): string => {
     return translate(lang, key, vars)
   }
 }
+

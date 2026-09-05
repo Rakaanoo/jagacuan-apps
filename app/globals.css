@@ -1,159 +1,54 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
-  --bg-cream: #FAF7F2;
-  --bg-cream-card: #FFFFFF;
-  --bg-cream-dark: #EFEADF;
-  --text-brown: #231F20;
-  --text-brown-muted: #6E655B;
-  --border-cream: #E8E1D5;
+  --figma-bg: #1E1E1E;
+  --figma-panel-bg: #2C2C2C;
+  --figma-panel-border: #383838;
+  --figma-text: #E5E5E5;
+  --figma-text-muted: #8E8E8E;
+  --figma-accent: #0D99FF;
+  --figma-accent-hover: #007BE5;
 
-  --bg-dark-sheet: #1C1D22;
-  --bg-dark-card: #282930;
-  --bg-dark-input: #23242A;
-  
-  --accent-blue: #6366F1;
-  --accent-green: #16A34A;
-  --accent-red: #DC2626;
-  --accent-gold: #D97706;
-}
+  /* App Light Tokens */
+  --app-cream-bg: #FAF7F2;
+  --app-cream-card: #FAF5ED;
+  --app-cream-header: #EBE4D8;
+  --app-cream-text: #1C130D;
+  --app-cream-muted: #7A7067;
+  --app-cream-border: #E3DDD1;
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-html {
-  width: 100%;
-  min-height: 100vh;
-  overflow-x: hidden;
-  background-color: var(--bg-cream);
+  /* App Dark Tokens */
+  --app-dark-bg: #191A23;
+  --app-dark-card: #202230;
+  --app-dark-input: #232534;
+  --app-dark-text: #FFFFFF;
+  --app-dark-muted: #9DA3B4;
+  --app-dark-border: #2D3043;
+  --app-dark-accent: #7C8CFF;
+  --app-dark-green: #4EAA79;
+  --app-dark-red: #E57373;
 }
 
-body {
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-  background-color: var(--bg-cream);
-  color: var(--text-brown);
-  width: 100%;
-  max-width: 480px;
-  margin: 0 auto;
-  min-height: 100vh;
-  position: relative;
-  overflow-x: hidden;
-  box-shadow: 0 0 50px rgba(0, 0, 0, 0.08);
-  transition: background-color 0.25s ease, color 0.25s ease;
-}
-
-/* Background circles decoration */
-.bg-blob {
-  position: absolute;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(224, 214, 198, 0.5) 0%, rgba(250, 247, 242, 0) 70%);
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-  width: 5px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.12);
-  border-radius: 6px;
-}
-
-/* Level badge style */
-.level-badge-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background-color: #231F20;
-  color: #FACC15;
-  border-radius: 999px;
-  padding: 5px 12px;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.2px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
-  transition: transform 0.15s ease;
-}
-
-.level-badge-pill:active {
-  transform: scale(0.96);
-}
-
-/* Bottom Nav */
-.bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100%;
-  max-width: 480px;
-  background: rgba(250, 247, 242, 0.95);
-  backdrop-filter: blur(10px);
-  border-top: 1px solid var(--border-cream);
-  padding: 10px 24px 22px;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  z-index: 50;
-}
-
-.bottom-nav-tab {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-brown-muted);
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 8px 24px;
-  border-radius: 999px;
-  transition: all 0.2s ease;
-}
-
-.bottom-nav-tab.active {
-  background-color: #EFEADF;
-  color: var(--text-brown);
-  font-weight: 700;
-}
-
-/* Landscape / Screen Rotation & Short Viewport Adaptations */
-@media (max-height: 600px) {
-  main {
-    padding-bottom: 75px !important;
+@layer utilities {
+  .bg-figma {
+    background-color: var(--figma-bg);
   }
-  .empty-state-container {
-    padding: 16px 0 12px !important;
+  .panel-bg {
+    background-color: var(--figma-panel-bg);
+    border-color: var(--figma-panel-border);
   }
-  .empty-state-logo {
-    height: 32px !important;
-    margin-bottom: 12px !important;
+  .text-figma {
+    color: var(--figma-text);
   }
-  .empty-state-title {
-    font-size: 16px !important;
-    margin-bottom: 4px !important;
+  .text-muted {
+    color: var(--figma-text-muted);
   }
-  .empty-state-hint {
-    font-size: 13px !important;
+  .accent {
+    color: var(--figma-accent);
   }
-}
-
-@media (orientation: landscape) and (max-height: 550px) {
-  body {
-    max-width: 580px;
-  }
-  .bottom-nav {
-    max-width: 580px;
-    padding: 6px 20px 12px;
+  .accent-hover:hover {
+    color: var(--figma-accent-hover);
   }
 }

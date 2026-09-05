@@ -25,8 +25,11 @@ interface Props {
   onClose: () => void
 }
 
+import { useTranslation } from '@/lib/i18n'
+
 export default function NabarRoomModal({ isOpen, onClose }: Props) {
-  const { showToast, theme } = useAppStore()
+  const { showToast, theme, currency, language } = useAppStore()
+  const { t } = useTranslation()
   const isDark = theme === 'dark'
 
   const [loading, setLoading] = useState(true)

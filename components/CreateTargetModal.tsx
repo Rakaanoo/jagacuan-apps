@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Calendar, Trash2, X, Image as ImageIcon } from 'lucide-react'
-import { useAppStore } from '@/lib/store'
+import { useAppStore, toBaseIDR, currencySymbolMap } from '@/lib/store'
 import { useTranslation } from '@/lib/i18n'
 
 interface Props {
@@ -13,7 +13,7 @@ interface Props {
 }
 
 export default function CreateTargetModal({ isOpen, onClose, targetType }: Props) {
-  const { addTarget, theme } = useAppStore()
+  const { addTarget, theme, currency, language } = useAppStore()
   const { t } = useTranslation()
   const isDark = theme === 'dark'
 
@@ -39,12 +39,14 @@ export default function CreateTargetModal({ isOpen, onClose, targetType }: Props
   }
 
   const handleSave = () => {
-    const amount = parseInt(targetAmountStr.replace(/\D/g, '')) || 0
-    if (!title || amount <= 0) return
+    const enteredAmount = parseInt(targetAmountStr.replace(/\D/g, '')) || 0
+    if (!title || enteredAmount <= 0) return
+
+    const baseAmount = toBaseIDR(enteredAmount, currency)
 
     addTarget({
       title,
-      targetAmount: amount,
+      targetAmount: baseAmount,
       startDate,
       deadlineDate: deadlineDate || undefined,
       note,
@@ -107,14 +109,25 @@ export default function CreateTargetModal({ isOpen, onClose, targetType }: Props
               color: textColor,
               borderTopLeftRadius: '24px',
               borderTopRightRadius: '24px',
-              padding: '24px 20px 32px',
+              padding: '16px 20px 32px',
               maxHeight: '90vh',
               overflowY: 'auto',
               zIndex: 101,
             }}
           >
-            {/* Header cover image section */}
-            <div style={{ marginBottom: '20px' }}>
+            {/* Top Drag Handle Indicator */}
+            <div
+              style={{
+                width: '40px',
+                height: '4px',
+                borderRadius: '2px',
+                backgroundColor: isDark ? '#3D4354' : '#C8BFB0',
+                margin: '0 auto 16px',
+              }}
+            />
+
+            {/* Header cover image upload section */}
+            <div style={{ marginBottom: '18px' }}>
               {coverImage ? (
                 <div style={{ position: 'relative' }}>
                   <img
@@ -122,7 +135,7 @@ export default function CreateTargetModal({ isOpen, onClose, targetType }: Props
                     alt="Cover"
                     style={{
                       width: '100%',
-                      height: '180px',
+                      height: '160px',
                       objectFit: 'cover',
                       borderRadius: '16px',
                     }}
@@ -139,6 +152,7 @@ export default function CreateTargetModal({ isOpen, onClose, targetType }: Props
                   >
                     <span>{imageSizeStr}</span>
                     <button
+                      type="button"
                       onClick={() => setCoverImage(null)}
                       style={{
                         background: 'none',
@@ -162,40 +176,43 @@ export default function CreateTargetModal({ isOpen, onClose, targetType }: Props
                     flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    gap: '8px',
-                    height: '140px',
+                    gap: '10px',
+                    padding: '28px 16px',
                     borderRadius: '16px',
-                    border: `2px dashed ${borderCol}`,
-                    backgroundColor: inputBg,
+                    border: isDark ? '1px dashed #3D4354' : '1px dashed #CBD5E1',
+                    backgroundColor: isDark ? 'rgba(32, 35, 45, 0.4)' : 'rgba(250, 246, 239, 0.6)',
                     cursor: 'pointer',
                     color: accentCol,
+                    transition: 'all 0.2s ease',
                   }}
                 >
-                  <ImageIcon size={32} />
-                  <span style={{ fontSize: '14px', fontWeight: '600' }}>Tambah gambar barang impian</span>
+                  <ImageIcon size={36} color={accentCol} />
+                  <span style={{ fontSize: '14px', fontWeight: '600', color: accentCol }}>
+                    Tambah gambar barang impian
+                  </span>
                   <input type="file" accept="image/*" onChange={handleImageUpload} style={{ display: 'none' }} />
                 </label>
               )}
             </div>
 
             {/* Title */}
-            <h2 style={{ fontSize: '22px', fontWeight: '700', marginBottom: '20px' }}>
+            <h2 style={{ fontSize: '22px', fontWeight: '700', marginBottom: '20px', color: textColor }}>
               {targetType === 'berkala' ? t('create.title_berkala') : t('create.title_nabung')}
             </h2>
 
             {/* Form Fields */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
-              {/* Field: Judul */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {/* Field: Judul / Nama Target */}
               <div style={{ position: 'relative' }}>
                 <div
                   style={{
                     border: `1.5px solid ${accentCol}`,
-                    borderRadius: '12px',
+                    borderRadius: '14px',
                     backgroundColor: inputBg,
-                    padding: '8px 14px 10px',
+                    padding: '10px 14px',
                   }}
                 >
-                  <label style={{ fontSize: '11px', color: accentCol, fontWeight: '600', display: 'block' }}>
+                  <label style={{ fontSize: '11px', color: accentCol, fontWeight: '600', display: 'block', marginBottom: '2px' }}>
                     {t('create.name_label')}
                   </label>
                   <input
@@ -211,23 +228,22 @@ export default function CreateTargetModal({ isOpen, onClose, targetType }: Props
                       fontSize: '15px',
                       outline: 'none',
                       fontFamily: 'inherit',
-                      marginTop: '2px',
                     }}
                   />
                 </div>
               </div>
 
-              {/* Field: Target nominal (Rp) */}
+              {/* Field: Jumlah Target (Rp) */}
               <div style={{ position: 'relative' }}>
                 <div
                   style={{
                     border: `1px solid ${borderCol}`,
-                    borderRadius: '12px',
+                    borderRadius: '14px',
                     backgroundColor: inputBg,
-                    padding: '8px 14px 10px',
+                    padding: '10px 14px',
                   }}
                 >
-                  <label style={{ fontSize: '11px', color: subText, fontWeight: '500', display: 'block' }}>
+                  <label style={{ fontSize: '11px', color: subText, fontWeight: '500', display: 'block', marginBottom: '2px' }}>
                     {t('create.amount_label')}
                   </label>
                   <input
@@ -241,16 +257,15 @@ export default function CreateTargetModal({ isOpen, onClose, targetType }: Props
                       border: 'none',
                       color: textColor,
                       fontSize: '16px',
-                      fontWeight: '600',
+                      fontWeight: '700',
                       outline: 'none',
                       fontFamily: 'inherit',
-                      marginTop: '2px',
                     }}
                   />
                 </div>
               </div>
 
-              {/* Field: Tanggal mulai */}
+              {/* Field: Tanggal Mulai */}
               <div>
                 <label style={{ fontSize: '13px', color: subText, marginBottom: '6px', display: 'block' }}>
                   {t('create.start_date')}
@@ -261,9 +276,10 @@ export default function CreateTargetModal({ isOpen, onClose, targetType }: Props
                     alignItems: 'center',
                     justifyContent: 'space-between',
                     padding: '12px 14px',
-                    borderRadius: '12px',
+                    borderRadius: '14px',
                     backgroundColor: inputBg,
                     border: `1px solid ${borderCol}`,
+                    position: 'relative',
                   }}
                 >
                   <input
@@ -278,9 +294,11 @@ export default function CreateTargetModal({ isOpen, onClose, targetType }: Props
                       outline: 'none',
                       fontFamily: 'inherit',
                       width: '100%',
+                      cursor: 'pointer',
+                      colorScheme: isDark ? 'dark' : 'light',
                     }}
                   />
-                  <Calendar size={18} color={subText} />
+                  <Calendar size={18} color={subText} style={{ pointerEvents: 'none', marginLeft: '8px', flexShrink: 0 }} />
                 </div>
               </div>
 
@@ -292,8 +310,9 @@ export default function CreateTargetModal({ isOpen, onClose, targetType }: Props
                   </label>
                   {deadlineDate && (
                     <button
+                      type="button"
                       onClick={() => setDeadlineDate('')}
-                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: subText }}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: subText, padding: 0 }}
                     >
                       <X size={16} />
                     </button>
@@ -305,15 +324,17 @@ export default function CreateTargetModal({ isOpen, onClose, targetType }: Props
                     alignItems: 'center',
                     justifyContent: 'space-between',
                     padding: '12px 14px',
-                    borderRadius: '12px',
+                    borderRadius: '14px',
                     backgroundColor: inputBg,
                     border: `1px solid ${borderCol}`,
+                    position: 'relative',
                   }}
                 >
                   <input
                     type="date"
                     value={deadlineDate}
                     onChange={(e) => setDeadlineDate(e.target.value)}
+                    placeholder="mm / dd / yyyy"
                     style={{
                       background: 'none',
                       border: 'none',
@@ -322,9 +343,11 @@ export default function CreateTargetModal({ isOpen, onClose, targetType }: Props
                       outline: 'none',
                       fontFamily: 'inherit',
                       width: '100%',
+                      cursor: 'pointer',
+                      colorScheme: isDark ? 'dark' : 'light',
                     }}
                   />
-                  <Calendar size={18} color={subText} />
+                  <Calendar size={18} color={subText} style={{ pointerEvents: 'none', marginLeft: '8px', flexShrink: 0 }} />
                 </div>
               </div>
 
@@ -333,7 +356,7 @@ export default function CreateTargetModal({ isOpen, onClose, targetType }: Props
                 <div
                   style={{
                     border: `1px solid ${borderCol}`,
-                    borderRadius: '12px',
+                    borderRadius: '14px',
                     backgroundColor: inputBg,
                     padding: '10px 14px',
                   }}
@@ -358,7 +381,7 @@ export default function CreateTargetModal({ isOpen, onClose, targetType }: Props
                     }}
                   />
                 </div>
-                <p style={{ fontSize: '11px', color: subText, marginTop: '6px' }}>
+                <p style={{ fontSize: '11px', color: isDark ? '#757B8D' : '#8A8275', marginTop: '6px' }}>
                   Gambar catatan (dioptimalkan otomatis, maks. 1MB)
                 </p>
               </div>
@@ -367,6 +390,7 @@ export default function CreateTargetModal({ isOpen, onClose, targetType }: Props
             {/* Action Buttons */}
             <div style={{ display: 'flex', gap: '12px', marginTop: '28px' }}>
               <button
+                type="button"
                 onClick={onClose}
                 style={{
                   flex: 1,
@@ -384,6 +408,7 @@ export default function CreateTargetModal({ isOpen, onClose, targetType }: Props
                 {t('common.cancel')}
               </button>
               <button
+                type="button"
                 onClick={handleSave}
                 style={{
                   flex: 1,

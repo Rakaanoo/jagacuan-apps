@@ -1,35 +1,33 @@
-'use client'
+"use client"
 
-import { useState, useEffect } from 'react'
-import Image from 'next/image'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Menu, DollarSign, Check, Plus, Users, Calendar as CalendarIcon, PieChart, Search } from 'lucide-react'
-import { useAppStore, formatRupiah, TargetItem } from '@/lib/store'
-import { useTranslation } from '@/lib/i18n'
+import { useState, useEffect } from "react"
+import { motion, AnimatePresence } from "framer-motion"
+import { Menu, DollarSign, Check, Plus, Users, Calendar as CalendarIcon, PieChart, Search } from "lucide-react"
+import { useAppStore, formatRupiah, TargetItem } from "@/lib/store"
+import { useTranslation } from "@/lib/i18n"
 
-import SidebarDrawer from '@/components/SidebarDrawer'
-import SelectTargetTypeModal from '@/components/SelectTargetTypeModal'
-import CreateTargetModal from '@/components/CreateTargetModal'
-import TargetDetailModal from '@/components/TargetDetailModal'
-import NabarRoomModal from '@/components/NabarRoomModal'
-import BackupRestoreModal from '@/components/BackupRestoreModal'
-import CalendarModal from '@/components/CalendarModal'
-import StatisticsModal from '@/components/StatisticsModal'
-import ToastNotification from '@/components/ToastNotification'
+import SidebarDrawer from "@/components/SidebarDrawer"
+import SelectTargetTypeModal from "@/components/SelectTargetTypeModal"
+import CreateTargetModal from "@/components/CreateTargetModal"
+import TargetDetailModal from "@/components/TargetDetailModal"
+import NabarRoomModal from "@/components/NabarRoomModal"
+import BackupRestoreModal from "@/components/BackupRestoreModal"
+import CalendarModal from "@/components/CalendarModal"
+import StatisticsModal from "@/components/StatisticsModal"
+import ToastNotification from "@/components/ToastNotification"
 
 type TabType = 'berjalan' | 'selesai'
 type SortType = 'terbaru' | 'progres' | 'deadline'
 
 export default function Home() {
-  const { targets, theme } = useAppStore()
+  const { targets, theme, language, currency } = useAppStore()
   const { t } = useTranslation()
 
   const isDark = theme === 'dark'
 
   useEffect(() => {
-    const bg = isDark ? '#16171B' : '#FAF7F2'
-    document.documentElement.style.backgroundColor = bg
-    document.body.style.backgroundColor = bg
+    const bg = isDark ? '--app-dark-bg' : '--app-cream-bg'
+    document.documentElement.style.setProperty('--app-bg', bg)
   }, [isDark])
 
   const [activeTab, setActiveTab] = useState<TabType>('berjalan')
@@ -84,12 +82,10 @@ export default function Home() {
 
   return (
     <main
+      className="bg-figma min-h-screen"
       style={{
-        minHeight: '100vh',
-        position: 'relative',
         paddingBottom: '90px',
-        backgroundColor: isDark ? '#16171B' : '#FAF7F2',
-        color: isDark ? '#FFFFFF' : '#2C2418',
+        color: isDark ? '--app-dark-text' : '--app-cream-text',
         transition: 'background-color 0.25s ease, color 0.25s ease',
       }}
     >
@@ -97,191 +93,98 @@ export default function Home() {
 
       {/* Background Decorative Blobs */}
       <div
-        className="bg-blob"
+        className="absolute top-0 right-0 w-24 h-24 -translate-x-1/2 -translate-y-1/2 opacity-20"
         style={{
-          width: '220px',
-          height: '220px',
-          top: '-60px',
-          right: '-60px',
-          opacity: isDark ? 0.2 : 0.6,
+          background: isDark ? 'rgba(35, 36, 52, 0.3)' : 'rgba(250, 247, 242, 0.5)',
+          borderRadius: '50%',
         }}
       />
       <div
-        className="bg-blob"
+        className="absolute bottom-left w-20 h-20 -translate-y-1/2 opacity-15"
         style={{
-          width: '180px',
-          height: '180px',
-          top: '240px',
-          left: '-80px',
-          opacity: isDark ? 0.15 : 0.5,
+          background: isDark ? 'rgba(35, 36, 52, 0.3)' : 'rgba(250, 247, 242, 0.5)',
+          borderRadius: '50%',
         }}
       />
 
-      {/* Top Header Bar */}
-      <header
-        style={{
-          padding: '24px 20px 14px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'flex-start',
-          gap: '10px',
-          position: 'relative',
-          zIndex: 10,
-        }}
-      >
+      {/* Top Header Bar - Figma style */}
+      <header className="phone-status-bar bg-panel-bg border-b border-panel-border flex items-center justify-between px-4 py-3 z-10">
         <button
           onClick={() => setShowSidebar(true)}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', flexShrink: 0 }}
+          className="p-2 rounded-md hover:bg-opacity-20 transition-colors"
+          style={{ flexShrink: 0 }}
         >
-          <Menu size={26} color={isDark ? '#FFFFFF' : '#2C2418'} />
+          <Menu size={24} color={isDark ? 'white' : '#2C2418'} />
         </button>
 
-        <h1 style={{ fontSize: '22px', fontWeight: '800', letterSpacing: '-0.3px', margin: 0 }}>
+        <h1 className="text-xl font-bold tracking-tight" style={{ margin: 0, color: 'var(--app-cream-text)' }}>
           Jagacuan
         </h1>
       </header>
 
-      {/* Quick Action Bar (Kalender, Statistik, Ruang) */}
-      <div style={{ padding: '0 20px 12px', display: 'flex', gap: '8px', justifyContent: 'flex-end', position: 'relative', zIndex: 10 }}>
+      {/* Quick Action Bar */}
+      <div className="px-4 pb-2 flex items-end justify-end gap-2" style={{ position: 'relative', zIndex: 10 }}>
         <button
           onClick={() => setShowCalendarModal(true)}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '5px',
-            backgroundColor: isDark ? '#23242A' : '#FAF6EF',
-            border: `1px solid ${isDark ? '#333644' : '#DDD5C7'}`,
-            borderRadius: '999px',
-            padding: '6px 12px',
-            fontSize: '12px',
-            fontWeight: '600',
-            color: isDark ? '#FFFFFF' : '#2C2418',
-            cursor: 'pointer',
-          }}
+          className="relative inline-flex items-center gap-2 rounded-lg border border-panel-border px-3 py-1.5 text-sm font-medium transition-colors"
+          style={{ background: isDark ? '#23242A' : '#FAF6EF', color: isDark ? 'white' : '#2C2418' }}
         >
-          <CalendarIcon size={14} color="#D97706" />
+          <CalendarIcon size={12} color="#D97706" />
           <span>{t('page.calendar')}</span>
         </button>
 
         <button
           onClick={() => setShowStatsModal(true)}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '5px',
-            backgroundColor: isDark ? '#23242A' : '#FAF6EF',
-            border: `1px solid ${isDark ? '#333644' : '#DDD5C7'}`,
-            borderRadius: '999px',
-            padding: '6px 12px',
-            fontSize: '12px',
-            fontWeight: '600',
-            color: isDark ? '#FFFFFF' : '#2C2418',
-            cursor: 'pointer',
-          }}
+          className="relative inline-flex items-center gap-2 rounded-lg border border-panel-border px-3 py-1.5 text-sm font-medium transition-colors"
+          style={{ background: isDark ? '#23242A' : '#FAF6EF', color: isDark ? 'white' : '#2C2418' }}
         >
-          <PieChart size={14} color="#16A34A" />
+          <PieChart size={12} color="#16A34A" />
           <span>{t('page.statistics')}</span>
         </button>
 
         <button
           onClick={() => setShowNabarModal(true)}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '5px',
-            backgroundColor: isDark ? '#23242A' : '#FAF6EF',
-            border: `1px solid ${isDark ? '#333644' : '#DDD5C7'}`,
-            borderRadius: '999px',
-            padding: '6px 12px',
-            fontSize: '12px',
-            fontWeight: '600',
-            color: isDark ? '#FFFFFF' : '#2C2418',
-            cursor: 'pointer',
-          }}
+          className="relative inline-flex items-center gap-2 rounded-lg border border-panel-border px-3 py-1.5 text-sm font-medium transition-colors"
+          style={{ background: isDark ? '#23242A' : '#FAF6EF', color: isDark ? 'white' : '#2C2418' }}
         >
-          <Users size={14} color="#7C8BFF" />
+          <Users size={12} color="#7C8BFF" />
           <span>{t('page.rooms')}</span>
         </button>
       </div>
 
-      {/* Search & Sort Controls */}
+      {/* Search & Sort */}
       {targets.length > 0 && (
-        <div style={{ padding: '0 20px 14px', display: 'flex', flexDirection: 'column', gap: '8px', position: 'relative', zIndex: 10 }}>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px',
-              backgroundColor: isDark ? '#23242A' : '#FFFFFF',
-              border: `1px solid ${isDark ? '#333644' : '#E0D5C3'}`,
-              borderRadius: '14px',
-              padding: '8px 14px',
-            }}
-          >
-            <Search size={16} color={isDark ? '#A0A5B5' : '#7A6F60'} />
+        <div className="px-4 pb-2" style={{ position: 'relative', zIndex: 10 }}>
+          <div className="rounded-2xl border bg-[--app-cream-card] px-3 py-2 flex items-center gap-2 transition-colors hover:bg-opacity-50" style={{ color: isDark ? 'var(--app-dark-text)' : 'var(--app-cream-text)' }}>
+            <Search size={14} color={isDark ? '#A0A5B5' : '#7A6F60'} />
             <input
               type="text"
               placeholder={t('page.search_placeholder')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              style={{
-                width: '100%',
-                background: 'none',
-                border: 'none',
-                color: isDark ? 'white' : '#2C2418',
-                fontSize: '13px',
-                outline: 'none',
-                fontFamily: 'inherit',
-              }}
+              style={{ width: '100%', background: 'none', border: 'none', color: isDark ? 'white' : '#2C2418', fontSize: '13px', outline: 'none', fontFamily: 'inherit' }}
             />
           </div>
 
-          <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', paddingBottom: '4px' }}>
+          <div className="mt-1 flex gap-2 overflow-x-auto pb-1">
             <button
               onClick={() => setSortBy('terbaru')}
-              style={{
-                padding: '4px 10px',
-                borderRadius: '8px',
-                fontSize: '11px',
-                fontWeight: '600',
-                backgroundColor: sortBy === 'terbaru' ? '#7C8BFF' : isDark ? '#23242A' : '#EFEADF',
-                color: sortBy === 'terbaru' ? 'white' : isDark ? '#A0A5B5' : '#2C2418',
-                border: 'none',
-                cursor: 'pointer',
-                whiteSpace: 'nowrap',
-              }}
+              className="px-3 py-1.5 rounded text-sm font-medium transition-colors"
+              style={{ background: sortBy === 'terbaru' ? '--app-dark-accent' : isDark ? '#23242A' : '#EFEADF', color: sortBy === 'terbaru' ? 'white' : isDark ? '#A0A5B5' : '#2C2418', border: 'none' }}
             >
               {t('page.sort_newest')}
             </button>
             <button
               onClick={() => setSortBy('progres')}
-              style={{
-                padding: '4px 10px',
-                borderRadius: '8px',
-                fontSize: '11px',
-                fontWeight: '600',
-                backgroundColor: sortBy === 'progres' ? '#7C8BFF' : isDark ? '#23242A' : '#EFEADF',
-                color: sortBy === 'progres' ? 'white' : isDark ? '#A0A5B5' : '#2C2418',
-                border: 'none',
-                cursor: 'pointer',
-                whiteSpace: 'nowrap',
-              }}
+              className="px-3 py-1.5 rounded text-sm font-medium transition-colors"
+              style={{ background: sortBy === 'progres' ? '--app-accent-green' : isDark ? '#23242A' : '#EFEADF', color: sortBy === 'progres' ? 'white' : isDark ? '#A0A5B5' : '#2C2418', border: 'none' }}
             >
               {t('page.sort_progress')}
             </button>
             <button
               onClick={() => setSortBy('deadline')}
-              style={{
-                padding: '4px 10px',
-                borderRadius: '8px',
-                fontSize: '11px',
-                fontWeight: '600',
-                backgroundColor: sortBy === 'deadline' ? '#7C8BFF' : isDark ? '#23242A' : '#EFEADF',
-                color: sortBy === 'deadline' ? 'white' : isDark ? '#A0A5B5' : '#2C2418',
-                border: 'none',
-                cursor: 'pointer',
-                whiteSpace: 'nowrap',
-              }}
+              className="px-3 py-1.5 rounded text-sm font-medium transition-colors"
+              style={{ background: sortBy === 'deadline' ? '--app-accent-red' : isDark ? '#23242A' : '#EFEADF', color: sortBy === 'deadline' ? 'white' : isDark ? '#A0A5B5' : '#2C2418', border: 'none' }}
             >
               {t('page.sort_deadline')}
             </button>
@@ -289,160 +192,139 @@ export default function Home() {
         </div>
       )}
 
-      {/* Finished Pill Banner */}
-      {activeTab === 'selesai' && (
-        <div style={{ padding: '0 20px 14px', position: 'relative', zIndex: 10 }}>
-          <div
-            style={{
-              backgroundColor: isDark ? '#1C382A' : '#DDE7D8',
-              border: `1px solid ${isDark ? '#27523C' : '#C2D4BB'}`,
-              borderRadius: '14px',
-              padding: '12px 16px',
-              color: isDark ? '#48BB78' : '#2E6822',
-              fontSize: '15px',
-              fontWeight: '700',
-            }}
-          >
-            {t('page.finished_count', { count: finishedTargets.length })}
-          </div>
-        </div>
-      )}
-
-      {/* Main Body Content */}
-      <div style={{ padding: '0 20px', position: 'relative', zIndex: 10 }}>
+      {/* Main Content */}
+      <div className="px-4 pb-4" style={{ position: "relative", zIndex: 10 }}>
         {displayedList.length === 0 ? (
           activeTab === 'berjalan' ? (
-            <div className="empty-state-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '60px 0 40px', textAlign: 'center' }}>
-              <img
-                className="empty-state-logo"
-                src={isDark ? '/jagacuan-logo-dark.png' : '/jagacuan-logo-light.png'}
-                alt="Jagacuan"
-                style={{
-                  height: '44px',
-                  width: 'auto',
-                  objectFit: 'contain',
-                  marginBottom: '24px',
-                }}
-              />
-
-              <h3 className="empty-state-title" style={{ fontSize: '18px', fontWeight: '700', marginBottom: '8px', color: isDark ? '#FFFFFF' : '#2C2418' }}>
+            <div className="empty-state flex-1 flex flex-col items-center justify-center py-24 text-center"
+                style={{ color: isDark ? 'var(--app-dark-text)' : 'var(--app-cream-text)' }}>
+              <div className="mb-4"
+                  style={{ height: '44px', width: 'auto', objectFit: 'contain', marginBottom: '24px' }}>
+                <img
+                  src={isDark ? '/jagacuan-logo-dark.png' : '/jagacuan-logo-light.png'}
+                  alt="Jagacuan"
+                />
+              </div>
+              <h3 className="text-lg font-bold mb-2"
+                  style={{ fontSize: '18px', fontWeight: '700', marginBottom: '8px', color: 'currentColor' }}>
                 {t('page.no_active')}
               </h3>
-              <p
-                className="empty-state-hint"
-                style={{ fontSize: '14px', color: isDark ? '#A0A5B5' : '#7A6F60', maxWidth: '240px', lineHeight: '1.5' }}
-                dangerouslySetInnerHTML={{ __html: t('page.no_active_hint') }}
-              />
+              <p className="text-sm"
+                  style={{ fontSize: '14px', color: isDark ? '#A0A5B5' : '#7A6F60', maxWidth: '240px', lineHeight: '1.5' }}
+                  dangerouslySetInnerHTML={{ __html: t('page.no_active_hint') }} />
             </div>
           ) : (
-            <div style={{ textAlign: 'center', padding: '60px 0', color: isDark ? '#A0A5B5' : '#7A6F60' }}>
+            <div className="text-center py-24"
+                style={{ color: isDark ? '#A0A5B5' : '#7A6F60' }}>
               <p style={{ fontSize: '15px', fontWeight: '600' }}>{t('page.no_finished')}</p>
             </div>
           )
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          <div className="space-y-2"
+              style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {displayedList.map((target) => {
               const pct = Math.min(100, Math.round((target.currentAmount / target.targetAmount) * 100))
 
               return (
-                <motion.div
+                <div
                   key={target.id}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => setActiveDetailTarget(target)}
+                  className="goal-card-ui flex items-start gap-2 rounded-2xl border border-panel-border p-4 cursor-pointer transition-all hover:shadow-[0_4px_20px_rgba(0,0,0,0.1)]"
                   style={{
-                    backgroundColor: isDark ? '#23242A' : '#FAF6EF',
-                    borderRadius: '20px',
-                    padding: '16px',
-                    border: `1px solid ${isDark ? '#333644' : '#E0D5C3'}`,
-                    boxShadow: isDark ? '0 4px 20px rgba(0, 0, 0, 0.2)' : '0 4px 20px rgba(0, 0, 0, 0.04)',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '12px',
+                    background: isDark ? '--app-dark-card' : '--app-cream-card',
+                    borderColor: isDark ? '--app-dark-border' : '--app-cream-border',
                   }}
                 >
-                  <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
-                    <div style={{ width: '56px', height: '56px', borderRadius: '14px', backgroundColor: isDark ? '#1C1D22' : '#EFEADF', overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      {target.coverImage ? (
-                        <img src={target.coverImage} alt={target.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      ) : (
-                        <DollarSign size={28} color={isDark ? '#8C9AFF' : '#2C2418'} />
-                      )}
-                    </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <h4 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {target.title}
-                      </h4>
-                      <p style={{ fontSize: '13px', color: isDark ? '#A0A5B5' : '#7A6F60' }}>
-                        {formatRupiah(target.currentAmount)} / {formatRupiah(target.targetAmount)}
-                      </p>
-                    </div>
-                    <div style={{ fontSize: '16px', fontWeight: '800' }}>
+                  <div className="flex items-start gap-3 w-14 h-14 rounded-xl flex-shrink-0"
+                      style={{
+                    background: isDark ? '--app-dark-input' : '--app-cream-card',
+                    overflow: 'hidden',
+                  }}>
+                    {target.coverImage ? (
+                      <img
+                        src={target.coverImage}
+                        alt={target.title}
+                        className="w-full h-full object-cover"
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      />
+                    ) : (
+                      <DollarSign size={24} color={isDark ? '#8C9AFF' : '#2C2418'} />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0"
+                      style={{ flex: 1 }}>
+                    <h4 className="font-bold truncate"
+                        style={{ fontSize: '15px', fontWeight: '700', marginBottom: '2px', color: 'currentColor' }}>
+                      {target.title}
+                    </h4>
+                    <p className="text-sm"
+                        style={{ fontSize: '12px', color: isDark ? '#A0A5B5' : '#7A6F60' }}>
+                      {formatRupiah(target.currentAmount)} / {formatRupiah(target.targetAmount)}
+                    </p>
+                  </div>
+                  <div className="text-right flex-1"
+                      style={{ textAlign: 'right', minWidth: 0 }}>
+                    <span className="font-semibold"
+                        style={{ fontSize: '15px', color: 'currentColor' }}>
                       {pct}%
-                    </div>
+                    </span>
                   </div>
-                  <div style={{ height: '8px', backgroundColor: isDark ? '#1C1D22' : '#EFEADF', borderRadius: '999px', overflow: 'hidden' }}>
-                    <div style={{ height: '100%', width: `${pct}%`, backgroundColor: target.isFinished ? '#16A34A' : isDark ? '#7C8BFF' : '#2C2418', borderRadius: '999px' }} />
-                  </div>
-                </motion.div>
+                </div>
               )
             })}
           </div>
         )}
       </div>
 
-      <motion.button
+      <motion.div
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setShowSelectTypeModal(true)}
+        className="fixed bottom-[100px] right-[max(24px,calc((100vw-480px)/2+24px)]"
         style={{
-          position: 'fixed',
-          bottom: '100px',
-          right: 'max(24px, calc((100vw - 480px) / 2 + 24px))',
-          width: '58px',
-          height: '58px',
-          borderRadius: '50%',
-          backgroundColor: isDark ? '#7C8BFF' : '#2C2418',
-          color: '#FFF',
+          width: '52px',
+          height: '52px',
+          borderRadius: '16px',
+          background: isDark ? '--app-dark-accent' : '--app-cream-text',
+          color: 'white',
           border: 'none',
-          boxShadow: '0 8px 24px rgba(0, 0, 0, 0.35)',
+          boxShadow: '0 8px 24px rgba(0,0,0,0.25)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           cursor: 'pointer',
-          zIndex: 40,
+          zIndex: 30,
         }}
       >
-        <Plus size={30} />
-      </motion.button>
+        <Plus size={24} />
+      </motion.div>
 
       <nav
         className="bottom-nav"
         style={{
-          background: isDark ? 'rgba(22, 23, 27, 0.95)' : 'rgba(250, 247, 242, 0.95)',
-          borderColor: isDark ? '#2D2F3A' : '#E8E1D5',
+          background: isDark ? 'rgba(25, 26, 35, 0.95)' : 'rgba(250, 247, 242, 0.95)',
+          borderTop: `1px solid ${isDark ? '--app-dark-border' : '--app-cream-border'}`,
         }}
       >
         <button
           className={`bottom-nav-tab ${activeTab === 'berjalan' ? 'active' : ''}`}
           onClick={() => setActiveTab('berjalan')}
           style={{
-            color: activeTab === 'berjalan' ? (isDark ? '#FFFFFF' : '#2C2418') : (isDark ? '#A0A5B5' : '#6E655B'),
-            backgroundColor: activeTab === 'berjalan' ? (isDark ? '#2D2F3A' : '#EFEADF') : 'transparent',
+            color: activeTab === 'berjalan' ? (isDark ? 'white' : '#2C2418') : (isDark ? '#A0A5B5' : '#6E655B'),
+            backgroundColor: activeTab === 'berjalan' ? (isDark ? '#2D3043' : '#EFEADF') : 'transparent',
           }}
         >
-          <DollarSign size={22} />
+          <DollarSign size={20} />
           <span>{t('page.tab_active')}</span>
         </button>
         <button
           className={`bottom-nav-tab ${activeTab === 'selesai' ? 'active' : ''}`}
           onClick={() => setActiveTab('selesai')}
           style={{
-            color: activeTab === 'selesai' ? (isDark ? '#FFFFFF' : '#2C2418') : (isDark ? '#A0A5B5' : '#6E655B'),
-            backgroundColor: activeTab === 'selesai' ? (isDark ? '#2D2F3A' : '#EFEADF') : 'transparent',
+            color: activeTab === 'selesai' ? (isDark ? 'white' : '#2C2418') : (isDark ? '#A0A5B5' : '#6E655B'),
+            backgroundColor: activeTab === 'selesai' ? (isDark ? '#2D3043' : '#EFEADF') : 'transparent',
           }}
         >
-          <Check size={22} />
+          <Check size={20} />
           <span>{t('page.tab_finished')}</span>
         </button>
       </nav>

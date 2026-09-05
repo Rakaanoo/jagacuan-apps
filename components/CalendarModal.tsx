@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, X, Plus } from 'lucide-react'
 import { useAppStore, formatRupiah } from '@/lib/store'
+import { useTranslation } from '@/lib/i18n'
 
 interface Props {
   isOpen: boolean
@@ -12,7 +13,8 @@ interface Props {
 }
 
 export default function CalendarModal({ isOpen, onClose, onOpenCreate }: Props) {
-  const { targets, theme } = useAppStore()
+  const { targets, theme, currency, language } = useAppStore()
+  const { t } = useTranslation()
   const isDark = theme === 'dark'
 
   const [currentDate, setCurrentDate] = useState(new Date())

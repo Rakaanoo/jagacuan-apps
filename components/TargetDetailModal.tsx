@@ -190,13 +190,14 @@ function CircularClockPicker({
         <div
           style={{
             position: 'absolute',
-            top: '50%',
+            bottom: '50%',
             left: '50%',
             width: '2px',
-            height: '75px',
+            height: '72px',
+            marginLeft: '-1px',
             backgroundColor: accentColor,
-            transformOrigin: 'top center',
-            transform: `rotate(${rotationDeg + 180}deg)`,
+            transformOrigin: 'bottom center',
+            transform: `rotate(${rotationDeg}deg)`,
             transition: 'transform 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
             zIndex: 5,
             pointerEvents: 'none',
@@ -206,7 +207,7 @@ function CircularClockPicker({
           <div
             style={{
               position: 'absolute',
-              bottom: '-12px',
+              top: '-16px',
               left: '-15px',
               width: '32px',
               height: '32px',
@@ -220,7 +221,7 @@ function CircularClockPicker({
         {/* Dial Numbers */}
         {(mode === 'hour' ? hoursList : minsList).map((num, i) => {
           const angleRad = (i * 30 - 90) * (Math.PI / 180)
-          const radius = 78
+          const radius = 72
           const x = radius * Math.cos(angleRad)
           const y = radius * Math.sin(angleRad)
           const isSelected = mode === 'hour' ? hour12 === num : minRounded === num
@@ -259,8 +260,11 @@ function CircularClockPicker({
   )
 }
 
+import { useTranslation } from '@/lib/i18n'
+
 export default function TargetDetailModal({ target, onClose }: Props) {
-  const { deleteTarget, transactions, theme, showToast } = useAppStore()
+  const { deleteTarget, transactions, theme, showToast, currency, language } = useAppStore()
+  const { t } = useTranslation()
   const isDark = theme === 'dark'
 
   const [showCatatModal, setShowCatatModal] = useState(false)
@@ -280,19 +284,19 @@ export default function TargetDetailModal({ target, onClose }: Props) {
 
   // Calculate days remaining & rate per day
   let daysRemainingStr = '-'
-  let ratePerDayStr = 'Rp0 Perhari'
+  let ratePerDayStr = `${formatRupiah(0)} / ${t('detail.per_day') || 'day'}`
   if (target.deadlineDate) {
     const now = new Date()
     const deadline = new Date(target.deadlineDate)
     const diffMs = deadline.getTime() - now.getTime()
     const diffDays = Math.max(1, Math.ceil(diffMs / (1000 * 60 * 60 * 24)))
-    daysRemainingStr = `${diffDays} Hari Lagi`
+    daysRemainingStr = t('detail.days_remaining', { days: diffDays })
 
     if (remaining > 0) {
       const dailyRate = Math.ceil(remaining / diffDays)
-      ratePerDayStr = `${formatRupiah(dailyRate)} Perhari`
+      ratePerDayStr = `${formatRupiah(dailyRate)} / ${t('detail.per_day') || 'day'}`
     } else {
-      ratePerDayStr = 'Target Tercapai!'
+      ratePerDayStr = t('toast.target_achieved')
     }
   }
 
@@ -464,9 +468,9 @@ export default function TargetDetailModal({ target, onClose }: Props) {
 
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px' }}>
                 <div>
-                  <p style={{ color: subText, fontSize: '12px', marginBottom: '2px' }}>Tanggal Dibuat</p>
+                  <p style={{ color: subText, fontSize: '12px', marginBottom: '2px' }}>{t('detail.created_date') || 'Tanggal Dibuat'}</p>
                   <p style={{ fontWeight: '500' }}>
-                    {new Date(target.startDate).toLocaleDateString('id-ID', {
+                    {new Date(target.startDate).toLocaleDateString(language === 'id' ? 'id-ID' : 'en-US', {
                       day: '2-digit',
                       month: 'short',
                       year: 'numeric',
@@ -474,7 +478,7 @@ export default function TargetDetailModal({ target, onClose }: Props) {
                   </p>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <p style={{ color: subText, fontSize: '12px', marginBottom: '2px' }}>Estimasi</p>
+                  <p style={{ color: subText, fontSize: '12px', marginBottom: '2px' }}>{t('detail.estimation') || 'Estimasi'}</p>
                   <p style={{ fontWeight: '500' }}>{daysRemainingStr}</p>
                 </div>
               </div>
@@ -644,14 +648,14 @@ export default function TargetDetailModal({ target, onClose }: Props) {
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', textAlign: 'center' }}>
                 <div style={{ flex: 1 }}>
-                  <p style={{ fontSize: '12px', color: subText, marginBottom: '4px' }}>Terkumpul</p>
+                  <p style={{ fontSize: '12px', color: subText, marginBottom: '4px' }}>{t('detail.collected')}</p>
                   <p style={{ fontSize: '16px', fontWeight: '700', color: '#16A34A' }}>
                     {formatRupiah(target.currentAmount)}
                   </p>
                 </div>
                 <div style={{ width: '1px', backgroundColor: dividerBg }} />
                 <div style={{ flex: 1 }}>
-                  <p style={{ fontSize: '12px', color: subText, marginBottom: '4px' }}>Kekurangan</p>
+                  <p style={{ fontSize: '12px', color: subText, marginBottom: '4px' }}>{t('detail.shortage')}</p>
                   <p style={{ fontSize: '16px', fontWeight: '700', color: '#DC2626' }}>
                     {formatRupiah(remaining)}
                   </p>
@@ -664,7 +668,7 @@ export default function TargetDetailModal({ target, onClose }: Props) {
               <div>
                 {targetTxList.length === 0 ? (
                   <p style={{ textAlign: 'center', fontSize: '13px', color: subText, padding: '16px 0' }}>
-                    Tidak Ada Riwayat Tabungan
+                    {t('detail.no_transactions')}
                   </p>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -682,7 +686,7 @@ export default function TargetDetailModal({ target, onClose }: Props) {
                       >
                         <div>
                           <p style={{ fontSize: '13px', fontWeight: '600' }}>
-                            {tx.type === 'setor' ? 'Tambah Tabungan' : 'Kurangi Tabungan'}
+                            {tx.type === 'setor' ? t('detail.deposit_label') : t('detail.withdraw_label')}
                           </p>
                           {tx.keterangan && (
                             <p style={{ fontSize: '11px', color: subText }}>{tx.keterangan}</p>
