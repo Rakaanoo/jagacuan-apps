@@ -246,6 +246,13 @@ export default function Home() {
               return (
                 <div
                   key={target.id}
+                  onClick={() => {
+                    if (target.type === 'nabar') {
+                      setShowNabarModal(true)
+                    } else {
+                      setActiveDetailTarget(target)
+                    }
+                  }}
                   className="goal-card-ui flex items-start gap-2 rounded-2xl border border-panel-border p-4 cursor-pointer transition-all hover:shadow-[0_4px_20px_rgba(0,0,0,0.1)]"
                   style={{
                     background: isDark ? '--app-dark-card' : '--app-cream-card',

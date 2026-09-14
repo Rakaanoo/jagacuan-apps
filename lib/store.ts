@@ -14,7 +14,7 @@ export interface TargetItem {
   coverImage?: string
   isFinished: boolean
   createdAt: string
-  type: 'nabung' | 'berkala'
+  type: 'nabung' | 'berkala' | 'nabar'
 }
 
 export interface TransactionRecord {
