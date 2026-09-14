@@ -29,6 +29,7 @@ export default function CreateNabarModal({ isOpen, onClose, onRoomCreated }: Pro
   const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0])
   const [deadlineDate, setDeadlineDate] = useState('')
   const [note, setNote] = useState('')
+  const [memberLimit, setMemberLimit] = useState('10')
   const [coverImage, setCoverImage] = useState<string | null>(null)
 
   useEffect(() => {
@@ -277,6 +278,37 @@ export default function CreateNabarModal({ isOpen, onClose, onRoomCreated }: Pro
                         placeholder="8.000.000"
                         value={targetAmountStr}
                         onChange={(e) => setTargetAmountStr(formatNumberInput(e.target.value))}
+                        style={{
+                          width: '100%',
+                          background: 'none',
+                          border: 'none',
+                          color: textColor,
+                          fontSize: '14px',
+                          outline: 'none',
+                          fontFamily: 'inherit',
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Batas Maksimal Anggota (Orang) */}
+                  <div>
+                    <label style={{ fontSize: '13px', color: textColor, marginBottom: '6px', display: 'block', fontWeight: '600' }}>
+                      Batas Maksimal Anggota (Orang)
+                    </label>
+                    <div
+                      style={{
+                        backgroundColor: inputBg,
+                        border: `1px solid ${borderCol}`,
+                        borderRadius: '12px',
+                        padding: '12px 14px',
+                      }}
+                    >
+                      <input
+                        type="number"
+                        placeholder="Contoh: 10"
+                        value={memberLimit}
+                        onChange={(e) => setMemberLimit(e.target.value)}
                         style={{
                           width: '100%',
                           background: 'none',
