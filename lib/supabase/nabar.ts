@@ -75,8 +75,20 @@ export async function getCurrentUser() {
 export function getUserProfileInfo(user: any) {
   if (!user) return { name: 'Pengguna', avatarUrl: undefined }
   const meta = user.user_metadata || {}
-  const name = meta.full_name || meta.name || user.email?.split('@')[0] || 'Pengguna'
-  const avatarUrl = meta.avatar_url || meta.picture || undefined
+  const identityData = user.identities?.[0]?.identity_data || {}
+  const name =
+    meta.full_name ||
+    meta.name ||
+    identityData.full_name ||
+    identityData.name ||
+    user.email?.split('@')[0] ||
+    'Pengguna'
+  const avatarUrl =
+    meta.avatar_url ||
+    meta.picture ||
+    identityData.avatar_url ||
+    identityData.picture ||
+    undefined
   return { name, avatarUrl }
 }
 
@@ -132,28 +144,40 @@ export async function getUserRooms(): Promise<SupabaseNabarRoom[]> {
   const user = await getCurrentUser()
   if (!user) return []
 
-  const { data: memberRows } = await supabase
-    .from('room_members')
-    .select('room_id')
-    .eq('user_id', user.id)
+  try {
+    const { data: memberRows, error: memberErr } = await supabase
+      .from('room_members')
+      .select('room_id')
+      .eq('user_id', user.id)
 
-  const memberRoomIds = memberRows ? memberRows.map((r) => r.room_id) : []
+    if (memberErr) console.error('Error fetching member rows:', memberErr)
 
-  const { data: rooms, error } = await supabase
-    .from('rooms')
-    .select('*')
-    .or(`owner_id.eq.${user.id},id.in.(${memberRoomIds.length > 0 ? memberRoomIds.join(',') : ''})`)
-    .order('created_at', { ascending: false })
+    const memberRoomIds = memberRows ? memberRows.map((r) => r.room_id).filter(Boolean) : []
 
-  if (error || !rooms) return []
+    let query = supabase.from('rooms').select('*')
+    if (memberRoomIds.length > 0) {
+      query = query.or(`owner_id.eq.${user.id},id.in.(${memberRoomIds.join(',')})`)
+    } else {
+      query = query.eq('owner_id', user.id)
+    }
 
-  const detailedRooms = await Promise.all(rooms.map((r) => getRoomById(r.id)))
-  return detailedRooms.filter((r): r is SupabaseNabarRoom => r !== null)
+    const { data: rooms, error } = await query.order('created_at', { ascending: false })
+
+    if (error || !rooms) return []
+
+    const detailedRooms = await Promise.all(rooms.map((r) => getRoomById(r.id, user)))
+    return detailedRooms.filter((r): r is SupabaseNabarRoom => r !== null)
+  } catch (err) {
+    console.error('Error in getUserRooms:', err)
+    return []
+  }
 }
 
-export async function getRoomById(roomId: string): Promise<SupabaseNabarRoom | null> {
+export async function getRoomById(roomId: string, currentUserParam?: any): Promise<SupabaseNabarRoom | null> {
+  if (!roomId || roomId === 'demo_room') return null
+
   const supabase = createClient()
-  const user = await getCurrentUser()
+  const user = currentUserParam !== undefined ? currentUserParam : await getCurrentUser()
 
   // 1. Fetch room details
   const { data: room, error: roomError } = await supabase
@@ -177,6 +201,28 @@ export async function getRoomById(roomId: string): Promise<SupabaseNabarRoom | n
     .eq('room_id', roomId)
     .order('created_at', { ascending: false })
     .limit(40)
+
+  // Auto-sync current user's Google profile info to room_members table
+  if (user) {
+    const currentUserProfile = getUserProfileInfo(user)
+    const currentMember = rawMembers?.find((m) => m.user_id === user.id)
+    if (
+      currentMember &&
+      (currentMember.avatar_url !== (currentUserProfile.avatarUrl || null) ||
+        currentMember.user_name !== currentUserProfile.name)
+    ) {
+      supabase
+        .from('room_members')
+        .update({
+          user_name: currentUserProfile.name,
+          avatar_url: currentUserProfile.avatarUrl || null,
+        })
+        .match({ room_id: roomId, user_id: user.id })
+        .then(({ error }) => {
+          if (error) console.error('Gagal memperbarui foto profil di room_members:', error)
+        })
+    }
+  }
 
   const allMembers: NabarMember[] = (rawMembers || []).map((m) => {
     const isCurrentUser = user && m.user_id === user.id

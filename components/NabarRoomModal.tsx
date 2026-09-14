@@ -2,11 +2,12 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowDown, ArrowUp, Plus, X, Share2, UserPlus, Users, Download, Loader2, CheckCircle2, LogOut, Clock } from 'lucide-react'
+import { ArrowDown, ArrowUp, Plus, X, Share2, UserPlus, Users, Download, Loader2, CheckCircle2, LogOut, Clock, KeyRound, Copy } from 'lucide-react'
 import { useAppStore, formatRupiah } from '@/lib/store'
 import { createClient } from '@/lib/supabase/client'
 import {
   getCurrentUser,
+  getUserProfileInfo,
   getUserRooms,
   getRoomById,
   addRoomTransaction,
@@ -219,8 +220,7 @@ export default function NabarRoomModal({ isOpen, onClose }: Props) {
   const btnBg = isDark ? '#7C8BFF' : '#2C2418'
   const btnText = '#FFFFFF'
 
-  const userAvatarUrl = currentUser?.user_metadata?.avatar_url || currentUser?.user_metadata?.picture
-  const userFullName = currentUser?.user_metadata?.full_name || currentUser?.user_metadata?.name || currentUser?.email?.split('@')[0] || 'Pengguna Google'
+  const { name: userFullName, avatarUrl: userAvatarUrl } = getUserProfileInfo(currentUser)
 
   return (
     <AnimatePresence>
@@ -338,7 +338,7 @@ export default function NabarRoomModal({ isOpen, onClose }: Props) {
                         }}
                       >
                         {userAvatarUrl ? (
-                          <img src={userAvatarUrl} alt={userFullName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          <img src={userAvatarUrl} alt={userFullName} referrerPolicy="no-referrer" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         ) : (
                           userFullName[0]?.toUpperCase()
                         )}
@@ -577,6 +577,50 @@ export default function NabarRoomModal({ isOpen, onClose }: Props) {
                         )}
                       </div>
 
+                      {/* Kode Invite & Link Share Card */}
+                      <div
+                        style={{
+                          backgroundColor: cardBg,
+                          borderRadius: '16px',
+                          padding: '14px 16px',
+                          border: `1px solid ${cardBorder}`,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          gap: '12px',
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', overflow: 'hidden' }}>
+                          <KeyRound size={20} color={accentCol} style={{ flexShrink: 0 }} />
+                          <div style={{ overflow: 'hidden' }}>
+                            <p style={{ fontSize: '11px', color: subText, margin: 0, fontWeight: '500' }}>Kode Invite Room</p>
+                            <span style={{ fontSize: '13px', fontWeight: '800', letterSpacing: '0.5px', fontFamily: 'monospace' }}>
+                              {activeRoom.id}
+                            </span>
+                          </div>
+                        </div>
+                        <button
+                          onClick={handleShareLink}
+                          style={{
+                            padding: '6px 12px',
+                            borderRadius: '10px',
+                            backgroundColor: isDark ? '#1C1D22' : '#EFEADF',
+                            border: `1px solid ${cardBorder}`,
+                            color: textColor,
+                            fontSize: '12px',
+                            fontWeight: '600',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            flexShrink: 0,
+                            fontFamily: 'inherit',
+                          }}
+                        >
+                          <Copy size={14} /> Salin Link
+                        </button>
+                      </div>
+
                       {/* Member Avatars & List with Google Profile Picture (PP) */}
                       <div style={{ backgroundColor: cardBg, borderRadius: '20px', padding: '18px', border: `1px solid ${cardBorder}` }}>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
@@ -630,7 +674,7 @@ export default function NabarRoomModal({ isOpen, onClose }: Props) {
                                 }}
                               >
                                 {mem.avatarUrl ? (
-                                  <img src={mem.avatarUrl} alt={mem.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                  <img src={mem.avatarUrl} alt={mem.name} referrerPolicy="no-referrer" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                 ) : (
                                   mem.name[0]?.toUpperCase()
                                 )}
@@ -697,7 +741,7 @@ export default function NabarRoomModal({ isOpen, onClose }: Props) {
                                     }}
                                   >
                                     {mem.avatarUrl ? (
-                                      <img src={mem.avatarUrl} alt={mem.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                      <img src={mem.avatarUrl} alt={mem.name} referrerPolicy="no-referrer" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                     ) : (
                                       mem.name[0]?.toUpperCase()
                                     )}
@@ -792,7 +836,7 @@ export default function NabarRoomModal({ isOpen, onClose }: Props) {
                                     }}
                                   >
                                     {act.avatarUrl ? (
-                                      <img src={act.avatarUrl} alt={act.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                      <img src={act.avatarUrl} alt={act.name} referrerPolicy="no-referrer" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                     ) : (
                                       <span style={{ fontSize: '12px', fontWeight: '700' }}>{act.name[0]}</span>
                                     )}
@@ -884,7 +928,7 @@ export default function NabarRoomModal({ isOpen, onClose }: Props) {
                                     }}
                                   >
                                     {act.avatarUrl ? (
-                                      <img src={act.avatarUrl} alt={act.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                      <img src={act.avatarUrl} alt={act.name} referrerPolicy="no-referrer" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                     ) : act.isIncome ? (
                                       <ArrowDown size={18} />
                                     ) : (

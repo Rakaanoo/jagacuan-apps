@@ -502,7 +502,7 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
                       }}
                     >
                       {mem.avatarUrl ? (
-                        <img src={mem.avatarUrl} alt={mem.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        <img src={mem.avatarUrl} alt={mem.name} referrerPolicy="no-referrer" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       ) : (
                         mem.name[0]?.toUpperCase()
                       )}
@@ -553,7 +553,7 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
                           }}
                         >
                           {mem.avatarUrl ? (
-                            <img src={mem.avatarUrl} alt={mem.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            <img src={mem.avatarUrl} alt={mem.name} referrerPolicy="no-referrer" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                           ) : (
                             mem.name[0]?.toUpperCase()
                           )}
@@ -623,7 +623,7 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
                           }}
                         >
                           {act.avatarUrl ? (
-                            <img src={act.avatarUrl} alt={act.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            <img src={act.avatarUrl} alt={act.name} referrerPolicy="no-referrer" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                           ) : (
                             <span style={{ fontSize: '12px', fontWeight: '700' }}>{act.name[0]}</span>
                           )}
@@ -682,7 +682,7 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
                           }}
                         >
                           {act.avatarUrl ? (
-                            <img src={act.avatarUrl} alt={act.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            <img src={act.avatarUrl} alt={act.name} referrerPolicy="no-referrer" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                           ) : (
                             <span style={{ fontSize: '12px', fontWeight: '700' }}>{act.name[0]}</span>
                           )}

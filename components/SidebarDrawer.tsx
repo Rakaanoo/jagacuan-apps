@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Archive, Globe, RefreshCw, ArrowUpDown, Info, Star, X, Sun, Moon, LogIn, CheckCircle2, User } from 'lucide-react'
 import { useAppStore } from '@/lib/store'
 import { useTranslation } from '@/lib/i18n'
-import { getCurrentUser } from '@/lib/supabase/nabar'
+import { getCurrentUser, getUserProfileInfo } from '@/lib/supabase/nabar'
 
 interface Props {
   isOpen: boolean
@@ -146,65 +146,72 @@ export default function SidebarDrawer({ isOpen, onClose, onOpenBackup }: Props) 
             </div>
 
             {/* Google Account Status Badge */}
-            <div
-              style={{
-                backgroundColor: cardBg,
-                border: `1px solid ${cardBorder}`,
-                borderRadius: '14px',
-                padding: '12px 14px',
-                marginBottom: '16px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px',
-              }}
-            >
-              <div
-                style={{
-                  width: '34px',
-                  height: '34px',
-                  borderRadius: '50%',
-                  backgroundColor: isDark ? '#333644' : '#E0D5C3',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: isDark ? '#FFFFFF' : '#2C2418',
-                  flexShrink: 0,
-                }}
-              >
-                {currentUser?.user_metadata?.avatar_url ? (
-                  <img
-                    src={currentUser.user_metadata.avatar_url}
-                    alt="User"
-                    style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
-                  />
-                ) : (
-                  <User size={18} />
-                )}
-              </div>
+            {(() => {
+              const userProfile = getUserProfileInfo(currentUser)
+              return (
+                <div
+                  style={{
+                    backgroundColor: cardBg,
+                    border: `1px solid ${cardBorder}`,
+                    borderRadius: '14px',
+                    padding: '12px 14px',
+                    marginBottom: '16px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                  }}
+                >
+                  <div
+                    style={{
+                      width: '34px',
+                      height: '34px',
+                      borderRadius: '50%',
+                      backgroundColor: isDark ? '#333644' : '#E0D5C3',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: isDark ? '#FFFFFF' : '#2C2418',
+                      flexShrink: 0,
+                      overflow: 'hidden',
+                    }}
+                  >
+                    {userProfile.avatarUrl ? (
+                      <img
+                        src={userProfile.avatarUrl}
+                        alt="User Avatar"
+                        referrerPolicy="no-referrer"
+                        style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
+                      />
+                    ) : (
+                      <User size={18} />
+                    )}
+                  </div>
 
-              <div style={{ flex: 1, minWidth: 0 }}>
-                {currentUser ? (
-                  <>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      <span style={{ fontSize: '13px', fontWeight: '700', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {currentUser.user_metadata?.full_name || currentUser.email?.split('@')[0]}
-                      </span>
-                      <CheckCircle2 size={13} color="#16A34A" />
-                    </div>
-                    <p style={{ fontSize: '11px', color: isDark ? '#A0A5B5' : '#7A6F60', margin: 0 }}>
-                      Google Terhubung (Ruang Nabar)
-                    </p>
-                  </>
-                ) : (
-                  <>
-                    <p style={{ fontSize: '13px', fontWeight: '700', margin: 0 }}>Google Belum Terhubung</p>
-                    <p style={{ fontSize: '11px', color: isDark ? '#A0A5B5' : '#7A6F60', margin: 0 }}>
-                      Hanya diperlukan untuk Ruang Nabar
-                    </p>
-                  </>
-                )}
-              </div>
-            </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    {currentUser ? (
+                      <>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <span style={{ fontSize: '13px', fontWeight: '700', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {userProfile.name}
+                          </span>
+                          <CheckCircle2 size={13} color="#16A34A" />
+                        </div>
+                        <p style={{ fontSize: '11px', color: isDark ? '#A0A5B5' : '#7A6F60', margin: 0 }}>
+                          Google Terhubung (Ruang Nabar)
+                        </p>
+                      </>
+                    ) : (
+                      <>
+                        <p style={{ fontSize: '13px', fontWeight: '700', margin: 0 }}>Google Belum Terhubung</p>
+                        <p style={{ fontSize: '11px', color: isDark ? '#A0A5B5' : '#7A6F60', margin: 0 }}>
+                          Hanya diperlukan untuk Ruang Nabar
+                        </p>
+                      </>
+                    )}
+                  </div>
+                </div>
+              )
+            })()}
 
             {/* Menu List */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
