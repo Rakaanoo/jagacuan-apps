@@ -1,6 +1,7 @@
 import "./globals.css";
 import type { Metadata, Viewport } from "next";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
+import AppDeepLinkRedirect from "@/components/AppDeepLinkRedirect";
 
 export const metadata: Metadata = {
   title: "Jagacuan — Pencatat Tabungan Digital",
@@ -46,6 +47,7 @@ export default function RootLayout({
         />
       </head>
       <body data-theme="light">
+        <AppDeepLinkRedirect />
         {children}
         <ServiceWorkerRegister />
       </body>
