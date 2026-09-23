@@ -58,12 +58,12 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
   useEffect(() => {
     fetchRoomData()
 
-    // Attempt auto-launching native Flutter app via custom scheme
+    // Attempt auto-launching native Flutter app via Android Intent
     if (typeof window !== 'undefined') {
       const launchedKey = `launched_${roomId}`
       if (!sessionStorage.getItem(launchedKey)) {
         sessionStorage.setItem(launchedKey, '1')
-        window.location.href = `jagacuan://room/${roomId}`
+        window.location.href = `intent://room/${roomId}#Intent;scheme=jagacuan;package=com.jagacuan.jagacuan_app;end`
       }
     }
 
@@ -217,7 +217,7 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
 
       <div style={{ padding: '16px 20px 0' }}>
         <a
-          href={`jagacuan://room/${roomId}`}
+          href={`intent://room/${roomId}#Intent;scheme=jagacuan;package=com.jagacuan.jagacuan_app;end`}
           style={{
             display: 'flex',
             alignItems: 'center',
