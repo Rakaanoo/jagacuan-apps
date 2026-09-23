@@ -58,6 +58,15 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
   useEffect(() => {
     fetchRoomData()
 
+    // Attempt auto-launching native Flutter app via custom scheme
+    if (typeof window !== 'undefined') {
+      const launchedKey = `launched_${roomId}`
+      if (!sessionStorage.getItem(launchedKey)) {
+        sessionStorage.setItem(launchedKey, '1')
+        window.location.href = `jagacuan://room/${roomId}`
+      }
+    }
+
     // Realtime listener
     const channel = subscribeToRoom(roomId, () => {
       fetchRoomData()
@@ -205,6 +214,28 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
           <Share2 size={18} />
         </button>
       </header>
+
+      <div style={{ padding: '16px 20px 0' }}>
+        <a
+          href={`jagacuan://room/${roomId}`}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
+            padding: '12px 16px',
+            backgroundColor: '#10B981',
+            color: '#FFFFFF',
+            borderRadius: '14px',
+            fontWeight: '700',
+            fontSize: '14px',
+            textDecoration: 'none',
+            boxShadow: '0 4px 12px rgba(16, 185, 129, 0.25)',
+          }}
+        >
+          <span>📱 Buka di Aplikasi Android Jagacuan</span>
+        </a>
+      </div>
 
       <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
         {!currentUser ? (

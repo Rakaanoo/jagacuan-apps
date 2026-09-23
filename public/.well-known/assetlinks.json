@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.jagacuan.jagacuan_app",
+      "sha256_cert_fingerprints": [
+        "9D:26:2D:88:C0:A1:EC:4F:41:67:C3:B8:B8:47:1B:70:69:94:02:B0:E9:CC:DD:DA:C6:53:ED:FB:86:1A:E9:1F"
+      ]
+    }
+  }
+]
