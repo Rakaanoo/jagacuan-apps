@@ -173,20 +173,32 @@ export async function getUserRooms(): Promise<SupabaseNabarRoom[]> {
   }
 }
 
-export async function getRoomById(roomId: string, currentUserParam?: any): Promise<SupabaseNabarRoom | null> {
-  if (!roomId || roomId === 'demo_room') return null
+export async function getRoomById(roomIdParam: string, currentUserParam?: any): Promise<SupabaseNabarRoom | null> {
+  if (!roomIdParam || roomIdParam === 'demo_room') return null
 
   const supabase = createClient()
   const user = currentUserParam !== undefined ? currentUserParam : await getCurrentUser()
+  const cleanId = roomIdParam.trim()
 
-  // 1. Fetch room details
-  const { data: room, error: roomError } = await supabase
+  // 1. Fetch room details (supports UUID, exact 6-char code, and case-insensitive code)
+  let { data: room } = await supabase
     .from('rooms')
     .select('*')
-    .eq('id', roomId)
-    .single()
+    .or(`id.eq.${cleanId},id.ilike.${cleanId}`)
+    .maybeSingle()
 
-  if (roomError || !room) return null
+  if (!room) {
+    const { data: roomByPrefix } = await supabase
+      .from('rooms')
+      .select('*')
+      .ilike('id', `${cleanId}%`)
+      .maybeSingle()
+    room = roomByPrefix
+  }
+
+  if (!room) return null
+
+  const roomId = room.id
 
   // 2. Fetch room members
   const { data: rawMembers } = await supabase
