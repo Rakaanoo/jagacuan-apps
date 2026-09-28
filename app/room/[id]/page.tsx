@@ -215,7 +215,7 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
         </button>
       </header>
 
-      <div style={{ padding: '16px 20px 0' }}>
+      <div style={{ padding: '16px 20px 0', display: 'flex', flexDirection: 'column', gap: '8px' }}>
         <a
           href={`intent://room/${roomId}#Intent;scheme=jagacuan;package=com.jagacuan.jagacuan_app;end`}
           style={{
@@ -235,33 +235,73 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
         >
           <span>📱 Buka di Aplikasi Android Jagacuan</span>
         </a>
+        <a
+          href="/download/jagacuan.apk"
+          download="jagacuan.apk"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
+            padding: '10px 16px',
+            backgroundColor: isDark ? '#232532' : '#EFEADF',
+            color: textColor,
+            border: `1px solid ${cardBorder}`,
+            borderRadius: '12px',
+            fontWeight: '600',
+            fontSize: '13px',
+            textDecoration: 'none',
+          }}
+        >
+          <span>📥 Belum Punya Aplikasi? Unduh APK Langsung</span>
+        </a>
       </div>
 
       <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-        {!currentUser ? (
-          /* User Not Logged In */
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '20px' }}>
-            <div style={{ textAlign: 'center', marginBottom: '10px' }}>
-              <div style={{ width: '64px', height: '64px', borderRadius: '20px', backgroundColor: cardBg, border: `1px solid ${cardBorder}`, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: '12px' }}>
-                <Users size={32} color={accentCol} />
-              </div>
-              <h2 style={{ fontSize: '20px', fontWeight: '800', margin: '0 0 6px' }}>Undangan Ruang Nabung</h2>
-              <p style={{ fontSize: '14px', color: subText }}>
-                {isInvite ? 'Seseorang mengundang Anda untuk bergabung di Ruang Nabung kolaborasi.' : 'Masuk untuk mengakses Ruang Nabung.'}
-              </p>
-            </div>
-
-            <GoogleSignInPrompt
-              title="Login dengan Google"
-              description="Masuk untuk bergabung atau melihat detail Ruang Nabung ini."
-              redirectTo={`/room/${roomId}?invite=true`}
-            />
-          </div>
-        ) : !room ? (
+        {!room ? (
           /* Room Not Found */
           <div style={{ textAlign: 'center', padding: '60px 0', color: subText }}>
             <h3 style={{ fontSize: '18px', fontWeight: '700', color: textColor }}>Ruang tidak ditemukan</h3>
             <p style={{ fontSize: '14px', marginTop: '6px' }}>Link ruang mungkin sudah tidak berlaku atau salah.</p>
+          </div>
+        ) : !currentUser ? (
+          /* User Not Logged In, but Room Found! */
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginTop: '10px' }}>
+            <div
+              style={{
+                backgroundColor: cardBg,
+                borderRadius: '24px',
+                padding: '24px',
+                border: `1px solid ${cardBorder}`,
+                textAlign: 'center',
+              }}
+            >
+              {room.coverImage && (
+                <div style={{ borderRadius: '16px', overflow: 'hidden', height: '180px', marginBottom: '16px' }}>
+                  <img src={room.coverImage} alt={room.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                </div>
+              )}
+              <h2 style={{ fontSize: '22px', fontWeight: '800', margin: '0 0 8px' }}>{room.title}</h2>
+              <p style={{ fontSize: '14px', color: subText, marginBottom: '16px' }}>
+                Target Tabungan: <strong>{formatRupiah(room.targetAmount)}</strong>
+              </p>
+
+              {room.note && (
+                <p style={{ fontSize: '13px', fontStyle: 'italic', color: subText, backgroundColor: isDark ? '#1C1D22' : '#EFEADF', padding: '10px 14px', borderRadius: '12px', marginBottom: '20px' }}>
+                  "{room.note}"
+                </p>
+              )}
+
+              <p style={{ fontSize: '13px', color: subText, marginBottom: '16px' }}>
+                Masuk dengan akun Google Anda untuk bergabung dan mulai menabung bersama di ruang ini.
+              </p>
+
+              <GoogleSignInPrompt
+                title="Login dengan Google untuk Bergabung"
+                description="Masuk untuk bergabung atau melihat detail Ruang Nabung ini."
+                redirectTo={`/room/${roomId}?invite=true`}
+              />
+            </div>
           </div>
         ) : room.userStatus === 'none' ? (
           /* Logged In, but Not a Member Yet */
