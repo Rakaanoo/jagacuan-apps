@@ -459,3 +459,87 @@ export function subscribeToRoom(roomId: string, onUpdate: () => void) {
 
   return channel
 }
+
+export interface NabarMessageItem {
+  id: string
+  roomId: string
+  userId: string
+  userName: string
+  avatarUrl?: string
+  message: string
+  messageType: 'text' | 'cheer' | 'system'
+  createdAt: string
+}
+
+export async function getRoomMessages(roomId: string, limit = 100): Promise<NabarMessageItem[]> {
+  const supabase = createClient()
+  const { data, error } = await supabase
+    .from('room_messages')
+    .select('*')
+    .eq('room_id', roomId)
+    .order('created_at', { ascending: true })
+    .limit(limit)
+
+  if (error || !data) return []
+  return data.map((m: any) => ({
+    id: m.id,
+    roomId: m.room_id,
+    userId: m.user_id,
+    userName: m.user_name,
+    avatarUrl: m.avatar_url,
+    message: m.message,
+    messageType: m.message_type || 'text',
+    createdAt: m.created_at,
+  }))
+}
+
+export async function sendRoomMessage(roomId: string, message: string, messageType = 'text') {
+  const supabase = createClient()
+  const user = await getCurrentUser()
+  if (!user) throw new Error('Silakan login terlebih dahulu')
+
+  const profile = getUserProfileInfo(user)
+  const { error } = await supabase.from('room_messages').insert({
+    room_id: roomId,
+    user_id: user.id,
+    user_name: profile.name,
+    avatar_url: profile.avatarUrl || null,
+    message: message.trim(),
+    message_type: messageType,
+  })
+
+  if (error) throw new Error(error.message)
+}
+
+export async function deleteRoomMessage(messageId: string) {
+  const supabase = createClient()
+  const { error } = await supabase.from('room_messages').delete().eq('id', messageId)
+  if (error) throw new Error(error.message)
+}
+
+export function subscribeToRoomMessages(roomId: string, onMessage: (msg: NabarMessageItem) => void) {
+  const supabase = createClient()
+  const channel = supabase
+    .channel(`room-messages-${roomId}`)
+    .on(
+      'postgres_changes',
+      { event: 'INSERT', schema: 'public', table: 'room_messages', filter: `room_id=eq.${roomId}` },
+      (payload) => {
+        const m = payload.new as any
+        onMessage({
+          id: m.id,
+          roomId: m.room_id,
+          userId: m.user_id,
+          userName: m.user_name,
+          avatarUrl: m.avatar_url,
+          message: m.message,
+          messageType: m.message_type || 'text',
+          createdAt: m.created_at,
+        })
+      }
+    )
+    .subscribe()
+
+  return channel
+}
+
