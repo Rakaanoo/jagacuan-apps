@@ -1,35 +1,48 @@
-"use client"
+'use client'
 
-import { useState, useEffect } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { Menu, DollarSign, Check, Plus, Users, Calendar as CalendarIcon, PieChart, Search } from "lucide-react"
-import { useAppStore, formatRupiah, TargetItem } from "@/lib/store"
-import { useTranslation } from "@/lib/i18n"
+import { useState, useEffect } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import {
+  Menu,
+  DollarSign,
+  Check,
+  Plus,
+  Users,
+  Calendar as CalendarIcon,
+  PieChart,
+  Search,
+  Download,
+  X,
+  Target,
+} from 'lucide-react'
+import { useAppStore, formatRupiah, TargetItem } from '@/lib/store'
+import { useTranslation } from '@/lib/i18n'
 
-import SidebarDrawer from "@/components/SidebarDrawer"
-import SelectTargetTypeModal from "@/components/SelectTargetTypeModal"
-import CreateTargetModal from "@/components/CreateTargetModal"
-import TargetDetailModal from "@/components/TargetDetailModal"
-import NabarRoomModal from "@/components/NabarRoomModal"
-import BackupRestoreModal from "@/components/BackupRestoreModal"
-import CalendarModal from "@/components/CalendarModal"
-import StatisticsModal from "@/components/StatisticsModal"
-import ToastNotification from "@/components/ToastNotification"
+import SidebarDrawer from '@/components/SidebarDrawer'
+import SelectTargetTypeModal from '@/components/SelectTargetTypeModal'
+import CreateTargetModal from '@/components/CreateTargetModal'
+import TargetDetailModal from '@/components/TargetDetailModal'
+import NabarRoomModal from '@/components/NabarRoomModal'
+import BackupRestoreModal from '@/components/BackupRestoreModal'
+import CalendarModal from '@/components/CalendarModal'
+import StatisticsModal from '@/components/StatisticsModal'
+import ToastNotification from '@/components/ToastNotification'
 
 type TabType = 'berjalan' | 'selesai'
 type SortType = 'terbaru' | 'progres' | 'deadline'
 
 export default function Home() {
-  const { targets, theme, language, currency } = useAppStore()
+  const { targets, theme } = useAppStore()
   const { t } = useTranslation()
 
   const isDark = theme === 'dark'
 
   useEffect(() => {
-    const bg = isDark ? '--app-dark-bg' : '--app-cream-bg'
+    const bg = isDark ? '#16171B' : '#FAF7F2'
     document.documentElement.style.setProperty('--app-bg', bg)
   }, [isDark])
 
+  // Supabase Auth Code Callback (OAuth Google)
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const urlParams = new URLSearchParams(window.location.search)
@@ -70,14 +83,16 @@ export default function Home() {
 
   // Filter by search query
   if (searchQuery.trim()) {
-    rawList = rawList.filter((t) => t.title.toLowerCase().includes(searchQuery.toLowerCase()))
+    rawList = rawList.filter((t) =>
+      t.title.toLowerCase().includes(searchQuery.toLowerCase())
+    )
   }
 
   // Sort list
   const displayedList = [...rawList].sort((a, b) => {
     if (sortBy === 'progres') {
-      const pctA = a.currentAmount / a.targetAmount
-      const pctB = b.currentAmount / b.targetAmount
+      const pctA = a.targetAmount > 0 ? a.currentAmount / a.targetAmount : 0
+      const pctB = b.targetAmount > 0 ? b.currentAmount / b.targetAmount : 0
       return pctB - pctA
     }
     if (sortBy === 'deadline') {
@@ -98,308 +113,391 @@ export default function Home() {
     }
   }
 
+  // Theme-aware color palette
+  const bgColor = isDark ? '#16171B' : '#FAF7F2'
+  const cardBg = isDark ? '#23242A' : '#FAF6EF'
+  const cardBorder = isDark ? '#333644' : '#E0D5C3'
+  const textPrimary = isDark ? '#FFFFFF' : '#2C2418'
+  const textMuted = isDark ? '#A0A5B5' : '#7A6F60'
+  const inputBg = isDark ? '#1C1D22' : '#EFEADF'
+
   return (
-    <main
-      className="bg-figma min-h-screen"
-      style={{
-        paddingBottom: '90px',
-        color: isDark ? '--app-dark-text' : '--app-cream-text',
-        transition: 'background-color 0.25s ease, color 0.25s ease',
-      }}
-    >
+    <div className="min-h-screen bg-[#0B0C10] flex justify-center text-white selection:bg-[#7C8BFF] selection:text-white">
+      {/* Toast Notification Container */}
       <ToastNotification />
 
-      {/* Background Decorative Blobs */}
+      {/* Main Mobile App Frame */}
       <div
-        className="absolute top-0 right-0 w-24 h-24 -translate-x-1/2 -translate-y-1/2 opacity-20"
+        className="w-full max-w-md min-h-screen relative flex flex-col justify-between shadow-2xl overflow-x-hidden border-x border-white/5"
         style={{
-          background: isDark ? 'rgba(35, 36, 52, 0.3)' : 'rgba(250, 247, 242, 0.5)',
-          borderRadius: '50%',
+          backgroundColor: bgColor,
+          color: textPrimary,
         }}
-      />
-      <div
-        className="absolute bottom-left w-20 h-20 -translate-y-1/2 opacity-15"
-        style={{
-          background: isDark ? 'rgba(35, 36, 52, 0.3)' : 'rgba(250, 247, 242, 0.5)',
-          borderRadius: '50%',
-        }}
-      />
-
-      {/* Top Header Bar - Figma style */}
-      <header className="phone-status-bar bg-panel-bg border-b border-panel-border flex items-center justify-between px-4 py-3 z-10">
-        <button
-          onClick={() => setShowSidebar(true)}
-          className="p-2 rounded-md hover:bg-opacity-20 transition-colors"
-          style={{ flexShrink: 0 }}
+      >
+        {/* Top Header Bar */}
+        <header
+          className="sticky top-0 z-30 px-4 pt-3 pb-3 border-b backdrop-blur-md"
+          style={{
+            backgroundColor: isDark ? 'rgba(22, 23, 27, 0.95)' : 'rgba(250, 247, 242, 0.95)',
+            borderColor: cardBorder,
+          }}
         >
-          <Menu size={24} color={isDark ? 'white' : '#2C2418'} />
-        </button>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setShowSidebar(true)}
+                className="p-2 rounded-xl transition-colors hover:bg-white/10"
+                style={{ color: textPrimary }}
+                aria-label="Menu"
+              >
+                <Menu size={22} />
+              </button>
+              <div className="flex items-center gap-2">
+                <span className="font-extrabold text-xl tracking-tight" style={{ color: textPrimary }}>
+                  Jagacuan
+                </span>
+              </div>
+            </div>
 
-        <h1 className="text-xl font-bold tracking-tight" style={{ margin: 0, color: 'var(--app-cream-text)' }}>
-          Jagacuan
-        </h1>
-      </header>
+            {/* Quick Action Buttons & Unduh APK */}
+            <div className="flex items-center gap-1.5">
+              <a
+                href="/download/jagacuan.apk"
+                download="jagacuan.apk"
+                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold text-white bg-gradient-to-r from-[#7C8BFF] to-[#6366F1] hover:brightness-110 active:scale-95 transition-all shadow-sm shadow-[#7C8BFF]/25 no-underline"
+                title="Unduh APK Resmi"
+              >
+                <Download size={13} />
+                <span className="hidden sm:inline">APK</span>
+              </a>
 
-      {/* Quick Action Bar */}
-      <div className="px-4 pb-2 flex items-end justify-end gap-2" style={{ position: 'relative', zIndex: 10 }}>
-        <button
-          onClick={() => setShowCalendarModal(true)}
-          className="relative inline-flex items-center gap-2 rounded-lg border border-panel-border px-3 py-1.5 text-sm font-medium transition-colors"
-          style={{ background: isDark ? '#23242A' : '#FAF6EF', color: isDark ? 'white' : '#2C2418' }}
-        >
-          <CalendarIcon size={12} color="#D97706" />
-          <span>{t('page.calendar')}</span>
-        </button>
+              <button
+                onClick={() => setShowCalendarModal(true)}
+                className="p-2 rounded-xl transition-colors hover:bg-white/10"
+                style={{ color: '#E67E22' }}
+                title={t('page.calendar')}
+              >
+                <CalendarIcon size={20} />
+              </button>
 
-        <button
-          onClick={() => setShowStatsModal(true)}
-          className="relative inline-flex items-center gap-2 rounded-lg border border-panel-border px-3 py-1.5 text-sm font-medium transition-colors"
-          style={{ background: isDark ? '#23242A' : '#FAF6EF', color: isDark ? 'white' : '#2C2418' }}
-        >
-          <PieChart size={12} color="#16A34A" />
-          <span>{t('page.statistics')}</span>
-        </button>
+              <button
+                onClick={() => setShowStatsModal(true)}
+                className="p-2 rounded-xl transition-colors hover:bg-white/10"
+                style={{ color: '#22C55E' }}
+                title={t('page.statistics')}
+              >
+                <PieChart size={20} />
+              </button>
 
-        <button
-          onClick={() => setShowNabarModal(true)}
-          className="relative inline-flex items-center gap-2 rounded-lg border border-panel-border px-3 py-1.5 text-sm font-medium transition-colors"
-          style={{ background: isDark ? '#23242A' : '#FAF6EF', color: isDark ? 'white' : '#2C2418' }}
-        >
-          <Users size={12} color="#7C8BFF" />
-          <span>{t('page.rooms')}</span>
-        </button>
-      </div>
-
-      {/* Search & Sort */}
-      {targets.length > 0 && (
-        <div className="px-4 pb-2" style={{ position: 'relative', zIndex: 10 }}>
-          <div className="rounded-2xl border bg-[--app-cream-card] px-3 py-2 flex items-center gap-2 transition-colors hover:bg-opacity-50" style={{ color: isDark ? 'var(--app-dark-text)' : 'var(--app-cream-text)' }}>
-            <Search size={14} color={isDark ? '#A0A5B5' : '#7A6F60'} />
-            <input
-              type="text"
-              placeholder={t('page.search_placeholder')}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              style={{ width: '100%', background: 'none', border: 'none', color: isDark ? 'white' : '#2C2418', fontSize: '13px', outline: 'none', fontFamily: 'inherit' }}
-            />
+              <button
+                onClick={() => setShowNabarModal(true)}
+                className="p-2 rounded-xl transition-colors hover:bg-white/10"
+                style={{ color: '#818CF8' }}
+                title={t('page.rooms')}
+              >
+                <Users size={20} />
+              </button>
+            </div>
           </div>
 
-          <div className="mt-1 flex gap-2 overflow-x-auto pb-1">
+          {/* Search Bar */}
+          <div className="mt-3 relative">
+            <Search
+              size={16}
+              className="absolute left-3.5 top-1/2 -translate-y-1/2"
+              style={{ color: textMuted }}
+            />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={t('page.search_placeholder') || 'Cari target tabungan...'}
+              className="w-full pl-10 pr-9 py-2 rounded-xl text-xs font-medium outline-none transition-all border"
+              style={{
+                backgroundColor: inputBg,
+                borderColor: cardBorder,
+                color: textPrimary,
+              }}
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white"
+              >
+                <X size={14} />
+              </button>
+            )}
+          </div>
+
+          {/* Sort Chips */}
+          <div className="flex items-center gap-2 mt-2.5 overflow-x-auto no-scrollbar pb-0.5">
             <button
               onClick={() => setSortBy('terbaru')}
-              className="px-3 py-1.5 rounded text-sm font-medium transition-colors"
-              style={{ background: sortBy === 'terbaru' ? '--app-dark-accent' : isDark ? '#23242A' : '#EFEADF', color: sortBy === 'terbaru' ? 'white' : isDark ? '#A0A5B5' : '#2C2418', border: 'none' }}
+              className={`px-3 py-1 rounded-full text-xs font-semibold transition-all border cursor-pointer ${
+                sortBy === 'terbaru'
+                  ? 'bg-[#7C8BFF] text-white border-transparent shadow-sm'
+                  : 'border-white/10 hover:border-white/20'
+              }`}
+              style={{
+                backgroundColor: sortBy === 'terbaru' ? '#7C8BFF' : inputBg,
+                color: sortBy === 'terbaru' ? '#FFFFFF' : textMuted,
+                borderColor: sortBy === 'terbaru' ? 'transparent' : cardBorder,
+              }}
             >
-              {t('page.sort_newest')}
+              {t('page.sort_latest')}
             </button>
             <button
               onClick={() => setSortBy('progres')}
-              className="px-3 py-1.5 rounded text-sm font-medium transition-colors"
-              style={{ background: sortBy === 'progres' ? '--app-accent-green' : isDark ? '#23242A' : '#EFEADF', color: sortBy === 'progres' ? 'white' : isDark ? '#A0A5B5' : '#2C2418', border: 'none' }}
+              className={`px-3 py-1 rounded-full text-xs font-semibold transition-all border cursor-pointer ${
+                sortBy === 'progres'
+                  ? 'bg-[#10B981] text-white border-transparent shadow-sm'
+                  : 'border-white/10 hover:border-white/20'
+              }`}
+              style={{
+                backgroundColor: sortBy === 'progres' ? '#10B981' : inputBg,
+                color: sortBy === 'progres' ? '#FFFFFF' : textMuted,
+                borderColor: sortBy === 'progres' ? 'transparent' : cardBorder,
+              }}
             >
               {t('page.sort_progress')}
             </button>
             <button
               onClick={() => setSortBy('deadline')}
-              className="px-3 py-1.5 rounded text-sm font-medium transition-colors"
-              style={{ background: sortBy === 'deadline' ? '--app-accent-red' : isDark ? '#23242A' : '#EFEADF', color: sortBy === 'deadline' ? 'white' : isDark ? '#A0A5B5' : '#2C2418', border: 'none' }}
+              className={`px-3 py-1 rounded-full text-xs font-semibold transition-all border cursor-pointer ${
+                sortBy === 'deadline'
+                  ? 'bg-[#DC2626] text-white border-transparent shadow-sm'
+                  : 'border-white/10 hover:border-white/20'
+              }`}
+              style={{
+                backgroundColor: sortBy === 'deadline' ? '#DC2626' : inputBg,
+                color: sortBy === 'deadline' ? '#FFFFFF' : textMuted,
+                borderColor: sortBy === 'deadline' ? 'transparent' : cardBorder,
+              }}
             >
               {t('page.sort_deadline')}
             </button>
           </div>
-        </div>
-      )}
+        </header>
 
-      {/* Main Content */}
-      <div className="px-4 pb-4" style={{ position: "relative", zIndex: 10 }}>
-        {displayedList.length === 0 ? (
-          activeTab === 'berjalan' ? (
-            <div className="empty-state flex-1 flex flex-col items-center justify-center py-24 text-center"
-                style={{ color: isDark ? 'var(--app-dark-text)' : 'var(--app-cream-text)' }}>
-              <div className="mb-4"
-                  style={{ height: '44px', width: 'auto', objectFit: 'contain', marginBottom: '24px' }}>
-                <img
-                  src={isDark ? '/jagacuan-logo-dark.png' : '/jagacuan-logo-light.png'}
-                  alt="Jagacuan"
-                />
+        {/* Target List Container */}
+        <main className="flex-1 px-4 py-3 pb-28 overflow-y-auto">
+          {displayedList.length === 0 ? (
+            /* Empty State */
+            <div className="flex flex-col items-center justify-center py-20 text-center">
+              <div className="w-16 h-16 rounded-3xl bg-white/5 border border-white/10 flex items-center justify-center mb-4 text-[#7C8BFF]">
+                <Target size={32} />
               </div>
-              <h3 className="text-lg font-bold mb-2"
-                  style={{ fontSize: '18px', fontWeight: '700', marginBottom: '8px', color: 'currentColor' }}>
-                {t('page.no_active')}
+              <h3 className="text-base font-bold mb-1" style={{ color: textPrimary }}>
+                {activeTab === 'berjalan' ? t('page.no_active') : t('page.no_finished')}
               </h3>
-              <p className="text-sm"
-                  style={{ fontSize: '14px', color: isDark ? '#A0A5B5' : '#7A6F60', maxWidth: '240px', lineHeight: '1.5' }}
-                  dangerouslySetInnerHTML={{ __html: t('page.no_active_hint') }} />
+              <p
+                className="text-xs max-w-xs leading-relaxed"
+                style={{ color: textMuted }}
+                dangerouslySetInnerHTML={{
+                  __html:
+                    activeTab === 'berjalan'
+                      ? t('page.no_active_hint') || 'Belum ada celengan aktif. Tekan tombol (+) untuk membuat baru.'
+                      : 'Belum ada tabungan yang selesai.',
+                }}
+              />
             </div>
           ) : (
-            <div className="text-center py-24"
-                style={{ color: isDark ? '#A0A5B5' : '#7A6F60' }}>
-              <p style={{ fontSize: '15px', fontWeight: '600' }}>{t('page.no_finished')}</p>
+            /* Card List */
+            <div className="space-y-3">
+              {displayedList.map((target) => {
+                const pct =
+                  target.targetAmount > 0
+                    ? Math.min(100, Math.round((target.currentAmount / target.targetAmount) * 100))
+                    : 0
+
+                return (
+                  <motion.div
+                    key={target.id}
+                    whileHover={{ scale: 1.01 }}
+                    whileTap={{ scale: 0.99 }}
+                    onClick={() => {
+                      if (target.type === 'nabar') {
+                        setShowNabarModal(true)
+                      } else {
+                        setActiveDetailTarget(target)
+                      }
+                    }}
+                    className="p-3.5 rounded-2xl border transition-all cursor-pointer shadow-md flex items-center gap-3.5"
+                    style={{
+                      backgroundColor: cardBg,
+                      borderColor: cardBorder,
+                    }}
+                  >
+                    {/* Cover or Icon */}
+                    <div
+                      className="w-13 h-13 rounded-xl flex-shrink-0 flex items-center justify-center overflow-hidden border border-white/5"
+                      style={{ backgroundColor: inputBg }}
+                    >
+                      {target.coverImage ? (
+                        <img
+                          src={target.coverImage}
+                          alt={target.title}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <DollarSign size={22} style={{ color: '#7C8BFF' }} />
+                      )}
+                    </div>
+
+                    {/* Target Information */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5 mb-0.5">
+                        <h4 className="font-bold text-sm truncate" style={{ color: textPrimary }}>
+                          {target.title}
+                        </h4>
+                        {target.type === 'nabar' && (
+                          <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-md bg-[#818CF8]/15 text-[#818CF8] border border-[#818CF8]/25">
+                            Nabar
+                          </span>
+                        )}
+                      </div>
+
+                      <p className="text-xs font-semibold" style={{ color: textMuted }}>
+                        {formatRupiah(target.currentAmount)}{' '}
+                        <span className="text-white/40 font-normal">/ {formatRupiah(target.targetAmount)}</span>
+                      </p>
+
+                      {/* Mini Progress Bar */}
+                      <div className="w-full h-1.5 rounded-full bg-white/10 overflow-hidden mt-2">
+                        <div
+                          className="h-full rounded-full transition-all duration-300"
+                          style={{
+                            width: `${pct}%`,
+                            backgroundColor: pct >= 100 ? '#10B981' : '#7C8BFF',
+                          }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Percentage */}
+                    <div className="text-right flex-shrink-0">
+                      <span
+                        className="text-sm font-extrabold"
+                        style={{ color: pct >= 100 ? '#10B981' : textPrimary }}
+                      >
+                        {pct}%
+                      </span>
+                    </div>
+                  </motion.div>
+                )
+              })}
             </div>
-          )
-        ) : (
-          <div className="space-y-2"
-              style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {displayedList.map((target) => {
-              const pct = Math.min(100, Math.round((target.currentAmount / target.targetAmount) * 100))
+          )}
+        </main>
 
-              return (
-                <div
-                  key={target.id}
-                  onClick={() => {
-                    if (target.type === 'nabar') {
-                      setShowNabarModal(true)
-                    } else {
-                      setActiveDetailTarget(target)
-                    }
-                  }}
-                  className="goal-card-ui flex items-start gap-2 rounded-2xl border border-panel-border p-4 cursor-pointer transition-all hover:shadow-[0_4px_20px_rgba(0,0,0,0.1)]"
-                  style={{
-                    background: isDark ? '--app-dark-card' : '--app-cream-card',
-                    borderColor: isDark ? '--app-dark-border' : '--app-cream-border',
-                  }}
-                >
-                  <div className="flex items-start gap-3 w-14 h-14 rounded-xl flex-shrink-0"
-                      style={{
-                    background: isDark ? '--app-dark-input' : '--app-cream-card',
-                    overflow: 'hidden',
-                  }}>
-                    {target.coverImage ? (
-                      <img
-                        src={target.coverImage}
-                        alt={target.title}
-                        className="w-full h-full object-cover"
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                      />
-                    ) : (
-                      <DollarSign size={24} color={isDark ? '#8C9AFF' : '#2C2418'} />
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0"
-                      style={{ flex: 1 }}>
-                    <h4 className="font-bold truncate"
-                        style={{ fontSize: '15px', fontWeight: '700', marginBottom: '2px', color: 'currentColor' }}>
-                      {target.title}
-                    </h4>
-                    <p className="text-sm"
-                        style={{ fontSize: '12px', color: isDark ? '#A0A5B5' : '#7A6F60' }}>
-                      {formatRupiah(target.currentAmount)} / {formatRupiah(target.targetAmount)}
-                    </p>
-                  </div>
-                  <div className="text-right flex-1"
-                      style={{ textAlign: 'right', minWidth: 0 }}>
-                    <span className="font-semibold"
-                        style={{ fontSize: '15px', color: 'currentColor' }}>
-                      {pct}%
-                    </span>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        )}
+        {/* Floating Action Button (+) */}
+        <div className="fixed bottom-22 left-1/2 -translate-x-1/2 w-full max-w-md pointer-events-none px-5 z-40 flex justify-end">
+          <motion.button
+            whileHover={{ scale: 1.08 }}
+            whileTap={{ scale: 0.92 }}
+            onClick={() => setShowSelectTypeModal(true)}
+            className="w-13 h-13 rounded-2xl bg-gradient-to-tr from-[#7C8BFF] to-[#6366F1] text-white flex items-center justify-center shadow-xl shadow-[#7C8BFF]/30 pointer-events-auto cursor-pointer border border-white/20"
+            aria-label="Tambah Target"
+          >
+            <Plus size={26} />
+          </motion.button>
+        </div>
+
+        {/* Fixed Bottom Navigation Bar */}
+        <nav
+          className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md z-30 px-4 py-2 border-t backdrop-blur-xl flex items-center justify-around"
+          style={{
+            backgroundColor: isDark ? 'rgba(22, 23, 27, 0.96)' : 'rgba(250, 247, 242, 0.96)',
+            borderColor: cardBorder,
+          }}
+        >
+          {/* Tab 1: Berjalan */}
+          <button
+            onClick={() => setActiveTab('berjalan')}
+            className={`flex-1 py-2 rounded-xl flex flex-col items-center justify-center gap-1 transition-all cursor-pointer ${
+              activeTab === 'berjalan'
+                ? 'font-bold'
+                : 'opacity-65 hover:opacity-100'
+            }`}
+            style={{
+              backgroundColor: activeTab === 'berjalan' ? (isDark ? '#23242A' : '#EFEADF') : 'transparent',
+              color: activeTab === 'berjalan' ? '#7C8BFF' : textMuted,
+            }}
+          >
+            <DollarSign size={20} />
+            <span className="text-[11px] tracking-wide">
+              {t('page.tab_active')} ({activeTargets.length})
+            </span>
+          </button>
+
+          {/* Tab 2: Selesai */}
+          <button
+            onClick={() => setActiveTab('selesai')}
+            className={`flex-1 py-2 rounded-xl flex flex-col items-center justify-center gap-1 transition-all cursor-pointer ${
+              activeTab === 'selesai'
+                ? 'font-bold'
+                : 'opacity-65 hover:opacity-100'
+            }`}
+            style={{
+              backgroundColor: activeTab === 'selesai' ? (isDark ? '#23242A' : '#EFEADF') : 'transparent',
+              color: activeTab === 'selesai' ? '#10B981' : textMuted,
+            }}
+          >
+            <Check size={20} />
+            <span className="text-[11px] tracking-wide">
+              {t('page.tab_finished')} ({finishedTargets.length})
+            </span>
+          </button>
+        </nav>
+
+        {/* Modals & Drawers */}
+        <SidebarDrawer
+          isOpen={showSidebar}
+          onClose={() => setShowSidebar(false)}
+          onOpenBackup={() => setShowBackupModal(true)}
+        />
+
+        <SelectTargetTypeModal
+          isOpen={showSelectTypeModal}
+          onClose={() => setShowSelectTypeModal(false)}
+          onSelectType={handleSelectType}
+        />
+
+        <CreateTargetModal
+          isOpen={showCreateModal}
+          onClose={() => setShowCreateModal(false)}
+          targetType={selectedTargetType}
+        />
+
+        <TargetDetailModal
+          target={activeDetailTarget}
+          onClose={() => setActiveDetailTarget(null)}
+        />
+
+        <NabarRoomModal
+          isOpen={showNabarModal}
+          onClose={() => setShowNabarModal(false)}
+        />
+
+        <BackupRestoreModal
+          isOpen={showBackupModal}
+          onClose={() => setShowBackupModal(false)}
+        />
+
+        <CalendarModal
+          isOpen={showCalendarModal}
+          onClose={() => setShowCalendarModal(false)}
+          onOpenCreate={() => {
+            setShowCalendarModal(false)
+            setShowSelectTypeModal(true)
+          }}
+        />
+
+        <StatisticsModal
+          isOpen={showStatsModal}
+          onClose={() => setShowStatsModal(false)}
+        />
       </div>
-
-      <motion.div
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        onClick={() => setShowSelectTypeModal(true)}
-        className="fixed bottom-[100px] right-[max(24px,calc((100vw-480px)/2+24px)]"
-        style={{
-          width: '52px',
-          height: '52px',
-          borderRadius: '16px',
-          background: isDark ? '--app-dark-accent' : '--app-cream-text',
-          color: 'white',
-          border: 'none',
-          boxShadow: '0 8px 24px rgba(0,0,0,0.25)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          cursor: 'pointer',
-          zIndex: 30,
-        }}
-      >
-        <Plus size={24} />
-      </motion.div>
-
-      <nav
-        className="bottom-nav"
-        style={{
-          background: isDark ? 'rgba(25, 26, 35, 0.95)' : 'rgba(250, 247, 242, 0.95)',
-          borderTop: `1px solid ${isDark ? '--app-dark-border' : '--app-cream-border'}`,
-        }}
-      >
-        <button
-          className={`bottom-nav-tab ${activeTab === 'berjalan' ? 'active' : ''}`}
-          onClick={() => setActiveTab('berjalan')}
-          style={{
-            color: activeTab === 'berjalan' ? (isDark ? 'white' : '#2C2418') : (isDark ? '#A0A5B5' : '#6E655B'),
-            backgroundColor: activeTab === 'berjalan' ? (isDark ? '#2D3043' : '#EFEADF') : 'transparent',
-          }}
-        >
-          <DollarSign size={20} />
-          <span>{t('page.tab_active')}</span>
-        </button>
-        <button
-          className={`bottom-nav-tab ${activeTab === 'selesai' ? 'active' : ''}`}
-          onClick={() => setActiveTab('selesai')}
-          style={{
-            color: activeTab === 'selesai' ? (isDark ? 'white' : '#2C2418') : (isDark ? '#A0A5B5' : '#6E655B'),
-            backgroundColor: activeTab === 'selesai' ? (isDark ? '#2D3043' : '#EFEADF') : 'transparent',
-          }}
-        >
-          <Check size={20} />
-          <span>{t('page.tab_finished')}</span>
-        </button>
-      </nav>
-
-      <SidebarDrawer
-        isOpen={showSidebar}
-        onClose={() => setShowSidebar(false)}
-        onOpenBackup={() => setShowBackupModal(true)}
-      />
-
-      <SelectTargetTypeModal
-        isOpen={showSelectTypeModal}
-        onClose={() => setShowSelectTypeModal(false)}
-        onSelectType={handleSelectType}
-      />
-
-      <CreateTargetModal
-        isOpen={showCreateModal}
-        onClose={() => setShowCreateModal(false)}
-        targetType={selectedTargetType}
-      />
-
-      <TargetDetailModal
-        target={activeDetailTarget}
-        onClose={() => setActiveDetailTarget(null)}
-      />
-
-      <NabarRoomModal
-        isOpen={showNabarModal}
-        onClose={() => setShowNabarModal(false)}
-      />
-
-      <BackupRestoreModal
-        isOpen={showBackupModal}
-        onClose={() => setShowBackupModal(false)}
-      />
-
-      <CalendarModal
-        isOpen={showCalendarModal}
-        onClose={() => setShowCalendarModal(false)}
-        onOpenCreate={() => {
-          setShowCalendarModal(false)
-          setShowSelectTypeModal(true)
-        }}
-      />
-
-      <StatisticsModal
-        isOpen={showStatsModal}
-        onClose={() => setShowStatsModal(false)}
-      />
-    </main>
+    </div>
   )
 }

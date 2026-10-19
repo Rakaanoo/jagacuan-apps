@@ -1,52 +1,50 @@
 @import "tailwindcss";
 
 :root {
-  --figma-bg: #1E1E1E;
-  --figma-panel-bg: #2C2C2C;
-  --figma-panel-border: #383838;
-  --figma-text: #E5E5E5;
-  --figma-text-muted: #8E8E8E;
-  --figma-accent: #0D99FF;
-  --figma-accent-hover: #007BE5;
-
-  /* App Light Tokens */
+  /* App Light Tokens - Exact Flutter Match */
   --app-cream-bg: #FAF7F2;
-  --app-cream-card: #FAF5ED;
-  --app-cream-header: #EBE4D8;
-  --app-cream-text: #1C130D;
-  --app-cream-muted: #7A7067;
-  --app-cream-border: #E3DDD1;
+  --app-cream-card: #FAF6EF;
+  --app-cream-header: #EFEADF;
+  --app-cream-text: #2C2418;
+  --app-cream-muted: #7A6F60;
+  --app-cream-border: #E0D5C3;
 
-  /* App Dark Tokens */
-  --app-dark-bg: #191A23;
-  --app-dark-card: #202230;
-  --app-dark-input: #232534;
+  /* App Dark Tokens - Exact Flutter Match */
+  --app-dark-bg: #16171B;
+  --app-dark-card: #23242A;
+  --app-dark-input: #1C1D22;
   --app-dark-text: #FFFFFF;
-  --app-dark-muted: #9DA3B4;
-  --app-dark-border: #2D3043;
-  --app-dark-accent: #7C8CFF;
-  --app-dark-green: #4EAA79;
-  --app-dark-red: #E57373;
+  --app-dark-muted: #A0A5B5;
+  --app-dark-border: #333644;
+  --app-dark-accent: #7C8BFF;
+  --app-dark-green: #10B981;
+  --app-dark-red: #DC2626;
+
+  /* Global background variable dynamic */
+  --app-bg: var(--app-dark-bg);
 }
 
-@layer utilities {
-  .bg-figma {
-    background-color: var(--figma-bg);
-  }
-  .panel-bg {
-    background-color: var(--figma-panel-bg);
-    border-color: var(--figma-panel-border);
-  }
-  .text-figma {
-    color: var(--figma-text);
-  }
-  .text-muted {
-    color: var(--figma-text-muted);
-  }
-  .accent {
-    color: var(--figma-accent);
-  }
-  .accent-hover:hover {
-    color: var(--figma-accent-hover);
-  }
+body {
+  background-color: #0B0C10;
+  color: #FFFFFF;
+  margin: 0;
+  padding: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
 }

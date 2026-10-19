@@ -65,6 +65,19 @@ export function formatTimeAgo(dateStr: string): string {
   return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })
 }
 
+export function resolveRoomCoverUrl(coverImage?: string | null): string | undefined {
+  if (!coverImage || !coverImage.trim()) return undefined
+  const trimmed = coverImage.trim()
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+    return trimmed
+  }
+  if (trimmed.startsWith('/')) {
+    // Local device path accidentally stored from mobile app cache
+    return undefined
+  }
+  return `https://cddmksbflgzxmavrddrp.supabase.co/storage/v1/object/public/room-covers/${trimmed}`
+}
+
 export async function getCurrentUser() {
   const supabase = createClient()
   const { data: { user }, error } = await supabase.auth.getUser()
@@ -318,7 +331,7 @@ export async function getRoomById(roomIdParam: string, currentUserParam?: any): 
     startDate: room.start_date || undefined,
     deadlineDate: room.deadline_date || undefined,
     note: room.note || undefined,
-    coverImage: room.cover_image || undefined,
+    coverImage: resolveRoomCoverUrl(room.cover_image),
     ownerId: room.owner_id,
     membersCount: approvedMembers.length,
     members: approvedMembers,

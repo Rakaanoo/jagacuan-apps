@@ -1,55 +1,51 @@
 'use client'
 
 import { use, useState, useEffect, useCallback } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { motion } from 'framer-motion'
-import { Users, ArrowLeft, CheckCircle2, Clock, Plus, Share2, Loader2 } from 'lucide-react'
-import { useAppStore, formatRupiah } from '@/lib/store'
+import { motion, AnimatePresence } from 'framer-motion'
 import {
-  getCurrentUser,
-  getRoomById,
-  requestJoinRoom,
-  addRoomTransaction,
-  approveMember,
-  rejectMember,
-  approveRoomTransaction,
-  rejectRoomTransaction,
-  subscribeToRoom,
-  SupabaseNabarRoom,
-} from '@/lib/supabase/nabar'
-import GoogleSignInPrompt from '@/components/GoogleSignInPrompt'
-import ToastNotification from '@/components/ToastNotification'
+  Users,
+  Smartphone,
+  Download,
+  Copy,
+  Check,
+  Share2,
+  Sparkles,
+  ArrowRight,
+  ShieldCheck,
+  AlertCircle,
+  Loader2,
+  Calendar,
+  CheckCircle2,
+  Home,
+  Clock,
+} from 'lucide-react'
+import { getRoomById, SupabaseNabarRoom } from '@/lib/supabase/nabar'
+
+function formatRupiah(amount: number): string {
+  return new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    maximumFractionDigits: 0,
+  }).format(amount)
+}
 
 export default function RoomPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params)
   const roomId = resolvedParams.id
 
-  const searchParams = useSearchParams()
-  const isInvite = searchParams.get('invite') === 'true'
-
-  const router = useRouter()
-  const { theme, showToast } = useAppStore()
-  const isDark = theme === 'dark'
-
   const [loading, setLoading] = useState(true)
-  const [currentUser, setCurrentUser] = useState<any>(null)
+  const [detecting, setDetecting] = useState(true)
   const [room, setRoom] = useState<SupabaseNabarRoom | null>(null)
-  const [joining, setJoining] = useState(false)
-
-  // Quick Setor State
-  const [showQuickSetor, setShowQuickSetor] = useState(false)
-  const [setorAmountStr, setSetorAmountStr] = useState('50.000')
+  const [copied, setCopied] = useState(false)
+  const [copiedLink, setCopiedLink] = useState(false)
 
   const fetchRoomData = useCallback(async () => {
     try {
-      const user = await getCurrentUser()
-      setCurrentUser(user)
-
       const roomData = await getRoomById(roomId)
       setRoom(roomData)
     } catch (err) {
-      console.error('Error fetching room:', err)
+      console.error('Error fetching room details:', err)
     } finally {
       setLoading(false)
     }
@@ -58,724 +54,337 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
   useEffect(() => {
     fetchRoomData()
 
-    // Attempt auto-launching native Flutter app via Android Intent
+    // Coba luncurkan aplikasi otomatis via Android Intent pada mobile
     if (typeof window !== 'undefined') {
-      const launchedKey = `launched_${roomId}`
-      if (!sessionStorage.getItem(launchedKey)) {
-        sessionStorage.setItem(launchedKey, '1')
-        window.location.href = `intent://room/${roomId}#Intent;scheme=jagacuan;package=com.jagacuan.jagacuan_app;end`
+      const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
+      if (isMobile) {
+        const launchedKey = `launched_${roomId}`
+        if (!sessionStorage.getItem(launchedKey)) {
+          sessionStorage.setItem(launchedKey, '1')
+          window.location.href = `intent://room/${roomId}#Intent;scheme=jagacuan;package=com.jagacuan.jagacuan_app;end`
+        }
       }
     }
 
-    // Realtime listener
-    const channel = subscribeToRoom(roomId, () => {
-      fetchRoomData()
-    })
+    const timer = setTimeout(() => {
+      setDetecting(false)
+    }, 1000)
 
-    return () => {
-      if (channel) channel.unsubscribe()
-    }
+    return () => clearTimeout(timer)
   }, [roomId, fetchRoomData])
 
-  const handleRequestJoin = async () => {
-    if (!currentUser) return
-    setJoining(true)
-    try {
-      await requestJoinRoom(roomId)
-      showToast('Permintaan bergabung terkirim!', 'Tunggu pemilik ruang menyetujui permintaan Anda.', 'success')
-      await fetchRoomData()
-    } catch (err: any) {
-      showToast('Gagal mengajukan:', err.message || 'Terjadi kesalahan', 'info')
-    } finally {
-      setJoining(false)
-    }
-  }
-
-  const handleQuickSetor = async () => {
-    const amt = parseInt(setorAmountStr.replace(/\D/g, ''), 10) || 0
-    if (!room || amt <= 0) return
-
-    try {
-      const status = await addRoomTransaction(room.id, amt, true, 'Setoran tabungan')
-      setShowQuickSetor(false)
-
-      if (status === 'approved') {
-        showToast('Setoran berhasil!', `${formatRupiah(amt)} telah ditambahkan ke room.`, 'success')
-      } else {
-        showToast('Setoran terkirim!', `${formatRupiah(amt)} menunggu verifikasi dari Pemilik Ruang (Host).`, 'info')
-      }
-
-      await fetchRoomData()
-    } catch (err: any) {
-      showToast('Gagal melempar transaksi:', err.message, 'info')
-    }
-  }
-
-  const handleApproveTx = async (txId: string, name: string, amount: number) => {
-    if (!room) return
-    try {
-      await approveRoomTransaction(txId)
-      showToast('Setoran Disetujui!', `Setoran ${formatRupiah(amount)} dari ${name} telah diverifikasi.`, 'success')
-      await fetchRoomData()
-    } catch (err: any) {
-      showToast('Gagal menyetujui setoran:', err.message, 'info')
-    }
-  }
-
-  const handleRejectTx = async (txId: string, name: string, amount: number) => {
-    if (!room) return
-    try {
-      await rejectRoomTransaction(txId)
-      showToast('Setoran Ditolak', `Setoran ${formatRupiah(amount)} dari ${name} telah ditolak.`, 'info')
-      await fetchRoomData()
-    } catch (err: any) {
-      showToast('Gagal menolak setoran:', err.message, 'info')
-    }
-  }
-
-  const handleApprove = async (memberUserId: string, name: string) => {
-    if (!room) return
-    try {
-      await approveMember(room.id, memberUserId)
-      showToast('Anggota disetujui!', `${name} resmi menjadi anggota ruang.`, 'success')
-      await fetchRoomData()
-    } catch (err: any) {
-      showToast('Gagal menyetujui:', err.message, 'info')
-    }
-  }
-
-  const handleReject = async (memberUserId: string, name: string) => {
-    if (!room) return
-    try {
-      await rejectMember(room.id, memberUserId)
-      showToast('Permintaan ditolak', `Permintaan dari ${name} telah ditolak.`, 'info')
-      await fetchRoomData()
-    } catch (err: any) {
-      showToast('Gagal menolak:', err.message, 'info')
-    }
-  }
-
-  const handleShare = () => {
+  const handleOpenApp = () => {
     if (typeof window !== 'undefined') {
-      const inviteUrl = `${window.location.origin}/room/${roomId}?invite=true`
-      navigator.clipboard.writeText(inviteUrl)
-      showToast('Link Undangan Disalin!', 'Bagikan ke teman atau keluarga untuk bergabung', 'success')
+      window.location.href = `intent://room/${roomId}#Intent;scheme=jagacuan;package=com.jagacuan.jagacuan_app;end`
+      setTimeout(() => {
+        window.location.href = `jagacuan://room/${roomId}`
+      }, 600)
     }
   }
 
-  const bg = isDark ? '#16171B' : '#FAF7F2'
-  const textColor = isDark ? '#FFFFFF' : '#2C2418'
-  const cardBg = isDark ? '#23242A' : '#FAF6EF'
-  const cardBorder = isDark ? '#333644' : '#E0D5C3'
-  const subText = isDark ? '#A0A5B5' : '#7A6F60'
-  const accentCol = isDark ? '#7C8BFF' : '#2C2418'
-  const btnBg = isDark ? '#7C8BFF' : '#2C2418'
-
-  if (loading) {
-    return (
-      <div style={{ minHeight: '100vh', backgroundColor: bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <Loader2 size={32} className="animate-spin" color={accentCol} />
-      </div>
-    )
+  const handleCopyCode = () => {
+    if (typeof window !== 'undefined') {
+      navigator.clipboard.writeText(roomId)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    }
   }
+
+  const handleShareLink = () => {
+    if (typeof window !== 'undefined') {
+      navigator.clipboard.writeText(window.location.href)
+      setCopiedLink(true)
+      setTimeout(() => setCopiedLink(false), 2000)
+    }
+  }
+
+  const progressPct =
+    room && room.targetAmount > 0
+      ? Math.min(100, Math.round((room.currentAmount / room.targetAmount) * 100))
+      : 0
 
   return (
-    <main
-      style={{
-        minHeight: '100vh',
-        backgroundColor: bg,
-        color: textColor,
-        maxWidth: '480px',
-        margin: '0 auto',
-        position: 'relative',
-        paddingBottom: '40px',
-      }}
-    >
-      <ToastNotification />
+    <div className="min-h-screen bg-[#0B0C10] text-[#FFFFFF] font-sans relative overflow-x-hidden selection:bg-[#7C8BFF] selection:text-white flex justify-center">
+      {/* Background Ambient Glows */}
+      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[600px] h-[360px] bg-[#7C8BFF]/10 blur-[130px] rounded-full pointer-events-none" />
+      <div className="fixed bottom-0 right-0 w-[400px] h-[300px] bg-[#10B981]/8 blur-[140px] rounded-full pointer-events-none" />
 
-      {/* Top Bar */}
-      <header
-        style={{
-          padding: '20px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          borderBottom: `1px solid ${cardBorder}`,
-        }}
-      >
-        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: textColor, textDecoration: 'none', fontWeight: '600', fontSize: '14px' }}>
-          <ArrowLeft size={20} />
-          <span>Kembali ke Beranda</span>
-        </Link>
-        <button
-          onClick={handleShare}
-          style={{ background: 'none', border: 'none', color: accentCol, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
-        >
-          <Share2 size={18} />
-        </button>
-      </header>
-
-      <div style={{ padding: '16px 20px 0', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-        <a
-          href={`intent://room/${roomId}#Intent;scheme=jagacuan;package=com.jagacuan.jagacuan_app;end`}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '8px',
-            padding: '12px 16px',
-            backgroundColor: '#10B981',
-            color: '#FFFFFF',
-            borderRadius: '14px',
-            fontWeight: '700',
-            fontSize: '14px',
-            textDecoration: 'none',
-            boxShadow: '0 4px 12px rgba(16, 185, 129, 0.25)',
-          }}
-        >
-          <span>📱 Buka di Aplikasi Android Jagacuan</span>
-        </a>
-        <a
-          href="/download/jagacuan.apk"
-          download="jagacuan.apk"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '8px',
-            padding: '10px 16px',
-            backgroundColor: isDark ? '#232532' : '#EFEADF',
-            color: textColor,
-            border: `1px solid ${cardBorder}`,
-            borderRadius: '12px',
-            fontWeight: '600',
-            fontSize: '13px',
-            textDecoration: 'none',
-          }}
-        >
-          <span>📥 Belum Punya Aplikasi? Unduh APK Langsung</span>
-        </a>
-      </div>
-
-      <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-        {!room ? (
-          /* Room Not Found */
-          <div style={{ textAlign: 'center', padding: '60px 0', color: subText }}>
-            <h3 style={{ fontSize: '18px', fontWeight: '700', color: textColor }}>Ruang tidak ditemukan</h3>
-            <p style={{ fontSize: '14px', marginTop: '6px' }}>Link ruang mungkin sudah tidak berlaku atau salah.</p>
-          </div>
-        ) : !currentUser ? (
-          /* User Not Logged In, but Room Found! */
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginTop: '10px' }}>
-            <div
-              style={{
-                backgroundColor: cardBg,
-                borderRadius: '24px',
-                padding: '24px',
-                border: `1px solid ${cardBorder}`,
-                textAlign: 'center',
-              }}
-            >
-              {room.coverImage && (
-                <div style={{ borderRadius: '16px', overflow: 'hidden', height: '180px', marginBottom: '16px' }}>
-                  <img src={room.coverImage} alt={room.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                </div>
-              )}
-              <h2 style={{ fontSize: '22px', fontWeight: '800', margin: '0 0 8px' }}>{room.title}</h2>
-              <p style={{ fontSize: '14px', color: subText, marginBottom: '16px' }}>
-                Target Tabungan: <strong>{formatRupiah(room.targetAmount)}</strong>
-              </p>
-
-              {room.note && (
-                <p style={{ fontSize: '13px', fontStyle: 'italic', color: subText, backgroundColor: isDark ? '#1C1D22' : '#EFEADF', padding: '10px 14px', borderRadius: '12px', marginBottom: '20px' }}>
-                  "{room.note}"
-                </p>
-              )}
-
-              <p style={{ fontSize: '13px', color: subText, marginBottom: '16px' }}>
-                Masuk dengan akun Google Anda untuk bergabung dan mulai menabung bersama di ruang ini.
-              </p>
-
-              <GoogleSignInPrompt
-                title="Login dengan Google untuk Bergabung"
-                description="Masuk untuk bergabung atau melihat detail Ruang Nabung ini."
-                redirectTo={`/room/${roomId}?invite=true`}
-              />
+      {/* Main App Container */}
+      <div className="w-full max-w-md min-h-screen px-5 py-6 flex flex-col justify-between relative z-10 bg-[#16171B] border-x border-white/5 shadow-2xl">
+        {/* Top Navbar */}
+        <header className="flex items-center justify-between pb-4 border-b border-white/5">
+          <Link href="/" className="flex items-center gap-2.5 text-white no-underline group">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#7C8BFF] to-[#4F46E5] flex items-center justify-center shadow-lg shadow-[#7C8BFF]/20 group-hover:scale-105 transition-transform">
+              <span className="font-extrabold text-base text-white tracking-wider">J</span>
             </div>
-          </div>
-        ) : room.userStatus === 'none' ? (
-          /* Logged In, but Not a Member Yet */
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginTop: '10px' }}>
-            <div
-              style={{
-                backgroundColor: cardBg,
-                borderRadius: '24px',
-                padding: '24px',
-                border: `1px solid ${cardBorder}`,
-                textAlign: 'center',
-              }}
+            <div className="flex flex-col">
+              <span className="text-base font-bold tracking-tight text-white leading-none">Jagacuan</span>
+              <span className="text-[10px] text-white/50 tracking-wide mt-0.5">Ruang Tunggu Nabar</span>
+            </div>
+          </Link>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleShareLink}
+              title="Bagikan Tautan"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-medium text-white/80 transition-colors cursor-pointer"
             >
-              {room.coverImage && (
-                <div style={{ borderRadius: '16px', overflow: 'hidden', height: '140px', marginBottom: '16px' }}>
-                  <img src={room.coverImage} alt={room.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                </div>
-              )}
-              <h2 style={{ fontSize: '22px', fontWeight: '800', margin: '0 0 8px' }}>{room.title}</h2>
-              <p style={{ fontSize: '13px', color: subText, marginBottom: '16px' }}>
-                Target Total: <strong>{formatRupiah(room.targetAmount)}</strong>
-              </p>
+              {copiedLink ? <Check size={13} className="text-[#10B981]" /> : <Share2 size={13} />}
+              <span>{copiedLink ? 'Tersalin' : 'Bagikan'}</span>
+            </button>
+          </div>
+        </header>
 
-              {room.note && (
-                <p style={{ fontSize: '13px', fontStyle: 'italic', color: subText, backgroundColor: isDark ? '#1C1D22' : '#EFEADF', padding: '10px 14px', borderRadius: '12px', marginBottom: '20px' }}>
-                  "{room.note}"
-                </p>
-              )}
-
-              <button
-                onClick={handleRequestJoin}
-                disabled={joining}
-                style={{
-                  width: '100%',
-                  padding: '14px',
-                  borderRadius: '999px',
-                  border: 'none',
-                  backgroundColor: btnBg,
-                  color: '#FFF',
-                  fontWeight: '700',
-                  fontSize: '15px',
-                  cursor: joining ? 'not-allowed' : 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
-                  fontFamily: 'inherit',
-                  boxShadow: '0 4px 16px rgba(0, 0, 0, 0.15)',
-                }}
+        {/* Dynamic State: Loading / Detect vs Ruang Tunggu & Install Gateway */}
+        <div className="my-auto py-5">
+          <AnimatePresence mode="wait">
+            {detecting || loading ? (
+              /* Loading & Auto-Detect State */
+              <motion.div
+                key="detecting"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                className="flex flex-col items-center text-center py-12 px-6 rounded-3xl bg-[#23242A]/90 border border-[#333644] backdrop-blur-xl shadow-2xl"
               >
-                {joining ? <Loader2 size={18} className="animate-spin" /> : <Users size={18} />}
-                <span>Minta Bergabung ke Room</span>
-              </button>
-            </div>
-          </div>
-        ) : room.userStatus === 'pending' ? (
-          /* Logged In & Pending Approval */
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginTop: '10px' }}>
-            <div
-              style={{
-                backgroundColor: cardBg,
-                borderRadius: '24px',
-                padding: '24px',
-                border: `1px solid ${cardBorder}`,
-                textAlign: 'center',
-              }}
-            >
-              <div style={{ width: '56px', height: '56px', borderRadius: '50%', backgroundColor: isDark ? '#3D331A' : '#FEF3C7', color: '#D97706', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
-                <Clock size={28} />
-              </div>
-              <h3 style={{ fontSize: '18px', fontWeight: '800', margin: '0 0 8px' }}>Menunggu Persetujuan</h3>
-              <p style={{ fontSize: '14px', color: subText, lineHeight: '1.5', marginBottom: '16px' }}>
-                Permintaan Anda untuk bergabung di <strong>{room.title}</strong> telah dikirim. Pemilik ruang perlu menyetujui permintaan Anda sebelum Anda bisa menyetor tabungan.
-              </p>
-              <span
-                style={{
-                  display: 'inline-block',
-                  backgroundColor: isDark ? '#3D331A' : '#FEF3C7',
-                  color: '#D97706',
-                  fontSize: '12px',
-                  fontWeight: '700',
-                  padding: '6px 14px',
-                  borderRadius: '999px',
-                }}
+                <div className="relative mb-6">
+                  <div className="w-16 h-16 rounded-2xl bg-[#7C8BFF]/15 border border-[#7C8BFF]/30 flex items-center justify-center animate-pulse">
+                    <Smartphone className="w-8 h-8 text-[#7C8BFF]" />
+                  </div>
+                  <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-[#10B981] flex items-center justify-center shadow-md">
+                    <Loader2 size={12} className="text-white animate-spin" />
+                  </div>
+                </div>
+
+                <h3 className="text-lg font-bold text-white mb-2">Membuka Ruangan...</h3>
+                <p className="text-xs text-[#A0A5B5] max-w-[280px] leading-relaxed">
+                  Menghubungkan ke aplikasi Jagacuan di ponsel Anda. Mohon tunggu sebentar...
+                </p>
+
+                <div className="mt-6 flex items-center gap-2 text-[11px] text-[#7C8BFF] bg-[#7C8BFF]/10 px-3.5 py-1.5 rounded-full border border-[#7C8BFF]/20">
+                  <Sparkles size={12} className="animate-spin text-[#10B981]" />
+                  <span>Deteksi Aplikasi Jagacuan</span>
+                </div>
+              </motion.div>
+            ) : !room ? (
+              /* Room Not Found State */
+              <motion.div
+                key="not-found"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex flex-col items-center text-center py-10 px-6 rounded-3xl bg-[#23242A] border border-[#333644] shadow-2xl"
               >
-                Status: Pending Approval
-              </span>
-            </div>
-          </div>
-        ) : (
-          /* Approved Member or Owner View */
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            {/* Goal Card */}
-            <div
-              style={{
-                backgroundColor: cardBg,
-                borderRadius: '20px',
-                padding: '20px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '16px',
-                border: `1px solid ${cardBorder}`,
-              }}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <div>
-                  <p style={{ fontSize: '12px', color: subText, marginBottom: '2px', fontWeight: '500' }}>Target Kolaborasi</p>
-                  <h3 style={{ fontSize: '18px', fontWeight: '700', margin: 0 }}>{room.title}</h3>
+                <div className="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mb-4 text-amber-400">
+                  <AlertCircle size={28} />
                 </div>
-                <span
-                  style={{
-                    fontSize: '14px',
-                    fontWeight: '800',
-                    color: accentCol,
-                    backgroundColor: isDark ? '#1C1D22' : '#EFEADF',
-                    padding: '4px 10px',
-                    borderRadius: '999px',
-                  }}
-                >
-                  {Math.round((room.currentAmount / room.targetAmount) * 100)}%
-                </span>
-              </div>
+                <h3 className="text-lg font-bold text-white mb-1.5">Ruang Tidak Ditemukan</h3>
+                <p className="text-xs text-[#A0A5B5] mb-6 max-w-[280px] leading-relaxed">
+                  Tautan ruang mungkin salah, telah dihapus oleh pemilik, atau masa berlakunya telah usai.
+                </p>
 
-              <div>
-                <p style={{ fontSize: '13px', color: subText, marginBottom: '4px' }}>Total Saldo Terkumpul</p>
-                <h1 style={{ fontSize: '26px', fontWeight: '800', margin: 0 }}>
-                  {formatRupiah(room.currentAmount)}
-                </h1>
-              </div>
-
-              {/* Progress Bar */}
-              <div>
-                <div style={{ height: '8px', borderRadius: '999px', backgroundColor: isDark ? '#1C1D22' : '#EFEADF', overflow: 'hidden', marginBottom: '8px' }}>
-                  <div
-                    style={{
-                      height: '100%',
-                      width: `${Math.round((room.currentAmount / room.targetAmount) * 100)}%`,
-                      backgroundColor: accentCol,
-                      borderRadius: '999px',
-                    }}
-                  />
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: subText }}>
-                  <span>Target: {formatRupiah(room.targetAmount)}</span>
-                  <span>Sisa: {formatRupiah(Math.max(0, room.targetAmount - room.currentAmount))}</span>
-                </div>
-              </div>
-
-              {/* Actions */}
-              <div style={{ display: 'flex', gap: '10px' }}>
-                <button
-                  onClick={() => setShowQuickSetor(!showQuickSetor)}
-                  style={{
-                    flex: 1,
-                    padding: '12px',
-                    borderRadius: '12px',
-                    border: 'none',
-                    backgroundColor: btnBg,
-                    color: '#FFF',
-                    fontWeight: '700',
-                    fontSize: '13px',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '6px',
-                    fontFamily: 'inherit',
-                  }}
-                >
-                  <Plus size={16} /> Setor ke Room
-                </button>
-                <button
-                  onClick={handleShare}
-                  style={{
-                    padding: '12px 16px',
-                    borderRadius: '12px',
-                    border: `1px solid ${cardBorder}`,
-                    backgroundColor: isDark ? '#1C1D22' : '#EFEADF',
-                    color: textColor,
-                    fontWeight: '600',
-                    fontSize: '13px',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                  }}
-                >
-                  <Share2 size={16} /> Undang
-                </button>
-              </div>
-
-              {showQuickSetor && (
-                <div
-                  style={{
-                    padding: '12px',
-                    backgroundColor: isDark ? '#1C1D22' : '#EFEADF',
-                    borderRadius: '14px',
-                    display: 'flex',
-                    gap: '10px',
-                    alignItems: 'center',
-                  }}
-                >
-                  <input
-                    type="text"
-                    value={setorAmountStr}
-                    onChange={(e) => setSetorAmountStr(e.target.value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, '.'))}
-                    placeholder="Nominal Rp"
-                    style={{
-                      flex: 1,
-                      backgroundColor: isDark ? '#23242A' : '#FFFFFF',
-                      border: `1px solid ${cardBorder}`,
-                      borderRadius: '10px',
-                      padding: '8px 12px',
-                      color: textColor,
-                      fontSize: '14px',
-                      outline: 'none',
-                    }}
-                  />
-                  <button
-                    onClick={handleQuickSetor}
-                    style={{
-                      padding: '8px 16px',
-                      borderRadius: '10px',
-                      backgroundColor: '#16A34A',
-                      color: 'white',
-                      fontWeight: '700',
-                      border: 'none',
-                      cursor: 'pointer',
-                    }}
+                <div className="w-full flex flex-col gap-2.5">
+                  <a
+                    href="/download/jagacuan.apk"
+                    download="jagacuan.apk"
+                    className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#7C8BFF] to-[#6366F1] hover:brightness-110 text-white font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-lg shadow-[#7C8BFF]/20 no-underline"
                   >
-                    Kirim
-                  </button>
-                </div>
-              )}
-            </div>
+                    <Download size={15} />
+                    <span>Unduh APK Jagacuan</span>
+                  </a>
 
-            {/* Members Section with Google PP */}
-            <div style={{ backgroundColor: cardBg, borderRadius: '20px', padding: '18px', border: `1px solid ${cardBorder}` }}>
-              <h4 style={{ fontSize: '15px', fontWeight: '700', margin: '0 0 12px' }}>
-                Anggota ({room.membersCount})
-              </h4>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-                {room.members.map((mem) => (
-                  <div
-                    key={mem.id}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px',
-                      backgroundColor: isDark ? '#1C1D22' : '#EFEADF',
-                      padding: '6px 12px 6px 6px',
-                      borderRadius: '999px',
-                    }}
+                  <Link
+                    href="/"
+                    className="w-full py-3 px-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white/80 font-semibold text-xs flex items-center justify-center gap-1.5 transition-colors no-underline"
                   >
-                    <div
-                      style={{
-                        width: '28px',
-                        height: '28px',
-                        borderRadius: '50%',
-                        backgroundColor: mem.avatarBg,
-                        color: 'white',
-                        fontWeight: '700',
-                        fontSize: '12px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        overflow: 'hidden',
-                        flexShrink: 0,
-                      }}
-                    >
-                      {mem.avatarUrl ? (
-                        <img src={mem.avatarUrl} alt={mem.name} referrerPolicy="no-referrer" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      ) : (
-                        mem.name[0]?.toUpperCase()
+                    <Home size={14} />
+                    <span>Kembali ke Beranda</span>
+                  </Link>
+                </div>
+              </motion.div>
+            ) : (
+              /* Ruang Tunggu & Install Dashboard Gateway */
+              <motion.div
+                key="waiting-room"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35, ease: 'easeOut' }}
+                className="space-y-4"
+              >
+                {/* Header Tag / Status */}
+                <div className="flex items-center justify-center gap-1.5">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#10B981]/15 border border-[#10B981]/30 text-[#10B981] text-[11px] font-semibold tracking-wide">
+                    <span className="w-2 h-2 rounded-full bg-[#10B981] animate-ping" />
+                    Undangan Nabung Bareng Aktif
+                  </span>
+                </div>
+
+                {/* Room Card Preview */}
+                <div className="rounded-3xl bg-[#23242A] border border-[#333644] overflow-hidden shadow-2xl relative">
+                  {room.coverImage ? (
+                    <div className="relative w-full h-44 overflow-hidden bg-black/40">
+                      <img
+                        src={room.coverImage}
+                        alt={room.title}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#23242A] via-[#23242A]/40 to-transparent" />
+                    </div>
+                  ) : (
+                    <div className="w-full h-24 bg-gradient-to-br from-[#7C8BFF]/20 to-[#10B981]/10 flex items-center justify-center border-b border-white/5">
+                      <Users className="w-10 h-10 text-[#7C8BFF]/70" />
+                    </div>
+                  )}
+
+                  <div className="p-5">
+                    <div className="flex items-center justify-between gap-2 mb-1">
+                      <p className="text-[11px] uppercase tracking-wider font-bold text-[#7C8BFF]">
+                        Ruang Nabar
+                      </p>
+                      {room.membersCount > 0 && (
+                        <span className="text-[11px] text-[#A0A5B5] flex items-center gap-1 bg-white/5 px-2 py-0.5 rounded-full border border-white/10">
+                          <Users size={11} className="text-[#10B981]" />
+                          <span>{room.membersCount} Anggota</span>
+                        </span>
                       )}
                     </div>
-                    <span style={{ fontSize: '13px', fontWeight: '600' }}>{mem.name}</span>
-                    <span style={{ fontSize: '10px', backgroundColor: '#16A34A', color: 'white', padding: '2px 6px', borderRadius: '6px' }}>
-                      Approved
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
 
-            {/* Pending Approval Section (for owner) */}
-            {room.userStatus === 'owner' && room.pendingMembers.length > 0 && (
-              <div style={{ backgroundColor: cardBg, borderRadius: '20px', padding: '18px', border: `1px solid ${cardBorder}` }}>
-                <h4 style={{ fontSize: '15px', fontWeight: '700', margin: '0 0 12px' }}>
-                  Permintaan Bergabung ({room.pendingMembers.length})
-                </h4>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  {room.pendingMembers.map((mem) => (
-                    <div
-                      key={mem.id}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        backgroundColor: isDark ? '#1C1D22' : '#EFEADF',
-                        padding: '10px 14px',
-                        borderRadius: '12px',
-                      }}
-                    >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <h2 className="text-xl font-extrabold text-white tracking-tight mb-3">
+                      {room.title}
+                    </h2>
+
+                    {/* Target Amount Highlight */}
+                    <div className="p-3.5 rounded-2xl bg-[#1C1D22] border border-[#333644] mb-4">
+                      <div className="flex justify-between items-baseline mb-1.5">
+                        <span className="text-xs text-[#A0A5B5]">Target Tabungan</span>
+                        <span className="text-xs font-bold text-[#10B981]">{progressPct}%</span>
+                      </div>
+                      <div className="text-2xl font-black text-white tracking-tight">
+                        {formatRupiah(room.targetAmount)}
+                      </div>
+
+                      {/* Progress Bar */}
+                      <div className="w-full h-2 rounded-full bg-white/10 overflow-hidden mt-2.5">
                         <div
-                          style={{
-                            width: '32px',
-                            height: '32px',
-                            borderRadius: '50%',
-                            backgroundColor: mem.avatarBg,
-                            color: 'white',
-                            fontWeight: '700',
-                            fontSize: '12px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            overflow: 'hidden',
-                            flexShrink: 0,
-                          }}
-                        >
-                          {mem.avatarUrl ? (
-                            <img src={mem.avatarUrl} alt={mem.name} referrerPolicy="no-referrer" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                          ) : (
-                            mem.name[0]?.toUpperCase()
-                          )}
+                          className="h-full bg-gradient-to-r from-[#7C8BFF] to-[#10B981] rounded-full transition-all duration-500"
+                          style={{ width: `${progressPct}%` }}
+                        />
+                      </div>
+
+                      {room.currentAmount > 0 && (
+                        <div className="text-[11px] text-[#A0A5B5] mt-1.5 flex justify-between">
+                          <span>Terkumpul:</span>
+                          <span className="font-semibold text-white/90">{formatRupiah(room.currentAmount)}</span>
                         </div>
-                        <div>
-                          <span style={{ fontSize: '14px', fontWeight: '600', display: 'block' }}>{mem.name}</span>
-                          <span style={{ fontSize: '10px', backgroundColor: '#D97706', color: 'white', padding: '2px 6px', borderRadius: '6px' }}>
-                            Pending
+                      )}
+                    </div>
+
+                    {room.note && (
+                      <div className="mb-4 text-xs italic text-white/70 bg-[#1C1D22] border border-[#333644] rounded-xl px-3 py-2">
+                        &ldquo;{room.note}&rdquo;
+                      </div>
+                    )}
+
+                    {/* Kode Ruangan Bar */}
+                    <div className="flex items-center justify-between px-3 py-2 rounded-xl bg-[#1C1D22] border border-[#333644] text-xs">
+                      <span className="text-[#A0A5B5] text-[11px]">Kode Ruang:</span>
+                      <button
+                        onClick={handleCopyCode}
+                        className="flex items-center gap-1.5 font-mono font-semibold text-white/90 hover:text-white transition-colors cursor-pointer"
+                      >
+                        <span className="tracking-wider">{roomId.slice(0, 8)}...</span>
+                        {copied ? (
+                          <span className="text-[#10B981] text-[10px] font-sans font-bold flex items-center gap-0.5">
+                            <Check size={12} /> Tersalin
                           </span>
-                        </div>
-                      </div>
-                      <div style={{ display: 'flex', gap: '8px' }}>
-                        <button
-                          onClick={() => handleApprove(mem.userId, mem.name)}
-                          style={{ padding: '6px 12px', borderRadius: '8px', backgroundColor: '#16A34A', color: 'white', fontSize: '12px', fontWeight: '600', border: 'none', cursor: 'pointer' }}
-                        >
-                          Terima
-                        </button>
-                        <button
-                          onClick={() => handleReject(mem.userId, mem.name)}
-                          style={{ padding: '6px 12px', borderRadius: '8px', backgroundColor: '#DC2626', color: 'white', fontSize: '12px', fontWeight: '600', border: 'none', cursor: 'pointer' }}
-                        >
-                          Tolak
-                        </button>
-                      </div>
+                        ) : (
+                          <Copy size={13} className="text-white/40" />
+                        )}
+                      </button>
                     </div>
-                  ))}
+                  </div>
                 </div>
-              </div>
-            )}
 
-            {/* Pending Deposit Approvals Section (for owner) */}
-            {room.userStatus === 'owner' && room.pendingActivities && room.pendingActivities.length > 0 && (
-              <div style={{ backgroundColor: cardBg, borderRadius: '20px', padding: '18px', border: `1px solid ${cardBorder}` }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-                  <Clock size={16} color="#D97706" />
-                  <h4 style={{ fontSize: '15px', fontWeight: '700', margin: 0 }}>
-                    Setoran Menunggu Verifikasi ({room.pendingActivities.length})
-                  </h4>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  {room.pendingActivities.map((act) => (
-                    <div
-                      key={act.id}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        backgroundColor: isDark ? '#1C1D22' : '#EFEADF',
-                        padding: '10px 14px',
-                        borderRadius: '12px',
-                      }}
-                    >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <div
-                          style={{
-                            width: '32px',
-                            height: '32px',
-                            borderRadius: '50%',
-                            backgroundColor: isDark ? '#3D331A' : '#FEF3C7',
-                            color: '#D97706',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            overflow: 'hidden',
-                            flexShrink: 0,
-                          }}
-                        >
-                          {act.avatarUrl ? (
-                            <img src={act.avatarUrl} alt={act.name} referrerPolicy="no-referrer" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                          ) : (
-                            <span style={{ fontSize: '12px', fontWeight: '700' }}>{act.name[0]}</span>
-                          )}
-                        </div>
-                        <div>
-                          <p style={{ fontSize: '13px', fontWeight: '700', margin: 0 }}>
-                            {act.name} - <span style={{ color: '#16A34A' }}>+{formatRupiah(act.amount)}</span>
-                          </p>
-                          <p style={{ fontSize: '11px', color: subText, margin: '2px 0 0' }}>
-                            {act.timeAgo} • Pending Host
-                          </p>
-                        </div>
-                      </div>
+                {/* Primary Action Buttons */}
+                <div className="space-y-3 pt-1">
+                  {/* Button 1: Buka di Aplikasi (Sudah Download) */}
+                  <button
+                    onClick={handleOpenApp}
+                    className="w-full py-4 px-5 rounded-2xl bg-gradient-to-r from-[#10B981] to-[#059669] hover:brightness-110 active:scale-[0.99] text-white font-extrabold text-sm flex items-center justify-center gap-2.5 transition-all shadow-lg shadow-[#10B981]/25 cursor-pointer"
+                  >
+                    <Smartphone size={18} />
+                    <span>Buka di Aplikasi Jagacuan</span>
+                    <ArrowRight size={16} className="ml-auto opacity-75" />
+                  </button>
 
-                      <div style={{ display: 'flex', gap: '8px' }}>
-                        <button
-                          onClick={() => handleApproveTx(act.id, act.name, act.amount)}
-                          style={{ padding: '6px 12px', borderRadius: '8px', backgroundColor: '#16A34A', color: 'white', fontSize: '12px', fontWeight: '700', border: 'none', cursor: 'pointer' }}
-                        >
-                          Terima
-                        </button>
-                        <button
-                          onClick={() => handleRejectTx(act.id, act.name, act.amount)}
-                          style={{ padding: '6px 12px', borderRadius: '8px', backgroundColor: '#DC2626', color: 'white', fontSize: '12px', fontWeight: '700', border: 'none', cursor: 'pointer' }}
-                        >
-                          Tolak
-                        </button>
+                  {/* Dashboard Install Gateway (Belum Download) */}
+                  <div className="p-4 rounded-2xl bg-[#23242A] border border-[#333644] space-y-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <h4 className="text-xs font-bold text-white flex items-center gap-1.5">
+                          <Download size={14} className="text-[#7C8BFF]" />
+                          Belum Punya Aplikasi Jagacuan?
+                        </h4>
+                        <p className="text-[11px] text-[#A0A5B5] mt-0.5 leading-relaxed">
+                          Unduh file APK resmi Jagacuan di bawah ini untuk bergabung ke ruangan ini dan menabung bersama.
+                        </p>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Recent Activities */}
-            <div style={{ backgroundColor: cardBg, borderRadius: '20px', padding: '18px', border: `1px solid ${cardBorder}` }}>
-              <h4 style={{ fontSize: '15px', fontWeight: '700', margin: '0 0 12px' }}>Aktivitas Terbaru</h4>
-              {room.recentActivities.length === 0 ? (
-                <p style={{ fontSize: '13px', color: subText }}>Belum ada aktivitas di room ini.</p>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  {room.recentActivities.map((act) => (
-                    <div key={act.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <div
-                          style={{
-                            width: '34px',
-                            height: '34px',
-                            borderRadius: '50%',
-                            backgroundColor: isDark ? '#1C382A' : '#DDE7D8',
-                            overflow: 'hidden',
-                            flexShrink: 0,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                          }}
-                        >
-                          {act.avatarUrl ? (
-                            <img src={act.avatarUrl} alt={act.name} referrerPolicy="no-referrer" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                          ) : (
-                            <span style={{ fontSize: '12px', fontWeight: '700' }}>{act.name[0]}</span>
-                          )}
-                        </div>
-                        <div>
-                          <p style={{ fontSize: '13px', fontWeight: '600', margin: 0 }}>
-                            {act.name} - {act.action}
-                          </p>
-                          <p style={{ fontSize: '11px', color: subText, margin: '2px 0 0' }}>{act.timeAgo}</p>
-                        </div>
-                      </div>
-                      <span style={{ fontSize: '14px', fontWeight: '700', color: act.isIncome ? '#16A34A' : '#DC2626' }}>
-                        {act.isIncome ? '+' : '-'}{formatRupiah(act.amount)}
+                      <span className="text-[10px] font-bold text-[#7C8BFF] bg-[#7C8BFF]/15 px-2 py-0.5 rounded-full border border-[#7C8BFF]/25 whitespace-nowrap">
+                        59 MB
                       </span>
                     </div>
-                  ))}
+
+                    <a
+                      href="/download/jagacuan.apk"
+                      download="jagacuan.apk"
+                      className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#7C8BFF] to-[#6366F1] hover:brightness-110 active:scale-[0.99] text-white font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-md shadow-[#7C8BFF]/20 no-underline text-center"
+                    >
+                      <Download size={14} />
+                      <span>Unduh Aplikasi Jagacuan (APK)</span>
+                    </a>
+
+                    {/* Step-by-Step Instructions */}
+                    <div className="pt-2 border-t border-white/5 space-y-1.5 text-[11px] text-[#A0A5B5]">
+                      <div className="flex items-center gap-2">
+                        <span className="w-4 h-4 rounded-full bg-white/10 text-white font-bold text-[9px] flex items-center justify-center flex-shrink-0">
+                          1
+                        </span>
+                        <span>Unduh dan instal file APK Jagacuan</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="w-4 h-4 rounded-full bg-white/10 text-white font-bold text-[9px] flex items-center justify-center flex-shrink-0">
+                          2
+                        </span>
+                        <span>Buka aplikasi & masuk dengan Akun Google</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="w-4 h-4 rounded-full bg-white/10 text-white font-bold text-[9px] flex items-center justify-center flex-shrink-0">
+                          3
+                        </span>
+                        <span>Klik link ini lagi atau masukkan kode ruang di menu Nabar</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Button 3: Buka Dashboard Web */}
+                  <Link
+                    href="/"
+                    className="w-full py-3 px-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-[#A0A5B5] hover:text-white font-semibold text-xs flex items-center justify-center gap-1.5 transition-colors no-underline text-center"
+                  >
+                    <Home size={14} />
+                    <span>Buka Jagacuan Web Dashboard</span>
+                  </Link>
                 </div>
-              )}
-            </div>
-          </div>
-        )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Footer */}
+        <footer className="pt-4 border-t border-white/5 text-center text-[11px] text-[#A0A5B5] flex items-center justify-center gap-1.5">
+          <ShieldCheck size={13} className="text-[#10B981]" />
+          <span>Aplikasi Tabungan Digital Jagacuan • Bebas Iklan</span>
+        </footer>
       </div>
-    </main>
+    </div>
   )
 }

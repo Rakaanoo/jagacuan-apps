@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#EFEADF",
+  themeColor: "#0B0C10",
 };
 
 export default function RootLayout({
@@ -25,28 +25,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="id">
-      <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                try {
-                  const savedTheme = localStorage.getItem("jagacuan-theme");
-                  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-                  const html = document.documentElement;
-                  if (savedTheme) {
-                    html.setAttribute("data-theme", savedTheme);
-                  } else if (prefersDark) {
-                    html.setAttribute("data-theme", "dark");
-                  }
-                } catch (e) {}
-              })();
-            `,
-          }}
-        />
-      </head>
-      <body data-theme="light">
+    <html lang="id" className="dark">
+      <head />
+      <body className="bg-[#0B0C10] text-[#FFFFFF]" data-theme="dark">
         <AppDeepLinkRedirect />
         {children}
         <ServiceWorkerRegister />
