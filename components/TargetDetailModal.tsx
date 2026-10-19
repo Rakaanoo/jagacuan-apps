@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronLeft, Edit2, Trash2, Bell, Edit3, Target, Undo2, Check, Clock } from 'lucide-react'
+import { ChevronLeft, Edit2, Trash2, Bell, Edit3, Target, Undo2, Check, Clock, Archive } from 'lucide-react'
 import { TargetItem, useAppStore, formatRupiah } from '@/lib/store'
 import CatatTabunganModal from './CatatTabunganModal'
 import EditTargetModal from './EditTargetModal'
@@ -263,7 +263,7 @@ function CircularClockPicker({
 import { useTranslation } from '@/lib/i18n'
 
 export default function TargetDetailModal({ target, onClose }: Props) {
-  const { deleteTarget, transactions, theme, showToast, currency, language } = useAppStore()
+  const { deleteTarget, toggleArchiveTarget, transactions, theme, showToast, currency, language } = useAppStore()
   const { t } = useTranslation()
   const isDark = theme === 'dark'
 
@@ -379,6 +379,23 @@ export default function TargetDetailModal({ target, onClose }: Props) {
             </h3>
             <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
               <button
+                onClick={() => {
+                  toggleArchiveTarget(target.id)
+                  onClose()
+                }}
+                title={target.isArchived ? 'Batal Arsipkan' : 'Arsipkan Target'}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: target.isArchived ? '#F59E0B' : accentIcon,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                }}
+              >
+                <Archive size={20} />
+              </button>
+              <button
                 onClick={() => setShowEditModal(true)}
                 title="Edit Target Ini"
                 style={{ background: 'none', border: 'none', color: accentIcon, cursor: 'pointer' }}
@@ -387,7 +404,8 @@ export default function TargetDetailModal({ target, onClose }: Props) {
               </button>
               <button
                 onClick={handleDelete}
-                style={{ background: 'none', border: 'none', color: accentIcon, cursor: 'pointer' }}
+                title="Hapus Target"
+                style={{ background: 'none', border: 'none', color: '#EF4444', cursor: 'pointer' }}
               >
                 <Trash2 size={20} />
               </button>

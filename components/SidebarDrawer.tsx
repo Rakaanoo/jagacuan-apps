@@ -11,9 +11,10 @@ interface Props {
   isOpen: boolean
   onClose: () => void
   onOpenBackup: () => void
+  onOpenArchive?: () => void
 }
 
-export default function SidebarDrawer({ isOpen, onClose, onOpenBackup }: Props) {
+export default function SidebarDrawer({ isOpen, onClose, onOpenBackup, onOpenArchive }: Props) {
   const { theme, toggleTheme, showToast, language, setLanguage, currency, setCurrency } = useAppStore()
   const { t } = useTranslation()
   const [activeModal, setActiveModal] = useState<string | null>(null)
@@ -70,6 +71,11 @@ export default function SidebarDrawer({ isOpen, onClose, onOpenBackup }: Props) 
     if (id === 'backup') {
       onClose()
       onOpenBackup()
+    } else if (id === 'arsip') {
+      onClose()
+      if (onOpenArchive) {
+        onOpenArchive()
+      }
     } else if (id === 'tema') {
       toggleTheme()
       const newThemeStr = t(theme === 'dark' ? 'sidebar.theme_cream' : 'sidebar.theme_dark')

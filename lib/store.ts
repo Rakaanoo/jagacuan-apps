@@ -13,6 +13,7 @@ export interface TargetItem {
   note?: string
   coverImage?: string
   isFinished: boolean
+  isArchived?: boolean
   createdAt: string
   type: 'nabung' | 'berkala' | 'nabar'
 }
@@ -67,6 +68,7 @@ interface AppState {
   addTarget: (target: Omit<TargetItem, 'id' | 'createdAt' | 'currentAmount' | 'isFinished'>) => void
   updateTarget: (id: string, updated: Partial<TargetItem>) => void
   deleteTarget: (id: string) => void
+  toggleArchiveTarget: (id: string) => void
   addTransaction: (targetId: string, type: 'setor' | 'tarik', amount: number, keterangan?: string) => void
   undoTransaction: (transactionId: string) => void
   addNabarRoom: (room: Omit<NabarRoom, 'id' | 'currentAmount' | 'membersCount' | 'members' | 'recentActivities'>) => void
@@ -144,6 +146,24 @@ export const useAppStore = create<AppState>()(
         }))
         const t = getTranslator(get().language)
         get().showToast(t('toast.target_deleted'), '', 'info')
+      },
+
+      toggleArchiveTarget: (id) => {
+        let isNowArchived = false
+        set((state) => ({
+          targets: state.targets.map((t) => {
+            if (t.id === id) {
+              isNowArchived = !t.isArchived
+              return { ...t, isArchived: isNowArchived }
+            }
+            return t
+          }),
+        }))
+        get().showToast(
+          isNowArchived ? 'Target berhasil diarsipkan' : 'Target dikembalikan ke Berjalan',
+          '',
+          'info'
+        )
       },
 
       addTransaction: (targetId, type, amount, keterangan = '') => {

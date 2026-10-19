@@ -76,8 +76,8 @@ export default function Home() {
   const [showCalendarModal, setShowCalendarModal] = useState(false)
   const [showStatsModal, setShowStatsModal] = useState(false)
 
-  const activeTargets = targets.filter((t) => !t.isFinished)
-  const finishedTargets = targets.filter((t) => t.isFinished)
+  const activeTargets = targets.filter((t) => !t.isFinished && !t.isArchived)
+  const finishedTargets = targets.filter((t) => t.isFinished || t.isArchived)
 
   let rawList = activeTab === 'berjalan' ? activeTargets : finishedTargets
 
@@ -350,6 +350,11 @@ export default function Home() {
                         <h4 className="font-bold text-sm truncate" style={{ color: textPrimary }}>
                           {target.title}
                         </h4>
+                        {target.isArchived && (
+                          <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-md bg-[#F59E0B]/15 text-[#F59E0B] border border-[#F59E0B]/25">
+                            Arsip
+                          </span>
+                        )}
                         {target.type === 'nabar' && (
                           <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-md bg-[#818CF8]/15 text-[#818CF8] border border-[#818CF8]/25">
                             Nabar
@@ -455,6 +460,7 @@ export default function Home() {
           isOpen={showSidebar}
           onClose={() => setShowSidebar(false)}
           onOpenBackup={() => setShowBackupModal(true)}
+          onOpenArchive={() => setActiveTab('selesai')}
         />
 
         <SelectTargetTypeModal
