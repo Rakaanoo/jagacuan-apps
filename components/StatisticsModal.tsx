@@ -20,7 +20,7 @@ interface Props {
 type StatPeriod = 'week' | 'month' | 'year'
 
 export default function StatisticsModal({ isOpen, onClose }: Props) {
-  const { targets, transactions, theme, currency } = useAppStore()
+  const { targets, transactions, theme, currency, language } = useAppStore()
   const { t } = useTranslation()
   const isDark = theme === 'dark'
 
@@ -30,6 +30,21 @@ export default function StatisticsModal({ isOpen, onClose }: Props) {
 
   const now = new Date()
 
+  // Locale mapping for date formatting
+  const localeMap: Record<string, string> = {
+    id: 'id-ID',
+    en: 'en-US',
+    de: 'de-DE',
+    fr: 'fr-FR',
+    it: 'it-IT',
+    es: 'es-ES',
+    ja: 'ja-JP',
+    zh: 'zh-CN',
+    th: 'th-TH',
+    hi: 'hi-IN',
+  }
+  const currentLocale = localeMap[language] || 'id-ID'
+
   // 1. Filter transaksi sesuai periode
   let periodRangeText = ''
   let barLabels: string[] = []
@@ -37,13 +52,13 @@ export default function StatisticsModal({ isOpen, onClose }: Props) {
   let barDepositAmounts: number[] = []
   let filteredTx: TransactionRecord[] = []
 
-  const shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des']
-  const shortDays = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab']
-
   if (period === 'week') {
     // 7 Hari Terakhir
     const startOfWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6)
-    periodRangeText = `${startOfWeek.getDate()} ${shortMonths[startOfWeek.getMonth()]} - ${now.getDate()} ${shortMonths[now.getMonth()]} ${now.getFullYear()}`
+    const startMonthStr = new Intl.DateTimeFormat(currentLocale, { month: 'short' }).format(startOfWeek)
+    const endMonthStr = new Intl.DateTimeFormat(currentLocale, { month: 'short' }).format(now)
+
+    periodRangeText = `${startOfWeek.getDate()} ${startMonthStr} - ${now.getDate()} ${endMonthStr} ${now.getFullYear()}`
 
     barLabels = []
     barDepositCounts = Array(7).fill(0)
@@ -51,7 +66,8 @@ export default function StatisticsModal({ isOpen, onClose }: Props) {
 
     for (let i = 0; i < 7; i++) {
       const d = new Date(startOfWeek.getFullYear(), startOfWeek.getMonth(), startOfWeek.getDate() + i)
-      barLabels.push(shortDays[d.getDay()])
+      const dayStr = new Intl.DateTimeFormat(currentLocale, { weekday: 'short' }).format(d)
+      barLabels.push(dayStr)
     }
 
     filteredTx = transactions.filter((tx) => {
@@ -73,9 +89,11 @@ export default function StatisticsModal({ isOpen, onClose }: Props) {
     // 1 Bulan (4-5 Minggu)
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
     const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0)
-    periodRangeText = `1 ${shortMonths[now.getMonth()]} - ${endOfMonth.getDate()} ${shortMonths[now.getMonth()]} ${now.getFullYear()}`
+    const monthStr = new Intl.DateTimeFormat(currentLocale, { month: 'short' }).format(now)
+    periodRangeText = `1 ${monthStr} - ${endOfMonth.getDate()} ${monthStr} ${now.getFullYear()}`
 
-    barLabels = ['M1', 'M2', 'M3', 'M4', 'M5']
+    const prefix = language === 'id' ? 'M' : 'W'
+    barLabels = [`${prefix}1`, `${prefix}2`, `${prefix}3`, `${prefix}4`, `${prefix}5`]
     barDepositCounts = Array(5).fill(0)
     barDepositAmounts = Array(5).fill(0)
 
@@ -94,8 +112,12 @@ export default function StatisticsModal({ isOpen, onClose }: Props) {
     })
   } else {
     // 1 Tahun (12 Bulan)
-    periodRangeText = `Januari - Desember ${now.getFullYear()}`
-    barLabels = ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D']
+    periodRangeText = t('stats.year_range', { year: now.getFullYear() })
+    barLabels = Array.from({ length: 12 }, (_, i) => {
+      const d = new Date(now.getFullYear(), i, 1)
+      const mStr = new Intl.DateTimeFormat(currentLocale, { month: 'short' }).format(d)
+      return (language === 'ja' || language === 'zh' || language === 'th') ? mStr : mStr.charAt(0)
+    })
     barDepositCounts = Array(12).fill(0)
     barDepositAmounts = Array(12).fill(0)
 
@@ -133,7 +155,6 @@ export default function StatisticsModal({ isOpen, onClose }: Props) {
   const maxVal = Math.max(3, ...barDepositCounts)
 
   // Half-circle SVG math
-  // Arc from (20, 110) to (200, 110), radius = 90
   const depositRatio = totalTx > 0 ? totalDeposits / totalTx : 1.0
   const arcLength = Math.PI * 90 // half circumference = ~282.74
   const strokeDeposit = arcLength * depositRatio
@@ -145,40 +166,88 @@ export default function StatisticsModal({ isOpen, onClose }: Props) {
   const innerSurface = isDark ? '#1C1D22' : '#EFEADF'
   const cardBorder = isDark ? '#333644' : '#E0D5C3'
   const textColor = isDark ? '#FFFFFF' : '#2C2418'
-  const subText = isDark ? '#A0A5B5' : '#7A6F60'
 
   // AI Insights
-  const periodLabel = period === 'week' ? '1 Minggu' : (period === 'month' ? '1 Bulan' : '1 Tahun')
+  const periodLabel =
+    period === 'week'
+      ? t('stats.period_1_week')
+      : period === 'month'
+      ? t('stats.period_1_month')
+      : t('stats.period_1_year')
+
+  // Find Peak Slot
+  let peakSlot = ''
+  let maxCount = 0
+  for (let i = 0; i < barDepositCounts.length; i++) {
+    if (barDepositCounts[i] > maxCount) {
+      maxCount = barDepositCounts[i]
+      peakSlot = barLabels[i]
+    }
+  }
+
   const aiInsights = [
     {
       icon: totalDeposits === 0 ? '📊' : disciplinePct >= 70 ? '🔥' : '📈',
-      title: `Kedisiplinan Periode ${periodLabel}`,
+      title:
+        totalDeposits === 0
+          ? t('stats.ai_discipline_title', { period: periodLabel })
+          : disciplinePct >= 70
+          ? t('stats.ai_high_discipline_title')
+          : t('stats.ai_improve_title'),
       desc:
         totalDeposits === 0
-          ? 'Belum ada transaksi setoran yang tercatat pada periode ini. Mulai setor nominal kecil hari ini untuk membentuk grafik kedisiplinanmu!'
+          ? t('stats.ai_no_deposits')
           : disciplinePct >= 70
-          ? `Konsistensi luar biasa! Kamu aktif menabung di ${activeSlots} dari ${totalSlots} titik waktu (${disciplinePct}%). Pertahankan momentum ini!`
-          : `Tercatat ${activeSlots} dari ${totalSlots} titik waktu terisi setoran (${disciplinePct}%). Terdapat ${totalSlots - activeSlots} slot kosong. Pasang pengingat harian agar tidak terlewat.`,
+          ? t('stats.ai_high_discipline_desc', {
+              active: activeSlots,
+              total: totalSlots,
+              percent: disciplinePct,
+              peak: peakSlot,
+              count: maxCount,
+            })
+          : t('stats.ai_improve_desc', {
+              active: activeSlots,
+              total: totalSlots,
+              percent: disciplinePct,
+              empty: totalSlots - activeSlots,
+            }),
     },
     {
       icon: '🎯',
-      title: 'Target Prioritas',
-      desc: (() => {
+      title: (() => {
+        if (targets.length === 0) return t('stats.ai_empty_title')
         const active = targets.filter((t) => !t.isFinished)
-        if (active.length === 0) return 'Seluruh celengan kamu sudah tercapai 100%! Kamu bisa membuat celengan impian baru.'
-        const top = [...active].sort((a, b) => (b.targetAmount - b.currentAmount) - (a.targetAmount - a.currentAmount))[0]
+        if (active.length === 0) return t('stats.ai_all_done_title')
+        const top = [...active].sort(
+          (a, b) => b.targetAmount - b.currentAmount - (a.targetAmount - a.currentAmount)
+        )[0]
+        return t('stats.ai_priority_title', { title: top.title })
+      })(),
+      desc: (() => {
+        if (targets.length === 0) return t('stats.ai_empty_desc')
+        const active = targets.filter((t) => !t.isFinished)
+        if (active.length === 0) return t('stats.ai_all_done_desc')
+        const top = [...active].sort(
+          (a, b) => b.targetAmount - b.currentAmount - (a.targetAmount - a.currentAmount)
+        )[0]
         const sisa = Math.max(0, top.targetAmount - top.currentAmount)
         const dailyNeeded = Math.ceil(sisa / 30)
-        return `Untuk target "${top.title}" (sisa ${formatRupiah(sisa)}), sisihkan ${formatRupiah(dailyNeeded)}/hari agar tuntas dalam 30 hari ke depan.`
+        return t('stats.ai_priority_desc', {
+          remaining: formatRupiah(sisa),
+          daily: formatRupiah(dailyNeeded),
+        })
       })(),
     },
     {
       icon: totalWithdrawals > 0 ? '⚠️' : '✨',
-      title: totalWithdrawals > 0 ? 'Pengendalian Penarikan' : 'Tabungan Utuh 100%',
+      title: totalWithdrawals > 0 ? t('stats.ai_withdraw_title') : t('stats.ai_intact_title'),
       desc:
         totalWithdrawals > 0
-          ? `Terdapat ${totalWithdrawals} kali penarikan (${Math.round((totalWithdrawals / totalTx) * 100)}% dari transaksi). Tahan penarikan agar target celenganmu tidak tertunda.`
-          : 'Nol penarikan di periode ini! Seluruh tabunganmu bertumbuh utuh tanpa ada kebocoran dana.',
+          ? t('stats.ai_withdraw_desc', {
+              count: totalWithdrawals,
+              percent: Math.round((totalWithdrawals / totalTx) * 100),
+            })
+          : t('stats.ai_intact_desc'),
     },
   ]
 
@@ -216,8 +285,12 @@ export default function StatisticsModal({ isOpen, onClose }: Props) {
                 <BarChart2 size={20} className="text-[#10B981]" />
               </div>
               <div>
-                <h3 className="text-base font-bold text-white leading-tight">Statistik & Insight</h3>
-                <p className="text-[11px] text-white/50">Ringkasan kedisiplinan & transaksi tabunganmu</p>
+                <h3 className="text-base font-bold text-white leading-tight">
+                  {t('stats.title')}
+                </h3>
+                <p className="text-[11px] text-white/50">
+                  {t('stats.subtitle_new')}
+                </p>
               </div>
             </div>
             <button
@@ -234,7 +307,12 @@ export default function StatisticsModal({ isOpen, onClose }: Props) {
             style={{ backgroundColor: innerSurface, borderColor: cardBorder }}
           >
             {(['week', 'month', 'year'] as StatPeriod[]).map((p) => {
-              const label = p === 'week' ? '1 Minggu' : p === 'month' ? '1 Bulan' : '1 Tahun'
+              const label =
+                p === 'week'
+                  ? t('stats.period_1_week')
+                  : p === 'month'
+                  ? t('stats.period_1_month')
+                  : t('stats.period_1_year')
               const active = period === p
               return (
                 <button
@@ -260,20 +338,30 @@ export default function StatisticsModal({ isOpen, onClose }: Props) {
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
                 <Clock size={16} className="text-[#7C8BFF]" />
-                <span className="text-xs font-bold text-white">Kedisiplinan Menabung</span>
+                <span className="text-xs font-bold text-white">
+                  {t('stats.discipline_title')}
+                </span>
               </div>
               <span className="text-[10px] font-semibold text-white/50 px-2 py-0.5 rounded-md bg-white/5 border border-white/5">
-                {period === 'week' ? 'Mingguan' : period === 'month' ? 'Bulanan' : 'Tahunan'}
+                {period === 'week'
+                  ? t('stats.badge_weekly')
+                  : period === 'month'
+                  ? t('stats.badge_monthly')
+                  : t('stats.badge_yearly')}
               </span>
             </div>
 
             {/* Big Stat Value */}
             <div className="flex items-baseline justify-between mt-3 mb-1">
               <div>
-                <p className="text-[11px] text-white/50">Total Setoran Rutin</p>
+                <p className="text-[11px] text-white/50">
+                  {t('stats.total_deposit_label')}
+                </p>
                 <div className="flex items-baseline gap-1.5">
                   <span className="text-2xl font-black text-white">{totalDeposits}</span>
-                  <span className="text-xs text-white/50 font-semibold">kali setor</span>
+                  <span className="text-xs text-white/50 font-semibold">
+                    {t('stats.times_deposit')}
+                  </span>
                 </div>
               </div>
               <span className="text-sm font-bold text-[#10B981]">
@@ -340,19 +428,21 @@ export default function StatisticsModal({ isOpen, onClose }: Props) {
             {/* 3 Metric Columns: Rutin, Rata-rata, Disiplin */}
             <div className="grid grid-cols-3 gap-2 pt-3 border-t border-white/5 text-center sm:text-left">
               <div>
-                <p className="text-[10px] text-white/40">Rutin</p>
-                <p className="text-xs font-bold text-white mt-0.5">{activeSlots}/{totalSlots} Hari</p>
-                <p className="text-[9px] text-white/40">Hari aktif</p>
+                <p className="text-[10px] text-white/40">{t('stats.metric_routine')}</p>
+                <p className="text-xs font-bold text-white mt-0.5">
+                  {t('stats.metric_days', { active: activeSlots, total: totalSlots })}
+                </p>
+                <p className="text-[9px] text-white/40">{t('stats.metric_active_days')}</p>
               </div>
               <div>
-                <p className="text-[10px] text-white/40">Rata-rata</p>
+                <p className="text-[10px] text-white/40">{t('stats.metric_average')}</p>
                 <p className="text-xs font-bold text-white mt-0.5">{avgPerSlot}x</p>
-                <p className="text-[9px] text-white/40">Per slot waktu</p>
+                <p className="text-[9px] text-white/40">{t('stats.metric_per_slot')}</p>
               </div>
               <div>
-                <p className="text-[10px] text-white/40">Disiplin</p>
+                <p className="text-[10px] text-white/40">{t('stats.metric_discipline')}</p>
                 <p className="text-xs font-bold text-[#10B981] mt-0.5">{disciplinePct}%</p>
-                <p className="text-[9px] text-white/40">Tingkat patuh</p>
+                <p className="text-[9px] text-white/40">{t('stats.metric_compliance')}</p>
               </div>
             </div>
           </div>
@@ -367,7 +457,9 @@ export default function StatisticsModal({ isOpen, onClose }: Props) {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <ArrowUpDown size={16} className="text-[#10B981]" />
-                <span className="text-xs font-bold text-white">Aktivitas Transaksi</span>
+                <span className="text-xs font-bold text-white">
+                  {t('stats.activity_title')}
+                </span>
               </div>
               <span className="text-[10px] text-white/50">{periodRangeText}</span>
             </div>
@@ -413,7 +505,7 @@ export default function StatisticsModal({ isOpen, onClose }: Props) {
               {/* Center Counter */}
               <div className="absolute bottom-2 flex flex-col items-center">
                 <span className="text-[10px] font-semibold text-white/50 uppercase tracking-wider">
-                  Total Transaksi
+                  {t('stats.total_transactions_center')}
                 </span>
                 <span className="text-3xl font-black text-white">{totalTx}</span>
               </div>
@@ -425,20 +517,28 @@ export default function StatisticsModal({ isOpen, onClose }: Props) {
               <div className="flex flex-col items-center">
                 <div className="flex items-center gap-1.5 text-xs font-semibold text-white/70">
                   <span className="w-2 h-2 rounded-full bg-[#10B981]" />
-                  <span>Setor (Deposit)</span>
+                  <span>{t('stats.deposit_legend')}</span>
                 </div>
-                <span className="text-base font-extrabold text-white mt-0.5">{totalDeposits} kali</span>
-                <span className="text-[11px] font-bold text-[#10B981]">{formatRupiah(totalDepositAmount)}</span>
+                <span className="text-base font-extrabold text-white mt-0.5">
+                  {t('stats.times_count', { count: totalDeposits })}
+                </span>
+                <span className="text-[11px] font-bold text-[#10B981]">
+                  {formatRupiah(totalDepositAmount)}
+                </span>
               </div>
 
               {/* Kolom Kanan: Tarik (Withdraw) */}
               <div className="flex flex-col items-center border-l border-white/5">
                 <div className="flex items-center gap-1.5 text-xs font-semibold text-white/70">
                   <span className="w-2 h-2 rounded-full bg-[#EF4444]" />
-                  <span>Tarik (Withdraw)</span>
+                  <span>{t('stats.withdraw_legend')}</span>
                 </div>
-                <span className="text-base font-extrabold text-white mt-0.5">{totalWithdrawals} kali</span>
-                <span className="text-[11px] font-bold text-[#EF4444]">{formatRupiah(totalWithdrawAmount)}</span>
+                <span className="text-base font-extrabold text-white mt-0.5">
+                  {t('stats.times_count', { count: totalWithdrawals })}
+                </span>
+                <span className="text-[11px] font-bold text-[#EF4444]">
+                  {formatRupiah(totalWithdrawAmount)}
+                </span>
               </div>
             </div>
           </div>
@@ -456,10 +556,12 @@ export default function StatisticsModal({ isOpen, onClose }: Props) {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Sparkles size={16} className="text-[#F59E0B]" />
-                <span className="text-xs font-bold text-[#F59E0B]">AI Smart Financial Reminder</span>
+                <span className="text-xs font-bold text-[#F59E0B]">
+                  {t('stats.ai_title')}
+                </span>
               </div>
               <span className="text-[10px] font-bold text-[#F59E0B] bg-[#F59E0B]/15 px-2 py-0.5 rounded-full">
-                Tersinkron
+                {t('stats.ai_synced')}
               </span>
             </div>
 
