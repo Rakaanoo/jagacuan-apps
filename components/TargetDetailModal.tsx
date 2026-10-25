@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronLeft, Edit2, Trash2, Bell, Edit3, Target, Undo2, Check, Clock, Archive } from 'lucide-react'
+import { ChevronLeft, Edit2, Trash2, Bell, Edit3, Target, Undo2, Check, Clock, Archive, Calculator, PlusCircle, ArrowUpRight } from 'lucide-react'
 import { TargetItem, useAppStore, formatRupiah } from '@/lib/store'
 import CatatTabunganModal from './CatatTabunganModal'
 import EditTargetModal from './EditTargetModal'
@@ -268,6 +268,9 @@ export default function TargetDetailModal({ target, onClose }: Props) {
   const isDark = theme === 'dark'
 
   const [showCatatModal, setShowCatatModal] = useState(false)
+  const [catatTxType, setCatatTxType] = useState<'setor' | 'tarik'>('setor')
+  const [catatInitialAmount, setCatatInitialAmount] = useState<number | undefined>(undefined)
+  const [pacingMode, setPacingMode] = useState<'daily' | 'weekly' | 'payday'>('daily')
   const [showEditModal, setShowEditModal] = useState(false)
 
   // Alarm settings state
@@ -284,21 +287,41 @@ export default function TargetDetailModal({ target, onClose }: Props) {
 
   // Calculate days remaining & rate per day
   let daysRemainingStr = '-'
-  let ratePerDayStr = `${formatRupiah(0)} / ${t('detail.per_day') || 'day'}`
+  let ratePerDayStr = `${formatRupiah(0)} / ${t('detail.per_day') || 'hari'}`
+  let safeDays = 30
   if (target.deadlineDate) {
     const now = new Date()
     const deadline = new Date(target.deadlineDate)
     const diffMs = deadline.getTime() - now.getTime()
     const diffDays = Math.max(1, Math.ceil(diffMs / (1000 * 60 * 60 * 24)))
+    safeDays = diffDays
     daysRemainingStr = t('detail.days_remaining', { days: diffDays })
 
     if (remaining > 0) {
       const dailyRate = Math.ceil(remaining / diffDays)
-      ratePerDayStr = `${formatRupiah(dailyRate)} / ${t('detail.per_day') || 'day'}`
+      ratePerDayStr = `${formatRupiah(dailyRate)} / ${t('detail.per_day') || 'hari'}`
     } else {
       ratePerDayStr = t('toast.target_achieved')
     }
   }
+
+  const dailyAmount = remaining > 0 ? Math.ceil(remaining / safeDays) : 0
+  const safeWeeks = Math.max(1, Math.ceil(safeDays / 7))
+  const weeklyAmount = remaining > 0 ? Math.ceil(remaining / safeWeeks) : 0
+  const safeMonths = Math.max(1, Math.ceil(safeDays / 30))
+  const paydayAmount = remaining > 0 ? Math.ceil(remaining / safeMonths) : 0
+  const pacingAmount =
+    pacingMode === 'daily'
+      ? dailyAmount
+      : pacingMode === 'weekly'
+      ? weeklyAmount
+      : paydayAmount
+  const pacingSubtitle =
+    pacingMode === 'daily'
+      ? `Sisihkan rutin tiap hari selama ${safeDays} hari ke depan`
+      : pacingMode === 'weekly'
+      ? `Cukup menabung tiap akhir pekan (${safeWeeks}x minggu lagi)`
+      : `Langsung amankan saat gajian (${safeMonths}x bulan lagi)`
 
   const handleDelete = () => {
     deleteTarget(target.id)
@@ -502,6 +525,120 @@ export default function TargetDetailModal({ target, onClose }: Props) {
               </div>
             </div>
 
+            {/* Card Rekomendasi Setoran */}
+            {remaining > 0 && (
+              <div
+                style={{
+                  backgroundColor: cardBg,
+                  borderRadius: '20px',
+                  padding: '20px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '14px',
+                  border: `1px solid ${cardBorder}`,
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <div
+                    style={{
+                      padding: '8px',
+                      borderRadius: '10px',
+                      backgroundColor: isDark ? 'rgba(124,139,255,0.15)' : 'rgba(44,36,24,0.08)',
+                      color: accentIcon,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <Calculator size={18} />
+                  </div>
+                  <h4 style={{ fontSize: '15px', fontWeight: '800', margin: 0 }}>Rekomendasi Setoran</h4>
+                </div>
+
+                {/* Mode Tabs */}
+                <div
+                  style={{
+                    display: 'flex',
+                    backgroundColor: isDark ? '#1A1C22' : '#EFEADF',
+                    borderRadius: '12px',
+                    padding: '4px',
+                  }}
+                >
+                  {(
+                    [
+                      { key: 'daily', label: 'Harian' },
+                      { key: 'weekly', label: 'Mingguan' },
+                      { key: 'payday', label: 'Gajian' },
+                    ] as const
+                  ).map((tab) => {
+                    const isSelected = pacingMode === tab.key
+                    return (
+                      <button
+                        key={tab.key}
+                        type="button"
+                        onClick={() => setPacingMode(tab.key)}
+                        style={{
+                          flex: 1,
+                          padding: '8px 0',
+                          borderRadius: '9px',
+                          border: 'none',
+                          backgroundColor: isSelected ? accentIcon : 'transparent',
+                          color: isSelected ? '#FFFFFF' : subText,
+                          fontSize: '12px',
+                          fontWeight: isSelected ? '700' : '600',
+                          cursor: 'pointer',
+                          fontFamily: 'inherit',
+                        }}
+                      >
+                        {tab.label}
+                      </button>
+                    )
+                  })}
+                </div>
+
+                {/* Amount Box */}
+                <div
+                  style={{
+                    padding: '14px',
+                    borderRadius: '14px',
+                    backgroundColor: isDark ? '#1A1C22' : '#FAF7F2',
+                    border: `1px solid ${dividerBg}`,
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                    <span style={{ fontSize: '12px', fontWeight: '600', color: subText }}>Rekomendasi Setor:</span>
+                    <span style={{ fontSize: '18px', fontWeight: '900', color: '#16A34A' }}>
+                      {formatRupiah(pacingAmount)}
+                    </span>
+                  </div>
+                  <p style={{ fontSize: '11px', color: subText, margin: 0 }}>{pacingSubtitle}</p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCatatTxType('setor')
+                    setCatatInitialAmount(pacingAmount)
+                    setShowCatatModal(true)
+                  }}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    borderRadius: '12px',
+                    border: 'none',
+                    backgroundColor: '#16A34A',
+                    color: '#FFFFFF',
+                    fontSize: '13px',
+                    fontWeight: '700',
+                    cursor: 'pointer',
+                    fontFamily: 'inherit',
+                  }}
+                >
+                  Setor {formatRupiah(pacingAmount)}
+                </button>
+              </div>
+            )}
+
             {/* Card 2: Interactive Alarm Setting Switch */}
             <div
               style={{
@@ -680,6 +817,62 @@ export default function TargetDetailModal({ target, onClose }: Props) {
                 </div>
               </div>
 
+              {/* Action Buttons (Unified with Nabar) */}
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCatatTxType('setor')
+                    setCatatInitialAmount(undefined)
+                    setShowCatatModal(true)
+                  }}
+                  style={{
+                    flex: 3,
+                    padding: '13px 12px',
+                    borderRadius: '14px',
+                    border: 'none',
+                    backgroundColor: '#16A34A',
+                    color: '#FFFFFF',
+                    fontSize: '13px',
+                    fontWeight: '700',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px',
+                    fontFamily: 'inherit',
+                  }}
+                >
+                  <PlusCircle size={17} /> Catat Setoran Tabungan
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCatatTxType('tarik')
+                    setCatatInitialAmount(undefined)
+                    setShowCatatModal(true)
+                  }}
+                  style={{
+                    flex: 2,
+                    padding: '13px 12px',
+                    borderRadius: '14px',
+                    border: '1.5px solid #DC2626',
+                    backgroundColor: 'transparent',
+                    color: '#DC2626',
+                    fontSize: '13px',
+                    fontWeight: '700',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px',
+                    fontFamily: 'inherit',
+                  }}
+                >
+                  <ArrowUpRight size={17} /> Tarik Dana
+                </button>
+              </div>
+
               <div style={{ height: '1px', backgroundColor: dividerBg }} />
 
               {/* Transactions List */}
@@ -777,6 +970,8 @@ export default function TargetDetailModal({ target, onClose }: Props) {
             isOpen={showCatatModal}
             onClose={() => setShowCatatModal(false)}
             targetId={target.id}
+            initialTxType={catatTxType}
+            initialAmount={catatInitialAmount}
           />
 
           {/* Edit Target Modal */}

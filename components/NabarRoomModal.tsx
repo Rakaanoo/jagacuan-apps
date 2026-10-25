@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowDown, ArrowUp, Plus, X, Share2, UserPlus, Users, Download, Loader2, CheckCircle2, LogOut, Clock, KeyRound, Copy } from 'lucide-react'
+import { ArrowDown, ArrowUp, Plus, X, Share2, UserPlus, Users, Download, Loader2, CheckCircle2, LogOut, Clock, KeyRound, Copy, Calculator } from 'lucide-react'
 import { useAppStore, formatRupiah } from '@/lib/store'
 import { createClient } from '@/lib/supabase/client'
 import {
@@ -42,6 +42,7 @@ export default function NabarRoomModal({ isOpen, onClose }: Props) {
   const [showQuickSetor, setShowQuickSetor] = useState(false)
   const [setorAmountStr, setSetorAmountStr] = useState('50.000')
   const [submittingSetor, setSubmittingSetor] = useState(false)
+  const [pacingMode, setPacingMode] = useState<'daily' | 'weekly' | 'payday'>('daily')
 
   const activeRoom = rooms[activeRoomIndex] || null
 
@@ -576,6 +577,138 @@ export default function NabarRoomModal({ isOpen, onClose }: Props) {
                           </motion.div>
                         )}
                       </div>
+
+                      {/* Kode Invite & Link Share Card */}
+                      {activeRoom.targetAmount > activeRoom.currentAmount && (() => {
+                        const remaining = Math.max(0, activeRoom.targetAmount - activeRoom.currentAmount)
+                        const memberCount = Math.max(1, activeRoom.membersCount || activeRoom.members?.length || 1)
+                        const remainingPerMember = remaining / memberCount
+                        const safeDays = 30
+                        const safeWeeks = Math.max(1, Math.ceil(safeDays / 7))
+                        const safeMonths = Math.max(1, Math.ceil(safeDays / 30))
+                        const pacingAmount =
+                          pacingMode === 'daily'
+                            ? Math.ceil(remainingPerMember / safeDays)
+                            : pacingMode === 'weekly'
+                            ? Math.ceil(remainingPerMember / safeWeeks)
+                            : Math.ceil(remainingPerMember / safeMonths)
+                        const pacingSubtitle =
+                          pacingMode === 'daily'
+                            ? `Porsi patungan per anggota (${memberCount} orang) tiap hari selama ${safeDays} hari`
+                            : pacingMode === 'weekly'
+                            ? `Porsi patungan per anggota (${memberCount} orang) tiap akhir pekan (${safeWeeks}x minggu lagi)`
+                            : `Porsi patungan per anggota (${memberCount} orang) saat gajian (${safeMonths}x bulan lagi)`
+
+                        return (
+                          <div
+                            style={{
+                              backgroundColor: cardBg,
+                              borderRadius: '20px',
+                              padding: '18px',
+                              border: `1px solid ${cardBorder}`,
+                              display: 'flex',
+                              flexDirection: 'column',
+                              gap: '12px',
+                            }}
+                          >
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                              <div
+                                style={{
+                                  padding: '8px',
+                                  borderRadius: '10px',
+                                  backgroundColor: isDark ? 'rgba(124,139,255,0.15)' : 'rgba(44,36,24,0.08)',
+                                  color: accentCol,
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                }}
+                              >
+                                <Calculator size={18} />
+                              </div>
+                              <h4 style={{ fontSize: '15px', fontWeight: '800', margin: 0 }}>Rekomendasi Setoran</h4>
+                            </div>
+
+                            <div
+                              style={{
+                                display: 'flex',
+                                backgroundColor: isDark ? '#1A1C22' : '#EFEADF',
+                                borderRadius: '12px',
+                                padding: '4px',
+                              }}
+                            >
+                              {(
+                                [
+                                  { key: 'daily', label: 'Harian' },
+                                  { key: 'weekly', label: 'Mingguan' },
+                                  { key: 'payday', label: 'Gajian' },
+                                ] as const
+                              ).map((tab) => {
+                                const isSelected = pacingMode === tab.key
+                                return (
+                                  <button
+                                    key={tab.key}
+                                    type="button"
+                                    onClick={() => setPacingMode(tab.key)}
+                                    style={{
+                                      flex: 1,
+                                      padding: '8px 0',
+                                      borderRadius: '9px',
+                                      border: 'none',
+                                      backgroundColor: isSelected ? accentCol : 'transparent',
+                                      color: isSelected ? '#FFFFFF' : subText,
+                                      fontSize: '12px',
+                                      fontWeight: isSelected ? '700' : '600',
+                                      cursor: 'pointer',
+                                      fontFamily: 'inherit',
+                                    }}
+                                  >
+                                    {tab.label}
+                                  </button>
+                                )
+                              })}
+                            </div>
+
+                            <div
+                              style={{
+                                padding: '14px',
+                                borderRadius: '14px',
+                                backgroundColor: isDark ? '#1A1C22' : '#FAF7F2',
+                                border: `1px solid ${cardBorder}`,
+                              }}
+                            >
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                                <span style={{ fontSize: '12px', fontWeight: '600', color: subText }}>Rekomendasi Setor:</span>
+                                <span style={{ fontSize: '18px', fontWeight: '900', color: '#16A34A' }}>
+                                  {formatRupiah(pacingAmount)}
+                                </span>
+                              </div>
+                              <p style={{ fontSize: '11px', color: subText, margin: 0 }}>{pacingSubtitle}</p>
+                            </div>
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSetorAmountStr(pacingAmount.toLocaleString('id-ID'))
+                                setShowQuickSetor(true)
+                              }}
+                              style={{
+                                width: '100%',
+                                padding: '12px',
+                                borderRadius: '12px',
+                                border: 'none',
+                                backgroundColor: '#16A34A',
+                                color: '#FFFFFF',
+                                fontSize: '13px',
+                                fontWeight: '700',
+                                cursor: 'pointer',
+                                fontFamily: 'inherit',
+                              }}
+                            >
+                              Setor {formatRupiah(pacingAmount)}
+                            </button>
+                          </div>
+                        )
+                      })()}
 
                       {/* Kode Invite & Link Share Card */}
                       <div

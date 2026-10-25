@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Plus, Minus, X, Banknote, Menu } from 'lucide-react'
 import { useAppStore, toBaseIDR, currencySymbolMap, CurrencyCode } from '@/lib/store'
@@ -10,16 +10,36 @@ interface Props {
   isOpen: boolean
   onClose: () => void
   targetId: string
+  initialTxType?: 'setor' | 'tarik'
+  initialAmount?: number
 }
 
-export default function CatatTabunganModal({ isOpen, onClose, targetId }: Props) {
+export default function CatatTabunganModal({
+  isOpen,
+  onClose,
+  targetId,
+  initialTxType = 'setor',
+  initialAmount,
+}: Props) {
   const { addTransaction, theme, currency, language } = useAppStore()
   const { t } = useTranslation()
   const isDark = theme === 'dark'
 
-  const [txType, setTxType] = useState<'setor' | 'tarik'>('setor')
+  const [txType, setTxType] = useState<'setor' | 'tarik'>(initialTxType)
   const [nominalStr, setNominalStr] = useState('10.000')
   const [keterangan, setKeterangan] = useState('')
+
+  useEffect(() => {
+    if (isOpen) {
+      setTxType(initialTxType)
+      if (initialAmount && initialAmount > 0) {
+        setNominalStr(Math.round(initialAmount).toLocaleString('id-ID'))
+      } else {
+        setNominalStr('10.000')
+      }
+      setKeterangan('')
+    }
+  }, [isOpen, initialTxType, initialAmount])
 
   const quickAmountsMap: Record<CurrencyCode, number[]> = {
     IDR: [10000, 50000, 100000],

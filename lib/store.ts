@@ -355,46 +355,26 @@ export const currencySymbolMap: Record<CurrencyCode, string> = {
   GBP: '£',
 }
 
-// Convert user input entered in `activeCurrency` into base IDR amount
 export const toBaseIDR = (amountInActiveCurrency: number, currency: CurrencyCode = 'IDR'): number => {
-  const rate = exchangeRates[currency] || 1
-  return Math.round(amountInActiveCurrency / rate)
+  return Math.round(amountInActiveCurrency)
 }
 
 // Convert base IDR amount into active currency amount (numeric)
 export const fromBaseIDR = (baseAmountIDR: number, currency: CurrencyCode = 'IDR'): number => {
-  const rate = exchangeRates[currency] || 1
-  return baseAmountIDR * rate
+  return baseAmountIDR
 }
 
 export const formatCurrency = (val: number, currency: CurrencyCode = 'IDR') => {
-  const localeMap: Record<CurrencyCode, string> = {
-    IDR: 'id-ID',
-    USD: 'en-US',
-    EUR: 'de-DE',
-    JPY: 'ja-JP',
-    CNY: 'zh-CN',
-    THB: 'th-TH',
-    INR: 'hi-IN',
-    GBP: 'en-GB',
-  }
-  const rate = exchangeRates[currency] || 1
-  const converted = val * rate
-  const locale = localeMap[currency] || 'id-ID'
-
-  const maxDecimals = currency === 'IDR' || currency === 'JPY' ? 0 : 2
-
-  return new Intl.NumberFormat(locale, {
+  return new Intl.NumberFormat('id-ID', {
     style: 'currency',
-    currency: currency,
+    currency: 'IDR',
     minimumFractionDigits: 0,
-    maximumFractionDigits: maxDecimals,
-  }).format(converted)
+    maximumFractionDigits: 0,
+  }).format(val)
 }
 
 export const formatRupiah = (val: number) => {
-  const currentCurrency = useAppStore.getState().currency || 'IDR'
-  return formatCurrency(val, currentCurrency)
+  return formatCurrency(val, 'IDR')
 }
 
 

@@ -31,7 +31,6 @@ export default function SidebarDrawer({ isOpen, onClose, onOpenBackup, onOpenArc
   const menuItems = [
     { id: 'arsip', label: t('sidebar.archive'), icon: <Archive size={22} />, desc: t('sidebar.archive_desc') },
     { id: 'bahasa', label: t('sidebar.language'), icon: <Globe size={22} />, desc: t('sidebar.language_desc', { lang: t('lang.' + language) }) },
-    { id: 'mata_uang', label: t('sidebar.currency'), icon: <RefreshCw size={22} />, desc: t('sidebar.currency_desc') },
     {
       id: 'tema',
       label: t('sidebar.theme', { mode: t(theme === 'dark' ? 'sidebar.theme_dark' : 'sidebar.theme_cream') }),
@@ -290,9 +289,9 @@ export default function SidebarDrawer({ isOpen, onClose, onOpenBackup, onOpenArc
                           key={l.code}
                           onClick={() => {
                             setLanguage(l.code as any)
-                            setCurrency(l.currency as any)
+                            setCurrency('IDR')
                             setActiveModal(null)
-                            showToast(`Bahasa: ${l.name} • Mata Uang: ${l.currency}`, '', 'info')
+                            showToast(`Bahasa: ${l.name}`, '', 'info')
                           }}
                           style={{
                             display: 'flex',
@@ -311,44 +310,8 @@ export default function SidebarDrawer({ isOpen, onClose, onOpenBackup, onOpenArc
                         >
                           <span>{l.flag}</span>
                           <span style={{ flex: 1 }}>{l.name}</span>
-                          <span style={{ fontSize: '11px', opacity: 0.75 }}>({l.currency})</span>
                         </button>
                       ))}
-                    </div>
-                  ) : activeModal === 'mata_uang' ? (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                      {currenciesList.map((c) => {
-                        const isSel = currency === c.code
-                        return (
-                          <button
-                            key={c.code}
-                            onClick={() => {
-                              setCurrency(c.code as any)
-                              setActiveModal(null)
-                              showToast(`Mata Uang diubah ke ${c.code} (${c.name})`, '', 'info')
-                            }}
-                            style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'space-between',
-                              padding: '10px 12px',
-                              borderRadius: '10px',
-                              backgroundColor: isSel ? (isDark ? '#7C8BFF' : '#2C2418') : 'transparent',
-                              color: isSel ? '#FFFFFF' : (isDark ? '#FFFFFF' : '#2C2418'),
-                              border: 'none',
-                              cursor: 'pointer',
-                              fontSize: '13px',
-                              fontWeight: '600',
-                            }}
-                          >
-                            <span style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                              <span>{c.flag}</span>
-                              <span>{c.code}</span>
-                            </span>
-                            <span style={{ fontSize: '12px', opacity: 0.8 }}>{c.name}</span>
-                          </button>
-                        )
-                      })}
                     </div>
                   ) : (
                     <p style={{ fontSize: '13px', color: isDark ? '#A0A5B5' : '#7A6F60', lineHeight: 1.4 }}>
