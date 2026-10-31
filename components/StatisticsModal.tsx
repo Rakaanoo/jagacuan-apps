@@ -6,7 +6,7 @@ import {
   BarChart2,
   Clock,
   ArrowUpDown,
-  Sparkles,
+  FileText,
   X,
 } from 'lucide-react'
 import { useAppStore, formatRupiah, TargetItem, TransactionRecord } from '@/lib/store'
@@ -187,7 +187,6 @@ export default function StatisticsModal({ isOpen, onClose }: Props) {
 
   const aiInsights = [
     {
-      icon: totalDeposits === 0 ? '📊' : disciplinePct >= 70 ? '🔥' : '📈',
       title:
         totalDeposits === 0
           ? t('stats.ai_discipline_title', { period: periodLabel })
@@ -213,7 +212,6 @@ export default function StatisticsModal({ isOpen, onClose }: Props) {
             }),
     },
     {
-      icon: '🎯',
       title: (() => {
         if (targets.length === 0) return t('stats.ai_empty_title')
         const active = targets.filter((t) => !t.isFinished)
@@ -239,7 +237,6 @@ export default function StatisticsModal({ isOpen, onClose }: Props) {
       })(),
     },
     {
-      icon: totalWithdrawals > 0 ? '⚠️' : '✨',
       title: totalWithdrawals > 0 ? t('stats.ai_withdraw_title') : t('stats.ai_intact_title'),
       desc:
         totalWithdrawals > 0
@@ -555,7 +552,7 @@ export default function StatisticsModal({ isOpen, onClose }: Props) {
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Sparkles size={16} className="text-[#F59E0B]" />
+                <FileText size={16} className="text-[#F59E0B]" />
                 <span className="text-xs font-bold text-[#F59E0B]">
                   {t('stats.ai_title')}
                 </span>
@@ -567,9 +564,9 @@ export default function StatisticsModal({ isOpen, onClose }: Props) {
 
             <div className="space-y-2 pt-1">
               {aiInsights.map((item, idx) => (
-                <div key={idx} className="flex items-start gap-2 text-xs leading-relaxed">
-                  <span className="text-sm shrink-0">{item.icon}</span>
-                  <p className="text-white/80">
+                <div key={idx} className="flex items-start gap-2.5 text-xs leading-relaxed">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#F59E0B] mt-1.5 shrink-0" />
+                  <p className={isDark ? "text-white/80" : "text-black/80"}>
                     <strong className="text-[#F59E0B] font-bold">{item.title}:</strong> {item.desc}
                   </p>
                 </div>
