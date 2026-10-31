@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Calendar, Trash2, X, Image as ImageIcon } from 'lucide-react'
-import { useAppStore, TargetItem, fromBaseIDR, toBaseIDR } from '@/lib/store'
+import { useAppStore, TargetItem } from '@/lib/store'
 import { useTranslation } from '@/lib/i18n'
 
 interface Props {
@@ -13,7 +13,7 @@ interface Props {
 }
 
 export default function EditTargetModal({ isOpen, onClose, target }: Props) {
-  const { updateTarget, theme, currency, language } = useAppStore()
+  const { updateTarget, theme, language } = useAppStore()
   const { t } = useTranslation()
   const isDark = theme === 'dark'
 
@@ -29,15 +29,14 @@ export default function EditTargetModal({ isOpen, onClose, target }: Props) {
   useEffect(() => {
     if (target) {
       setTitle(target.title)
-      const convertedVal = Math.round(fromBaseIDR(target.targetAmount, currency))
-      setTargetAmountStr(convertedVal.toLocaleString('id-ID'))
+      setTargetAmountStr(target.targetAmount.toLocaleString('id-ID'))
       setStartDate(target.startDate || new Date().toISOString().split('T')[0])
       setDeadlineDate(target.deadlineDate || '')
       setDeadlineType(target.deadlineType || 'fleksibel')
       setNote(target.note || '')
       setCoverImage(target.coverImage || null)
     }
-  }, [target, currency])
+  }, [target])
 
   if (!target) return null
 
@@ -58,11 +57,9 @@ export default function EditTargetModal({ isOpen, onClose, target }: Props) {
     const enteredAmount = parseInt(targetAmountStr.replace(/\D/g, '')) || 0
     if (!title || enteredAmount <= 0) return
 
-    const baseAmount = toBaseIDR(enteredAmount, currency)
-
     updateTarget(target.id, {
       title,
-      targetAmount: baseAmount,
+      targetAmount: enteredAmount,
       startDate,
       deadlineDate: deadlineDate || undefined,
       deadlineType,

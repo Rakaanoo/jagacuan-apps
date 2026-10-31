@@ -69,8 +69,6 @@ const id: Record<string, string> = {
   'sidebar.archive_desc': 'Daftar celengan yang telah selesai/diarsip',
   'sidebar.language': 'Bahasa',
   'sidebar.language_desc': 'Pengaturan Bahasa ({{lang}})',
-  'sidebar.currency': 'Mata Uang',
-  'sidebar.currency_desc': 'Pilihan Mata Uang (IDR - Rp)',
   'sidebar.theme': 'Tema: {{mode}}',
   'sidebar.theme_dark': 'Dark Mode',
   'sidebar.theme_cream': 'Cream Mode',
@@ -343,8 +341,6 @@ const en: Record<string, string> = {
   'sidebar.archive_desc': 'List of completed/archived savings',
   'sidebar.language': 'Language',
   'sidebar.language_desc': 'Language Setting ({{lang}})',
-  'sidebar.currency': 'Currency',
-  'sidebar.currency_desc': 'Currency Option (IDR - Rp)',
   'sidebar.theme': 'Theme: {{mode}}',
   'sidebar.theme_dark': 'Dark Mode',
   'sidebar.theme_cream': 'Cream Mode',
@@ -605,7 +601,6 @@ const de: Record<string, string> = {
   'sidebar.menu': 'Menü',
   'sidebar.archive': 'Zielarchiv',
   'sidebar.language': 'Sprache',
-  'sidebar.currency': 'Währung',
   'sidebar.theme': 'Thema: {{mode}}',
   'sidebar.backup': 'Sicherung & Wiederherstellung',
   'sidebar.info': 'App-Info',
@@ -681,7 +676,6 @@ const fr: Record<string, string> = {
   'sidebar.menu': 'Menu',
   'sidebar.archive': 'Archives',
   'sidebar.language': 'Langue',
-  'sidebar.currency': 'Devise',
   'sidebar.theme': 'Thème : {{mode}}',
   'sidebar.backup': 'Sauvegarde et Restauration',
   'sidebar.info': 'Infos App',
@@ -757,7 +751,6 @@ const it: Record<string, string> = {
   'sidebar.menu': 'Menu',
   'sidebar.archive': 'Archivio',
   'sidebar.language': 'Lingua',
-  'sidebar.currency': 'Valuta',
   'sidebar.theme': 'Tema: {{mode}}',
   'sidebar.backup': 'Backup e Ripristino',
   'sidebar.info': 'Info App',
@@ -833,7 +826,6 @@ const es: Record<string, string> = {
   'sidebar.menu': 'Menú',
   'sidebar.archive': 'Archivo de metas',
   'sidebar.language': 'Idioma',
-  'sidebar.currency': 'Moneda',
   'sidebar.theme': 'Tema: {{mode}}',
   'sidebar.backup': 'Copia de seguridad y restauración',
   'sidebar.info': 'Info de app',
@@ -909,7 +901,6 @@ const ja: Record<string, string> = {
   'sidebar.menu': 'メニュー',
   'sidebar.archive': 'アーカイブ',
   'sidebar.language': '言語',
-  'sidebar.currency': '通貨',
   'sidebar.theme': 'テーマ: {{mode}}',
   'sidebar.backup': 'バックアップと復元',
   'sidebar.info': 'アプリ情報',
@@ -985,7 +976,6 @@ const zh: Record<string, string> = {
   'sidebar.menu': '菜单',
   'sidebar.archive': '目标归档',
   'sidebar.language': '语言',
-  'sidebar.currency': '货币',
   'sidebar.theme': '主题: {{mode}}',
   'sidebar.backup': '备份与恢复',
   'sidebar.info': '应用信息',
@@ -1061,7 +1051,6 @@ const th: Record<string, string> = {
   'sidebar.menu': 'เมนู',
   'sidebar.archive': 'คลังเป้าหมาย',
   'sidebar.language': 'ภาษา',
-  'sidebar.currency': 'สกุลเงิน',
   'sidebar.theme': 'ธีม: {{mode}}',
   'sidebar.backup': 'สำรองและฟื้นฟูข้อมูล',
   'sidebar.info': 'เกี่ยวกับแอป',
@@ -1137,7 +1126,6 @@ const hi: Record<string, string> = {
   'sidebar.menu': 'मेनू',
   'sidebar.archive': 'लक्ष्य संग्रह',
   'sidebar.language': 'भाषा',
-  'sidebar.currency': 'मुद्रा',
   'sidebar.theme': 'थीम: {{mode}}',
   'sidebar.backup': 'बैकअप और पुनर्प्राप्ति',
   'sidebar.info': 'ऐप जानकारी',
@@ -1197,13 +1185,12 @@ function translate(lang: LanguageCode, key: string, vars?: TranslateVars): strin
 
 export function useTranslation() {
   const language = useAppStore((s) => s.language)
-  const currency = useAppStore((s) => s.currency)
 
   const t = (key: string, vars?: TranslateVars): string => {
     return translate(language, key, vars)
   }
 
-  return { t, language, currency }
+  return { t, language }
 }
 
 // ===== Non-hook translate for store actions =====

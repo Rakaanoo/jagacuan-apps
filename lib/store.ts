@@ -42,8 +42,6 @@ export interface NabarRoom {
   recentActivities: { name: string; action: string; amount: number; isIncome: boolean; timeAgo: string }[]
 }
 
-export type CurrencyCode = 'IDR' | 'USD' | 'EUR' | 'JPY' | 'CNY' | 'THB' | 'INR' | 'GBP'
-
 export interface ToastData {
   message: string
   submessage?: string
@@ -56,13 +54,11 @@ interface AppState {
   nabarRooms: NabarRoom[]
   theme: 'dark' | 'cream'
   language: 'id' | 'en' | 'de' | 'fr' | 'it' | 'es' | 'ja' | 'zh' | 'th' | 'hi'
-  currency: CurrencyCode
   activeToast: ToastData | null
 
   // Actions
   toggleTheme: () => void
   setLanguage: (lang: 'id' | 'en' | 'de' | 'fr' | 'it' | 'es' | 'ja' | 'zh' | 'th' | 'hi') => void
-  setCurrency: (cur: CurrencyCode) => void
   showToast: (message: string, submessage?: string, type?: 'success' | 'info') => void
   clearToast: () => void
   addTarget: (target: Omit<TargetItem, 'id' | 'createdAt' | 'currentAmount' | 'isFinished'>) => void
@@ -107,12 +103,10 @@ export const useAppStore = create<AppState>()(
       ],
       theme: 'dark',
       language: 'id',
-      currency: 'IDR',
       activeToast: null,
 
       toggleTheme: () => set((state) => ({ theme: state.theme === 'dark' ? 'cream' : 'dark' })),
       setLanguage: (lang) => set({ language: lang }),
-      setCurrency: (cur) => set({ currency: cur }),
       showToast: (message, submessage = '', type = 'success') =>
         set({ activeToast: { message, submessage, type } }),
       clearToast: () => set({ activeToast: null }),
@@ -198,9 +192,9 @@ export const useAppStore = create<AppState>()(
         if (target && target.currentAmount >= target.targetAmount) {
           get().showToast(t('toast.target_achieved'), t('toast.target_achieved_sub', { title: target.title }), 'success')
         } else if (type === 'setor') {
-          get().showToast(t('toast.deposit_success'), t('toast.deposit_sub', { amount: formatCurrency(amount, get().currency) }), 'success')
+          get().showToast(t('toast.deposit_success'), t('toast.deposit_sub', { amount: formatRupiah(amount) }), 'success')
         } else {
-          get().showToast(t('toast.withdraw_success'), t('toast.withdraw_sub', { amount: formatCurrency(amount, get().currency) }), 'info')
+          get().showToast(t('toast.withdraw_success'), t('toast.withdraw_sub', { amount: formatRupiah(amount) }), 'info')
         }
       },
 
@@ -264,7 +258,7 @@ export const useAppStore = create<AppState>()(
           }),
         }))
         const t = getTranslator(get().language)
-        get().showToast(t('toast.nabar_activity'), t('toast.nabar_activity_sub', { name, amount: formatCurrency(amount, get().currency) }), 'success')
+        get().showToast(t('toast.nabar_activity'), t('toast.nabar_activity_sub', { name, amount: formatRupiah(amount) }), 'success')
       },
 
       joinNabarRoom: (roomId, name) => {
@@ -333,38 +327,7 @@ export const useAppStore = create<AppState>()(
   )
 )
 
-export const exchangeRates: Record<CurrencyCode, number> = {
-  IDR: 1,
-  USD: 1 / 15500, // 1 USD = 15.500 IDR
-  EUR: 1 / 17000, // 1 EUR = 17.000 IDR
-  JPY: 1 / 105,   // 1 JPY = 105 IDR
-  CNY: 1 / 2150,  // 1 CNY = 2.150 IDR
-  THB: 1 / 450,   // 1 THB = 450 IDR
-  INR: 1 / 185,   // 1 INR = 185 IDR
-  GBP: 1 / 20000, // 1 GBP = 20.000 IDR
-}
-
-export const currencySymbolMap: Record<CurrencyCode, string> = {
-  IDR: 'Rp',
-  USD: '$',
-  EUR: '€',
-  JPY: '¥',
-  CNY: '¥',
-  THB: '฿',
-  INR: '₹',
-  GBP: '£',
-}
-
-export const toBaseIDR = (amountInActiveCurrency: number, currency: CurrencyCode = 'IDR'): number => {
-  return Math.round(amountInActiveCurrency)
-}
-
-// Convert base IDR amount into active currency amount (numeric)
-export const fromBaseIDR = (baseAmountIDR: number, currency: CurrencyCode = 'IDR'): number => {
-  return baseAmountIDR
-}
-
-export const formatCurrency = (val: number, currency: CurrencyCode = 'IDR') => {
+export const formatCurrency = (val: number) => {
   return new Intl.NumberFormat('id-ID', {
     style: 'currency',
     currency: 'IDR',
@@ -374,7 +337,7 @@ export const formatCurrency = (val: number, currency: CurrencyCode = 'IDR') => {
 }
 
 export const formatRupiah = (val: number) => {
-  return formatCurrency(val, 'IDR')
+  return formatCurrency(val)
 }
 
 

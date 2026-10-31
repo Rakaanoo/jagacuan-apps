@@ -15,7 +15,7 @@ interface Props {
 }
 
 export default function SidebarDrawer({ isOpen, onClose, onOpenBackup, onOpenArchive }: Props) {
-  const { theme, toggleTheme, showToast, language, setLanguage, currency, setCurrency } = useAppStore()
+  const { theme, toggleTheme, showToast, language, setLanguage } = useAppStore()
   const { t } = useTranslation()
   const [activeModal, setActiveModal] = useState<string | null>(null)
   const [currentUser, setCurrentUser] = useState<any>(null)
@@ -43,27 +43,16 @@ export default function SidebarDrawer({ isOpen, onClose, onOpenBackup, onOpenArc
   ]
 
   const languagesList = [
-    { code: 'id', name: 'Bahasa Indonesia', flag: '🇮🇩', currency: 'IDR' },
-    { code: 'en', name: 'English (US)', flag: '🇺🇸', currency: 'USD' },
-    { code: 'de', name: 'Deutsch (Jerman)', flag: '🇩🇪', currency: 'EUR' },
-    { code: 'fr', name: 'Français (Prancis)', flag: '🇫🇷', currency: 'EUR' },
-    { code: 'it', name: 'Italiano (Italia)', flag: '🇮🇹', currency: 'EUR' },
-    { code: 'es', name: 'Español (Spanyol)', flag: '🇪🇸', currency: 'EUR' },
-    { code: 'ja', name: '日本語 (Jepang)', flag: '🇯🇵', currency: 'JPY' },
-    { code: 'zh', name: '中文 (China)', flag: '🇨🇳', currency: 'CNY' },
-    { code: 'th', name: 'ไทย (Thailand)', flag: '🇹🇭', currency: 'THB' },
-    { code: 'hi', name: 'हिन्दी (India)', flag: '🇮🇳', currency: 'INR' },
-  ] as const
-
-  const currenciesList = [
-    { code: 'IDR', name: 'Rupiah (Rp)', flag: '🇮🇩' },
-    { code: 'USD', name: 'US Dollar ($)', flag: '🇺🇸' },
-    { code: 'EUR', name: 'Euro (€)', flag: '🇪🇺' },
-    { code: 'JPY', name: 'Yen (¥)', flag: '🇯🇵' },
-    { code: 'CNY', name: 'Yuan (¥)', flag: '🇨🇳' },
-    { code: 'THB', name: 'Baht (฿)', flag: '🇹🇭' },
-    { code: 'INR', name: 'Rupee (₹)', flag: '🇮🇳' },
-    { code: 'GBP', name: 'Pound (£)', flag: '🇬🇧' },
+    { code: 'id', name: 'Bahasa Indonesia', flag: '🇮🇩' },
+    { code: 'en', name: 'English (US)', flag: '🇺🇸' },
+    { code: 'de', name: 'Deutsch (Jerman)', flag: '🇩🇪' },
+    { code: 'fr', name: 'Français (Prancis)', flag: '🇫🇷' },
+    { code: 'it', name: 'Italiano (Italia)', flag: '🇮🇹' },
+    { code: 'es', name: 'Español (Spanyol)', flag: '🇪🇸' },
+    { code: 'ja', name: '日本語 (Jepang)', flag: '🇯🇵' },
+    { code: 'zh', name: '中文 (China)', flag: '🇨🇳' },
+    { code: 'th', name: 'ไทย (Thailand)', flag: '🇹🇭' },
+    { code: 'hi', name: 'हिन्दी (India)', flag: '🇮🇳' },
   ] as const
 
   const handleMenuClick = (id: string) => {
@@ -289,7 +278,6 @@ export default function SidebarDrawer({ isOpen, onClose, onOpenBackup, onOpenArc
                           key={l.code}
                           onClick={() => {
                             setLanguage(l.code as any)
-                            setCurrency('IDR')
                             setActiveModal(null)
                             showToast(`Bahasa: ${l.name}`, '', 'info')
                           }}

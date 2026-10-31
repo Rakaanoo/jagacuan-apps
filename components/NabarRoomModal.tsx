@@ -29,7 +29,7 @@ interface Props {
 import { useTranslation } from '@/lib/i18n'
 
 export default function NabarRoomModal({ isOpen, onClose }: Props) {
-  const { showToast, theme, currency, language } = useAppStore()
+  const { showToast, theme, language } = useAppStore()
   const { t } = useTranslation()
   const isDark = theme === 'dark'
 

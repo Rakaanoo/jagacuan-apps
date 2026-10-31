@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Plus, Minus, X, Banknote, Menu } from 'lucide-react'
-import { useAppStore, toBaseIDR, currencySymbolMap, CurrencyCode } from '@/lib/store'
+import { useAppStore } from '@/lib/store'
 import { useTranslation } from '@/lib/i18n'
 
 interface Props {
@@ -21,7 +21,7 @@ export default function CatatTabunganModal({
   initialTxType = 'setor',
   initialAmount,
 }: Props) {
-  const { addTransaction, theme, currency, language } = useAppStore()
+  const { addTransaction, theme, language } = useAppStore()
   const { t } = useTranslation()
   const isDark = theme === 'dark'
 
@@ -41,24 +41,13 @@ export default function CatatTabunganModal({
     }
   }, [isOpen, initialTxType, initialAmount])
 
-  const quickAmountsMap: Record<CurrencyCode, number[]> = {
-    IDR: [10000, 50000, 100000],
-    USD: [10, 50, 100],
-    EUR: [10, 50, 100],
-    JPY: [1000, 5000, 10000],
-    CNY: [50, 100, 500],
-    THB: [100, 500, 1000],
-    INR: [500, 1000, 5000],
-    GBP: [10, 50, 100],
-  }
-  const quickAmounts = quickAmountsMap[currency] || [10000, 50000, 100000]
+  const quickAmounts = [10000, 50000, 100000]
 
   const handleSave = () => {
     const enteredAmount = parseInt(nominalStr.replace(/\D/g, '')) || 0
     if (enteredAmount <= 0) return
 
-    const baseAmount = toBaseIDR(enteredAmount, currency)
-    addTransaction(targetId, txType, baseAmount, keterangan)
+    addTransaction(targetId, txType, enteredAmount, keterangan)
     onClose()
   }
 
@@ -204,7 +193,7 @@ export default function CatatTabunganModal({
                   </div>
                   <div style={{ flex: 1 }}>
                     <label style={{ fontSize: '11px', color: inputBorder, fontWeight: '600', display: 'block' }}>
-                      Nominal ({currencySymbolMap[currency] || currency})
+                      Nominal (Rp)
                     </label>
                     <input
                       type="text"
@@ -253,7 +242,7 @@ export default function CatatTabunganModal({
                     cursor: 'pointer',
                   }}
                 >
-                  +{currencySymbolMap[currency] || ''}{amt.toLocaleString('id-ID')}
+                  +Rp{amt.toLocaleString('id-ID')}
                 </button>
               ))}
             </div>

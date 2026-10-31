@@ -263,7 +263,7 @@ function CircularClockPicker({
 import { useTranslation } from '@/lib/i18n'
 
 export default function TargetDetailModal({ target, onClose }: Props) {
-  const { deleteTarget, toggleArchiveTarget, transactions, theme, showToast, currency, language } = useAppStore()
+  const { deleteTarget, toggleArchiveTarget, transactions, theme, showToast, language } = useAppStore()
   const { t } = useTranslation()
   const isDark = theme === 'dark'
 

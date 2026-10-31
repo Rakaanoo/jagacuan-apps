@@ -13,7 +13,7 @@ interface Props {
 }
 
 export default function CalendarModal({ isOpen, onClose, onOpenCreate }: Props) {
-  const { targets, theme, currency, language } = useAppStore()
+  const { targets, theme, language } = useAppStore()
   const { t } = useTranslation()
   const isDark = theme === 'dark'
 

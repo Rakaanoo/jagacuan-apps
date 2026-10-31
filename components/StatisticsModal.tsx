@@ -20,7 +20,7 @@ interface Props {
 type StatPeriod = 'week' | 'month' | 'year'
 
 export default function StatisticsModal({ isOpen, onClose }: Props) {
-  const { targets, transactions, theme, currency, language } = useAppStore()
+  const { targets, transactions, theme, language } = useAppStore()
   const { t } = useTranslation()
   const isDark = theme === 'dark'
 

@@ -13,7 +13,7 @@ interface Props {
 import { useTranslation } from '@/lib/i18n'
 
 export default function BackupRestoreModal({ isOpen, onClose }: Props) {
-  const { targets, transactions, nabarRooms, restoreData, theme, currency, language } = useAppStore()
+  const { targets, transactions, nabarRooms, restoreData, theme, language } = useAppStore()
   const { t } = useTranslation()
   const isDark = theme === 'dark'
 

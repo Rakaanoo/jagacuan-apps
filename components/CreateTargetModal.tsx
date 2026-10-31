@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Calendar, Trash2, X, Image as ImageIcon } from 'lucide-react'
-import { useAppStore, toBaseIDR, currencySymbolMap } from '@/lib/store'
+import { useAppStore } from '@/lib/store'
 import { useTranslation } from '@/lib/i18n'
 
 interface Props {
@@ -13,7 +13,7 @@ interface Props {
 }
 
 export default function CreateTargetModal({ isOpen, onClose, targetType }: Props) {
-  const { addTarget, theme, currency, language } = useAppStore()
+  const { addTarget, theme, language } = useAppStore()
   const { t } = useTranslation()
   const isDark = theme === 'dark'
 
@@ -42,11 +42,9 @@ export default function CreateTargetModal({ isOpen, onClose, targetType }: Props
     const enteredAmount = parseInt(targetAmountStr.replace(/\D/g, '')) || 0
     if (!title || enteredAmount <= 0) return
 
-    const baseAmount = toBaseIDR(enteredAmount, currency)
-
     addTarget({
       title,
-      targetAmount: baseAmount,
+      targetAmount: enteredAmount,
       startDate,
       deadlineDate: deadlineDate || undefined,
       note,
