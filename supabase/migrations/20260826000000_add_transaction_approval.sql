@@ -25,7 +25,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Recreate trigger for room_transactions
+-- Recreate trigger for room_transactions (and remove legacy duplicate trigger if present)
+DROP TRIGGER IF EXISTS on_room_transaction_inserted ON room_transactions;
 DROP TRIGGER IF EXISTS trigger_update_room_current_amount ON room_transactions;
 
 CREATE TRIGGER trigger_update_room_current_amount

@@ -225,7 +225,6 @@ export async function getRoomById(roomIdParam: string, currentUserParam?: any): 
     .select('*')
     .eq('room_id', roomId)
     .order('created_at', { ascending: false })
-    .limit(40)
 
   // Auto-sync current user's Google profile info to room_members table
   if (user) {
@@ -311,6 +310,24 @@ export async function getRoomById(roomIdParam: string, currentUserParam?: any): 
   const recentActivities = allActivities.filter((a) => a.status === 'approved')
   const pendingActivities = allActivities.filter((a) => a.status === 'pending')
 
+  const approvedSum = Math.max(
+    0,
+    recentActivities.reduce((acc, a) => acc + (a.isIncome ? a.amount : -a.amount), 0)
+  )
+  const dbCurrentAmount = Number(room.current_amount || 0)
+  const currentAmount =
+    recentActivities.length > 0 || dbCurrentAmount > 0 ? approvedSum : dbCurrentAmount
+
+  if ((recentActivities.length > 0 || dbCurrentAmount > 0) && Math.abs(dbCurrentAmount - approvedSum) > 0.01) {
+    supabase
+      .from('rooms')
+      .update({ current_amount: approvedSum })
+      .eq('id', roomId)
+      .then(({ error }) => {
+        if (error) console.error('Gagal menyinkronkan current_amount di rooms:', error)
+      })
+  }
+
   let userStatus: 'owner' | 'approved' | 'pending' | 'none' = 'none'
   if (user) {
     if (room.owner_id === user.id) {
@@ -327,7 +344,7 @@ export async function getRoomById(roomIdParam: string, currentUserParam?: any): 
     id: room.id,
     title: room.title,
     targetAmount: Number(room.target_amount),
-    currentAmount: Number(room.current_amount),
+    currentAmount,
     startDate: room.start_date || undefined,
     deadlineDate: room.deadline_date || undefined,
     note: room.note || undefined,

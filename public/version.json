@@ -1,0 +1,14 @@
+{
+  "latest_version": "1.0.13",
+  "build_number": 14,
+  "release_date": "2026-11-05T21:30:00Z",
+  "title": "Pembaruan Jaga Cuan v1.0.13 Tersedia! 🎉",
+  "description": "Perbaikan akurasi nominal setoran pertama kali, pencegahan double-insert, serta peningkatan sistem In-App Auto Update.",
+  "changelog": [
+    "Fix bug nominal ter-double saat melakukan setoran pertama kali di Nabar & Tabungan Mandiri",
+    "Proteksi anti double-tap & sinkronisasi otomatis saldo akurat (Single Source of Truth)",
+    "Perbaikan tombol Periksa Pembaruan di menu sidebar & sistem In-App Auto Update"
+  ],
+  "apk_url": "https://jagacuan-app.vercel.app/download/jagacuan.apk",
+  "apk_size_mb": 59.0
+}
