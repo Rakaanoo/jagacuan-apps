@@ -1,14 +1,24 @@
 {
   "latest_version": "1.0.15",
   "build_number": 16,
-  "release_date": "2026-11-07T13:20:00Z",
+  "release_date": "2026-11-07T13:50:00Z",
   "title": "Update Tersedia!",
-  "description": "Perbaikan tata letak diagram pada menu Statistik & Insight serta peningkatan stabilitas aplikasi.",
+  "description": "Perbaikan tata letak diagram pada menu Statistik & Insight serta sistem Patch Ringan (tanpa instal ulang APK).",
   "changelog": [
+    "Sistem Patch Ringan (Delta Update): cukup perbarui poin-poin utama di dalam aplikasi tanpa unduh ulang seluruh APK",
     "Fix jarak bar chart dan label rata-rata (avg) pada menu Statistik & Insight agar tidak bertumpukan",
-    "Fix bug nominal ter-double saat melakukan setoran pertama kali di Nabar & Tabungan Mandiri",
-    "Perbaikan sistem In-App Auto Update & logo resmi aplikasi pada dialog pembaruan"
+    "Fix bug nominal ter-double saat melakukan setoran pertama kali di Nabar & Tabungan Mandiri"
   ],
+  "update_type": "patch",
+  "patch_url": "https://jagacuan-app.vercel.app/patch.json",
+  "patch_size_kb": 28.4,
+  "patch_payload": {
+    "runtime_config": {
+      "stats_bars_right_margin": 74.0,
+      "stats_avg_right_margin": 20.0,
+      "strict_single_source_deposit_sum": true
+    }
+  },
   "apk_url": "https://jagacuan-app.vercel.app/download/jagacuan.apk",
   "apk_size_mb": 59.0
 }
