@@ -1,13 +1,13 @@
 {
-  "latest_version": "1.0.14",
-  "build_number": 15,
-  "release_date": "2026-11-05T22:00:00Z",
+  "latest_version": "1.0.15",
+  "build_number": 16,
+  "release_date": "2026-11-07T13:20:00Z",
   "title": "Update Tersedia!",
-  "description": "Perbaikan akurasi nominal setoran pertama kali, pencegahan double-insert, serta pembaruan tampilan aplikasi.",
+  "description": "Perbaikan tata letak diagram pada menu Statistik & Insight serta peningkatan stabilitas aplikasi.",
   "changelog": [
+    "Fix jarak bar chart dan label rata-rata (avg) pada menu Statistik & Insight agar tidak bertumpukan",
     "Fix bug nominal ter-double saat melakukan setoran pertama kali di Nabar & Tabungan Mandiri",
-    "Proteksi anti double-tap & sinkronisasi otomatis saldo akurat (Single Source of Truth)",
-    "Pembaruan logo dialog & perbaikan tombol Periksa Pembaruan di menu sidebar"
+    "Perbaikan sistem In-App Auto Update & logo resmi aplikasi pada dialog pembaruan"
   ],
   "apk_url": "https://jagacuan-app.vercel.app/download/jagacuan.apk",
   "apk_size_mb": 59.0
