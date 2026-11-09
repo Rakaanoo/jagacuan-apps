@@ -1,15 +1,16 @@
 {
-  "latest_version": "1.0.19",
-  "build_number": 20,
-  "release_date": "2026-11-09T13:45:00Z",
+  "latest_version": "1.0.20",
+  "build_number": 21,
+  "min_native_build": 21,
+  "release_date": "2026-11-09T14:05:00Z",
   "title": "Update Tersedia!",
-  "description": "Perbaikan lingkaran progress warna hijau (Nabar & Pribadi), fitur Edit Tabungan & Edit Ruang Nabar (khusus Host), Rekomendasi Setoran sebagai text reminder, batas anggota Nabar 2-50 orang, dan perapihan UI Cloud Backup.",
+  "description": "Pembaruan penuh aplikasi: Lingkaran progress hijau (Nabar & Pribadi), Fitur Edit Tabungan & Edit Ruang Nabar (khusus Host), Rekomendasi Setoran sebagai text reminder, batas 2-50 anggota Nabar, Auto-Backup Cloud Google dengan pop-up notifikasi, serta perbaikan sistem In-App Update.",
   "changelog": [
-    "Fix lingkaran progress menabung agar ikut berputar warna hijau di Nabar & Nabung Pribadi",
-    "Fix fitur Edit Tabungan (nama, nominal, deadline, catatan, sampul) di Pribadi & Nabar (khusus Host)",
-    "Rekomendasi Setoran menjadi text reminder acuan nominal tanpa tombol duplikat, serta perapihan Share Link Nabar & Cloud Backup"
+    "Fix In-App Update agar menginstal binary terbaru sehingga seluruh fitur & perubahan UI langsung aktif",
+    "Fix lingkaran progress menabung warna hijau berputar & fitur Edit Tabungan (Pribadi & Host Nabar)",
+    "Rekomendasi Setoran sebagai text reminder acuan nominal, batas 2-50 anggota Nabar, & pop-up Cloud Backup Google"
   ],
-  "update_type": "patch",
+  "update_type": "apk",
   "patch_url": "https://jagacuan-app.vercel.app/patch.json",
   "patch_size_kb": 31.2,
   "patch_payload": {

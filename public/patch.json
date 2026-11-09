@@ -1,7 +1,8 @@
 {
-  "patch_id": "patch-v1.0.19-b20",
-  "version": "1.0.19",
-  "build_number": 20,
+  "patch_id": "patch-v1.0.20-b21",
+  "version": "1.0.20",
+  "build_number": 21,
+  "min_native_build": 21,
   "runtime_config": {
     "stats_bars_right_margin": 28.0,
     "strict_single_source_deposit_sum": true,
