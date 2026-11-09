@@ -1,10 +1,12 @@
 {
-  "patch_id": "patch-v1.0.18-b19",
-  "version": "1.0.18",
-  "build_number": 19,
+  "patch_id": "patch-v1.0.19-b20",
+  "version": "1.0.19",
+  "build_number": 20,
   "runtime_config": {
     "stats_bars_right_margin": 28.0,
-    "strict_single_source_deposit_sum": true
+    "strict_single_source_deposit_sum": true,
+    "nabar_min_members": 2,
+    "nabar_max_members": 50
   },
   "i18n_overrides": {}
 }

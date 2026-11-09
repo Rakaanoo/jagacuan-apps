@@ -1,0 +1,25 @@
+{
+  "latest_version": "1.0.19",
+  "build_number": 20,
+  "release_date": "2026-11-09T13:45:00Z",
+  "title": "Update Tersedia!",
+  "description": "Perbaikan lingkaran progress warna hijau (Nabar & Pribadi), fitur Edit Tabungan & Edit Ruang Nabar (khusus Host), Rekomendasi Setoran sebagai text reminder, batas anggota Nabar 2-50 orang, dan perapihan UI Cloud Backup.",
+  "changelog": [
+    "Fix lingkaran progress menabung agar ikut berputar warna hijau di Nabar & Nabung Pribadi",
+    "Fix fitur Edit Tabungan (nama, nominal, deadline, catatan, sampul) di Pribadi & Nabar (khusus Host)",
+    "Rekomendasi Setoran menjadi text reminder acuan nominal tanpa tombol duplikat, serta perapihan Share Link Nabar & Cloud Backup"
+  ],
+  "update_type": "patch",
+  "patch_url": "https://jagacuan-app.vercel.app/patch.json",
+  "patch_size_kb": 31.2,
+  "patch_payload": {
+    "runtime_config": {
+      "stats_bars_right_margin": 28.0,
+      "strict_single_source_deposit_sum": true,
+      "nabar_min_members": 2,
+      "nabar_max_members": 50
+    }
+  },
+  "apk_url": "https://jagacuan-app.vercel.app/download/jagacuan.apk",
+  "apk_size_mb": 59.0
+}
