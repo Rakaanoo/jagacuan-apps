@@ -1,21 +1,20 @@
 {
-  "latest_version": "1.0.15",
-  "build_number": 16,
-  "release_date": "2026-11-07T13:50:00Z",
+  "latest_version": "1.0.16",
+  "build_number": 17,
+  "release_date": "2026-11-09T09:30:00Z",
   "title": "Update Tersedia!",
-  "description": "Perbaikan tata letak diagram pada menu Statistik & Insight serta sistem Patch Ringan (tanpa instal ulang APK).",
+  "description": "Sinkronisasi progres menabung otomatis saat online (Live Sync), Tabel Rekap Spreadsheet ala Excel, serta tampilan chart Statistik yang lebih bersih.",
   "changelog": [
-    "Sistem Patch Ringan (Delta Update): cukup perbarui poin-poin utama di dalam aplikasi tanpa unduh ulang seluruh APK",
-    "Fix jarak bar chart dan label rata-rata (avg) pada menu Statistik & Insight agar tidak bertumpukan",
-    "Fix bug nominal ter-double saat melakukan setoran pertama kali di Nabar & Tabungan Mandiri"
+    "Tabel Rekap Progres (Spreadsheet ala Excel) untuk memantau mutasi, porsi, dan saldo akhir tabungan",
+    "Sinkronisasi Real-Time otomatis saat online (Live Sync) ketika anggota menyetor atau menyetujui tabungan",
+    "Penghapusan garis rata-rata (avg) pada chart Kedisiplinan Menabung agar tampilan lebih bersih"
   ],
   "update_type": "patch",
   "patch_url": "https://jagacuan-app.vercel.app/patch.json",
   "patch_size_kb": 28.4,
   "patch_payload": {
     "runtime_config": {
-      "stats_bars_right_margin": 74.0,
-      "stats_avg_right_margin": 20.0,
+      "stats_bars_right_margin": 28.0,
       "strict_single_source_deposit_sum": true
     }
   },
