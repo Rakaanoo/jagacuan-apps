@@ -1,8 +1,8 @@
 {
-  "patch_id": "patch-v1.0.21-b22",
-  "version": "1.0.21",
-  "build_number": 22,
-  "min_native_build": 22,
+  "patch_id": "patch-v1.0.22-b23",
+  "version": "1.0.22",
+  "build_number": 23,
+  "min_native_build": 23,
   "runtime_config": {
     "stats_bars_right_margin": 28.0,
     "strict_single_source_deposit_sum": true,

@@ -1,18 +1,18 @@
 {
-  "latest_version": "1.0.21",
-  "build_number": 22,
-  "min_native_build": 22,
-  "release_date": "2026-11-09T14:18:00Z",
-  "title": "Update Tersedia! (Dummy Test)",
-  "description": "Ini adalah pembaruan dummy (v1.0.21 Build 22) untuk mengetes sistem In-App Update secara langsung. Setelah terpasang, buka Menu ☰ untuk melihat badge hijau 'v1.0.21 (Build 22) • Dummy Update Aktif' di bagian bawah.",
+  "latest_version": "1.0.22",
+  "build_number": 23,
+  "min_native_build": 23,
+  "release_date": "2026-11-09T15:15:00Z",
+  "title": "Update Tersedia!",
+  "description": "Menambahkan tombol Logout (Keluar) pada kartu profil akun Google di Sidebar Menu ☰, serta mencakup seluruh pembaruan fitur & perbaikan UI terbaru.",
   "changelog": [
-    "Menambahkan badge verifikasi 'v1.0.21 (Build 22) • Dummy Update Aktif' di bagian bawah Menu ☰",
-    "Mencakup seluruh perbaikan UI & fitur terbaru (Lingkaran Progress Hijau, Edit Tabungan & Ruang Nabar, Rekomendasi Setoran, Cloud Backup Pop-up)",
-    "Verifikasi pengujian sistem In-App Update penuh (APK Build 22)"
+    "Menambahkan tombol Logout di samping profil akun Google pada Sidebar Menu ☰",
+    "Lingkaran progress hijau (Nabar & Pribadi) & Fitur Edit Tabungan / Edit Ruang Nabar (Host)",
+    "Rekomendasi Setoran sebagai text reminder, batas 2-50 anggota Nabar, & pop-up Cloud Backup Google"
   ],
   "update_type": "apk",
   "patch_url": "https://jagacuan-app.vercel.app/patch.json",
-  "patch_size_kb": 31.5,
+  "patch_size_kb": 31.8,
   "patch_payload": {
     "runtime_config": {
       "stats_bars_right_margin": 28.0,
