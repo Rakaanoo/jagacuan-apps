@@ -1,7 +1,7 @@
 {
-  "patch_id": "patch-v1.0.17-b18",
-  "version": "1.0.17",
-  "build_number": 18,
+  "patch_id": "patch-v1.0.18-b19",
+  "version": "1.0.18",
+  "build_number": 19,
   "runtime_config": {
     "stats_bars_right_margin": 28.0,
     "strict_single_source_deposit_sum": true

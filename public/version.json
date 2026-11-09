@@ -1,12 +1,12 @@
 {
-  "latest_version": "1.0.17",
-  "build_number": 18,
-  "release_date": "2026-11-09T10:15:00Z",
+  "latest_version": "1.0.18",
+  "build_number": 19,
+  "release_date": "2026-11-09T10:38:00Z",
   "title": "Update Tersedia!",
-  "description": "Auto-Backup progres tabungan pribadi ke Cloud Akun Google saat online (tetap bisa offline seperti Word/Docs, aman saat ganti HP) serta tampilan chart Statistik yang lebih bersih.",
+  "description": "Auto-Backup progres tabungan pribadi ke Cloud Akun Google lengkap dengan pop-up notifikasi status backup (tetap bisa offline seperti Word/Docs, aman saat ganti HP) serta tampilan chart Statistik yang lebih bersih.",
   "changelog": [
-    "Auto-Backup Tabungan Pribadi ke Cloud Akun Google: bisa digunakan saat offline dan otomatis ter-backup ke akun Google saat online agar tidak hilang saat ganti HP",
-    "Smart Merge & Auto-Restore: otomatis memulihkan seluruh tabungan pribadi dan riwayat setoran saat login Akun Google di perangkat baru",
+    "Pop-up kecil notifikasi otomatis saat progres tabungan pribadi berhasil di-backup ke Cloud Akun Google",
+    "Auto-Backup & Auto-Restore Tabungan Pribadi ke Akun Google: bisa digunakan offline dan otomatis di-backup saat online agar tidak hilang saat ganti HP",
     "Penghapusan garis rata-rata (avg) pada chart Kedisiplinan Menabung agar tampilan lebih bersih"
   ],
   "update_type": "patch",
