@@ -1,18 +1,17 @@
 {
-  "latest_version": "1.0.23",
-  "build_number": 24,
-  "min_native_build": 24,
-  "release_date": "2026-11-11T08:42:00Z",
+  "latest_version": "1.0.24",
+  "build_number": 25,
+  "min_native_build": 25,
+  "release_date": "2026-11-11T14:46:00Z",
   "title": "Update Tersedia!",
-  "description": "Penyempurnaan Auto-Backup Cloud Google: Guest tanpa backup, deteksi antrean offline instan (data ditahan saat offline & bebas transaksi), serta auto-backup otomatis ke Cloud begitu jaringan kembali online.",
+  "description": "Perbaikan kesejajaran vertikal teks pencarian (Search Bar) dengan ikon pencarian, serta penyesuaian warna ikon di Mode Terang (Light Mode) menjadi warna hitam/gelap seperti ikon Bahasa di Sidebar.",
   "changelog": [
-    "Cloud Backup khusus pengguna yang login Akun Google (Guest tanpa backup)",
-    "Saat offline, transaksi tabungan pribadi tetap jalan normal dan data ditahan di antrean lokal",
-    "Otomatis langsung backup data yang tertahan ke Cloud Google begitu jaringan kembali online"
+    "Fix posisi teks 'Cari target celengan...' agar lurus sejajar tepat di tengah dengan ikon kaca pembesar",
+    "Penyesuaian ikon-ikon biru pada Mode Terang (Light Mode) menjadi warna hitam seragam seperti ikon Bahasa di Sidebar"
   ],
   "update_type": "apk",
   "patch_url": "https://jagacuan-app.vercel.app/patch.json",
-  "patch_size_kb": 32.0,
+  "patch_size_kb": 32.2,
   "patch_payload": {
     "runtime_config": {
       "stats_bars_right_margin": 28.0,

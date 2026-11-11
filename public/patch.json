@@ -1,8 +1,8 @@
 {
-  "patch_id": "patch-v1.0.23-b24",
-  "version": "1.0.23",
-  "build_number": 24,
-  "min_native_build": 24,
+  "patch_id": "patch-v1.0.24-b25",
+  "version": "1.0.24",
+  "build_number": 25,
+  "min_native_build": 25,
   "runtime_config": {
     "stats_bars_right_margin": 28.0,
     "strict_single_source_deposit_sum": true,
