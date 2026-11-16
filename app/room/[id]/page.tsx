@@ -97,11 +97,7 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
   }
 
   return (
-    <div
-      className={`min-h-screen text-white font-sans relative overflow-x-hidden selection:bg-[#7C8BFF] selection:text-white flex justify-center items-center p-5 transition-colors duration-300 ${
-        detecting ? 'bg-[#030637]' : 'bg-[#0E1117]'
-      }`}
-    >
+    <div className="min-h-screen bg-[#0E1117] text-white font-sans relative overflow-x-hidden selection:bg-[#7C8BFF] selection:text-white flex justify-center items-center p-5">
       <div className="w-full max-w-[390px] relative z-10 flex flex-col justify-center items-center">
         <AnimatePresence mode="wait">
           {detecting ? (

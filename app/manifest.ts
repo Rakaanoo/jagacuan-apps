@@ -7,8 +7,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "Aplikasi pencatat tabungan bertarget dan celengan digital.",
     start_url: "/",
     display: "standalone",
-    background_color: "#080B18",
-    theme_color: "#030637",
+    background_color: "#0E1117",
+    theme_color: "#0E1117",
     lang: "id",
     icons: [
       {

@@ -80,11 +80,7 @@ export default function Home() {
   const sizeLabel = (versionInfo.apk_size_mb ?? 59.0).toFixed(0)
 
   return (
-    <div
-      className={`min-h-screen text-white font-sans relative overflow-hidden flex items-center justify-center p-5 transition-colors duration-300 selection:bg-[#7C8BFF] selection:text-white ${
-        isLoading ? 'bg-[#030637]' : 'bg-[#0E1117]'
-      }`}
-    >
+    <div className="min-h-screen bg-[#0E1117] text-white font-sans relative overflow-hidden flex items-center justify-center p-5 selection:bg-[#7C8BFF] selection:text-white">
       <AnimatePresence mode="wait">
         {isLoading ? (
           <DribbbleLoading key="home-loading" phase={loadingPhase} />
