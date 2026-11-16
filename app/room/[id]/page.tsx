@@ -7,7 +7,7 @@ import {
   Download,
   Copy,
   Check,
-  AlertCircle,
+  Shield,
   Users,
   ShieldCheck,
   Laptop,
@@ -49,7 +49,6 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
       const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
       setIsMobileDevice(isMobile)
 
-      // Jika pada ponsel, coba luncurkan aplikasi JagaCuan secara otomatis di background
       if (isMobile) {
         window.location.href = `intent://room/${roomId}#Intent;scheme=jagacuan;package=com.jagacuan.jagacuan_app;end`
         setTimeout(() => {
@@ -58,7 +57,6 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
       }
     }
 
-    // Dribbble loading: spinning (1.5s) -> blue checkmark (0.75s) -> fallback download page
     const checkTimer = setTimeout(() => {
       setLoadingPhase('success')
     }, 1500)
@@ -99,10 +97,12 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
   }
 
   return (
-    <div className="min-h-screen bg-[#030637] text-white font-sans relative overflow-x-hidden selection:bg-[#1CA0FF] selection:text-white flex justify-center items-center p-4">
-      <div className="fixed top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[450px] h-[320px] bg-[#1CA0FF]/12 blur-[140px] rounded-full pointer-events-none" />
-
-      <div className="w-full max-w-sm relative z-10 flex flex-col justify-center items-center">
+    <div
+      className={`min-h-screen text-white font-sans relative overflow-x-hidden selection:bg-[#7C8BFF] selection:text-white flex justify-center items-center p-5 transition-colors duration-300 ${
+        detecting ? 'bg-[#030637]' : 'bg-[#0E1117]'
+      }`}
+    >
+      <div className="w-full max-w-[390px] relative z-10 flex flex-col justify-center items-center">
         <AnimatePresence mode="wait">
           {detecting ? (
             <DribbbleLoading key="room-loading" phase={loadingPhase} />
@@ -111,40 +111,57 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
               key="desktop-notice"
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              className="w-full p-6 rounded-3xl bg-[#0A0F4D]/80 backdrop-blur-xl border border-white/10 shadow-2xl text-center flex flex-col items-center"
+              className="w-full flex flex-col items-center"
             >
-              <div className="w-14 h-14 rounded-2xl bg-[#1CA0FF]/15 border border-[#1CA0FF]/30 flex items-center justify-center mb-4 text-[#1CA0FF]">
-                <Laptop size={26} />
+              <div className="w-full flex items-center justify-between px-2 mb-3.5">
+                <div className="inline-flex items-center gap-1.5 text-xs font-medium text-white/75">
+                  <ShieldCheck size={15} className="text-[#34D399]" />
+                  <span>Distribusi Resmi</span>
+                </div>
+                <span className="text-xs font-mono text-white/50">APK</span>
               </div>
 
-              <h3 className="text-lg font-extrabold text-white mb-1.5">
-                Aplikasi Khusus Android
-              </h3>
-              <p className="text-xs text-white/60 mb-5 leading-relaxed">
-                Fitur Nabung Bareng (Nabar) hanya berjalan di aplikasi Android JagaCuan. Unduh file APK resmi untuk dipasang di HP Anda.
-              </p>
-
-              {room && (
-                <div className="w-full p-3.5 rounded-2xl bg-white/5 border border-white/10 text-left mb-5">
-                  <span className="text-[10px] font-bold uppercase text-[#60C3FF] tracking-wider block mb-0.5">
-                    Ruang Dituju
-                  </span>
-                  <p className="text-sm font-bold text-white truncate">{room.title}</p>
-                  <p className="text-xs text-white/60 mt-0.5 font-medium">
-                    Target: <span className="text-emerald-400 font-bold">{formatRupiah(room.targetAmount)}</span>
-                  </p>
+              <div className="w-full p-7 rounded-[28px] bg-[#161923] border border-white/[0.08] shadow-2xl text-center flex flex-col items-center">
+                <div className="w-16 h-16 rounded-2xl bg-[#222738] border border-white/10 flex items-center justify-center mb-4 text-[#7C8BFF]">
+                  <Laptop size={28} />
                 </div>
-              )}
 
-              <a
-                href="/download/jagacuan.apk"
-                download="jagacuan.apk"
-                onClick={handleDownloadApk}
-                className="w-full py-3.5 px-4 rounded-xl bg-[#1CA0FF] hover:bg-[#33ADFF] active:scale-[0.98] text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-[#1CA0FF]/25 no-underline transition-all"
-              >
-                <Download size={15} />
-                <span>Unduh APK JagaCuan (59 MB)</span>
-              </a>
+                <h3 className="text-xl font-extrabold text-white mb-1.5">
+                  Aplikasi Khusus Android
+                </h3>
+                <p className="text-xs text-[#94A3B8] mb-5 leading-relaxed">
+                  Fitur Nabung Bareng (Nabar) berjalan di aplikasi Android JagaCuan. Unduh file APK resmi untuk dipasang di HP Anda.
+                </p>
+
+                {room && (
+                  <div className="w-full p-3.5 rounded-2xl bg-[#1D212E] border border-white/10 text-left mb-5">
+                    <span className="text-[10px] font-bold uppercase text-[#7C8BFF] tracking-wider block mb-0.5">
+                      Ruang Dituju
+                    </span>
+                    <p className="text-sm font-bold text-white truncate">{room.title}</p>
+                    <p className="text-xs text-[#94A3B8] mt-0.5 font-medium">
+                      Target:{' '}
+                      <span className="text-[#34D399] font-bold">
+                        {formatRupiah(room.targetAmount)}
+                      </span>
+                    </p>
+                  </div>
+                )}
+
+                <a
+                  href="/download/jagacuan.apk"
+                  download="jagacuan.apk"
+                  onClick={handleDownloadApk}
+                  className="w-full py-3.5 px-5 rounded-2xl bg-[#7C8BFF] hover:bg-[#8A98FF] active:scale-[0.98] text-white font-bold text-sm flex items-center justify-center gap-2 shadow-[0_0_28px_rgba(124,139,255,0.4)] no-underline transition-all"
+                >
+                  <Download size={16} />
+                  <span>Download APK (59 MB)</span>
+                </a>
+              </div>
+
+              <p className="mt-5 text-[11px] text-white/35 text-center">
+                © 2026 JagaCuan • Keuangan Terarah &amp; Aman
+              </p>
             </motion.div>
           ) : (
             <motion.div
@@ -152,97 +169,126 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
-              className="w-full p-6 rounded-3xl bg-[#0A0F4D]/80 backdrop-blur-xl border border-white/10 shadow-2xl flex flex-col items-center"
+              className="w-full flex flex-col items-center"
             >
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/25 text-amber-400 text-[11px] font-bold mb-4">
-                <AlertCircle size={13} />
-                <span>Aplikasi Belum Terpasang</span>
-              </div>
-
-              <h2 className="text-xl font-black text-white text-center tracking-tight mb-1.5">
-                Download JagaCuan
-              </h2>
-              <p className="text-xs text-white/60 text-center mb-5 max-w-[280px] leading-relaxed">
-                Kamu belum memiliki aplikasi JagaCuan di perangkat ini. Unduh APK resmi untuk langsung ikut menabung bersama.
-              </p>
-
-              {room ? (
-                <div className="w-full p-4 rounded-2xl bg-white/5 border border-white/10 mb-5">
-                  <div className="flex items-center justify-between gap-2 mb-1.5">
-                    <span className="text-[10px] font-bold uppercase text-[#60C3FF] tracking-wider">
-                      Undangan Nabar
-                    </span>
-                    {room.membersCount > 0 && (
-                      <span className="text-[10px] text-white/60 flex items-center gap-1 bg-white/5 px-2 py-0.5 rounded-full">
-                        <Users size={11} className="text-emerald-400" />
-                        <span>{room.membersCount} Anggota</span>
-                      </span>
-                    )}
-                  </div>
-
-                  <h3 className="text-base font-bold text-white truncate mb-1">
-                    {room.title}
-                  </h3>
-
-                  <div className="text-xs text-white/60 flex items-center justify-between pt-2 border-t border-white/10">
-                    <span>Target Tabungan:</span>
-                    <span className="text-sm font-black text-emerald-400">
-                      {formatRupiah(room.targetAmount)}
-                    </span>
-                  </div>
+              {/* Top Header Row above Card */}
+              <div className="w-full flex items-center justify-between px-2 mb-3.5">
+                <div className="inline-flex items-center gap-1.5 text-xs font-medium text-white/75">
+                  <ShieldCheck size={15} className="text-[#34D399]" />
+                  <span>Distribusi Resmi</span>
                 </div>
-              ) : (
-                <div className="w-full p-3 rounded-xl bg-white/5 border border-white/10 text-center mb-5">
-                  <span className="text-xs font-mono text-white/50 tracking-wider">
-                    Kode: {roomId.slice(0, 8)}...
-                  </span>
-                </div>
-              )}
-
-              {copied && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="w-full mb-3 px-3 py-2 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-semibold flex items-center justify-center gap-1.5"
-                >
-                  <Check size={14} />
-                  <span>Kode ruang disalin otomatis ke clipboard!</span>
-                </motion.div>
-              )}
-
-              <div className="w-full space-y-2.5">
-                <a
-                  href="/download/jagacuan.apk"
-                  download="jagacuan.apk"
-                  onClick={handleDownloadApk}
-                  className="w-full py-4 px-4 rounded-2xl bg-[#1CA0FF] hover:bg-[#33ADFF] active:scale-[0.98] text-white font-extrabold text-sm flex items-center justify-center gap-2 shadow-xl shadow-[#1CA0FF]/25 no-underline transition-all text-center cursor-pointer"
-                >
-                  <Download size={18} />
-                  <span>Download APK JagaCuan</span>
-                </a>
-
                 <button
-                  onClick={handleOpenApp}
-                  className="w-full py-3 px-4 rounded-xl bg-white/5 hover:bg-white/10 active:scale-[0.98] border border-white/10 text-white/80 hover:text-white font-semibold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
-                >
-                  <Smartphone size={14} className="text-[#1CA0FF]" />
-                  <span>Sudah Pasang? Buka di Aplikasi</span>
-                </button>
-              </div>
-
-              <div className="w-full mt-5 pt-4 border-t border-white/10 flex items-center justify-between text-[11px] text-white/40">
-                <span className="flex items-center gap-1">
-                  <ShieldCheck size={12} className="text-emerald-400" />
-                  APK Resmi • 59 MB
-                </span>
-                <button
+                  type="button"
                   onClick={handleCopyCode}
-                  className="hover:text-white transition-colors cursor-pointer flex items-center gap-1"
+                  className="text-xs font-mono text-white/55 hover:text-white transition-colors flex items-center gap-1 cursor-pointer"
                 >
                   <Copy size={11} />
                   <span>Salin Kode</span>
                 </button>
               </div>
+
+              {/* Main Card */}
+              <div className="w-full p-7 rounded-[28px] bg-[#161923] border border-white/[0.08] shadow-2xl flex flex-col items-center text-center relative overflow-hidden">
+                <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-56 h-36 bg-[#7C8BFF]/10 blur-3xl pointer-events-none" />
+
+                <div className="w-18 h-18 rounded-2xl overflow-hidden border border-white/10 shadow-lg mb-4 relative z-10">
+                  <img
+                    src="/icons/icon-512.png"
+                    alt="Logo JagaCuan"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+
+                <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#222738] border border-white/10 text-white/85 text-xs font-semibold mb-3.5 relative z-10">
+                  <Shield size={13} className="text-[#7C8BFF]" />
+                  <span>Undangan Nabung Bareng</span>
+                </div>
+
+                <h2 className="text-2xl font-extrabold text-white tracking-tight mb-1.5 relative z-10">
+                  JagaCuan
+                </h2>
+                <p className="text-xs text-[#94A3B8] mb-5 max-w-[280px] leading-relaxed relative z-10">
+                  Unduh APK resmi untuk langsung bergabung ke ruang tabungan bersama.
+                </p>
+
+                {room ? (
+                  <div className="w-full p-4 rounded-2xl bg-[#1D212E] border border-white/10 mb-5 text-left relative z-10">
+                    <div className="flex items-center justify-between gap-2 mb-1">
+                      <span className="text-[10px] font-bold uppercase text-[#7C8BFF] tracking-wider">
+                        Ruang Nabar
+                      </span>
+                      {room.membersCount > 0 && (
+                        <span className="text-[10px] text-white/65 flex items-center gap-1 bg-white/5 px-2 py-0.5 rounded-full">
+                          <Users size={11} className="text-[#34D399]" />
+                          <span>{room.membersCount} Anggota</span>
+                        </span>
+                      )}
+                    </div>
+
+                    <h3 className="text-sm font-bold text-white truncate mb-1">
+                      {room.title}
+                    </h3>
+
+                    <div className="text-xs text-[#94A3B8] flex items-center justify-between pt-2 border-t border-white/[0.07]">
+                      <span>Target Tabungan:</span>
+                      <span className="text-sm font-black text-[#34D399]">
+                        {formatRupiah(room.targetAmount)}
+                      </span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="w-full p-3 rounded-xl bg-[#1D212E] border border-white/10 text-center mb-5 relative z-10">
+                    <span className="text-xs font-mono text-white/55 tracking-wider">
+                      Kode: {roomId.slice(0, 8)}...
+                    </span>
+                  </div>
+                )}
+
+                {copied && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="w-full mb-3.5 px-3 py-2 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-[#34D399] text-xs font-semibold flex items-center justify-center gap-1.5 relative z-10"
+                  >
+                    <Check size={14} />
+                    <span>Kode ruang disalin otomatis ke clipboard!</span>
+                  </motion.div>
+                )}
+
+                <div className="w-full space-y-3 relative z-10">
+                  <a
+                    href="/download/jagacuan.apk"
+                    download="jagacuan.apk"
+                    onClick={handleDownloadApk}
+                    className="w-full py-3.5 px-5 rounded-2xl bg-[#7C8BFF] hover:bg-[#8A98FF] active:scale-[0.98] text-white font-bold text-sm flex items-center justify-center gap-2 shadow-[0_0_28px_rgba(124,139,255,0.4)] no-underline transition-all text-center cursor-pointer"
+                  >
+                    <Download size={17} />
+                    <span>Download APK (59 MB)</span>
+                  </a>
+
+                  <button
+                    onClick={handleOpenApp}
+                    className="w-full py-3.5 px-4 rounded-2xl bg-[#1D212E] hover:bg-[#242938] active:scale-[0.98] border border-white/10 text-white/90 font-semibold text-[13px] flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                  >
+                    <Smartphone size={15} className="text-white/65" />
+                    <span>Sudah Pasang? Buka Aplikasi</span>
+                  </button>
+                </div>
+
+                <div className="w-full mt-6 pt-5 border-t border-white/[0.07] text-xs text-[#94A3B8] leading-relaxed relative z-10">
+                  <p>
+                    Setelah selesai mengunduh, buka file{' '}
+                    <code className="px-2 py-0.5 mx-0.5 rounded-md bg-[#222634] border border-white/10 font-mono text-[11px] text-white/90">
+                      jagacuan.apk
+                    </code>{' '}
+                    untuk menginstal.
+                  </p>
+                </div>
+              </div>
+
+              <p className="mt-5 text-[11px] text-white/35 text-center">
+                © 2026 JagaCuan • Keuangan Terarah &amp; Aman
+              </p>
             </motion.div>
           )}
         </AnimatePresence>
