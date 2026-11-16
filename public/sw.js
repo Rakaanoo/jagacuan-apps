@@ -1,10 +1,7 @@
-const CACHE = "jagacuan-v4";
+const CACHE = "jagacuan-v5";
 const PRECACHE_ASSETS = [
   "/",
   "/manifest.webmanifest",
-  "/jagacuan-logo-dark.png",
-  "/jagacuan-logo-light.png",
-  "/jagacuan-logo.png",
   "/icons/icon-192.png",
   "/icons/icon-512.png",
   "/icons/icon-maskable-512.png",

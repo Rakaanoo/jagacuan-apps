@@ -2,13 +2,13 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Jagacuan — Pencatat Tabungan Digital",
-    short_name: "Jagacuan",
+    name: "JagaCuan — Pencatat Tabungan Digital",
+    short_name: "JagaCuan",
     description: "Aplikasi pencatat tabungan bertarget dan celengan digital.",
     start_url: "/",
     display: "standalone",
-    background_color: "#FAF7F2",
-    theme_color: "#EFEADF",
+    background_color: "#080B18",
+    theme_color: "#030637",
     lang: "id",
     icons: [
       {
