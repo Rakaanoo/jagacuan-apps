@@ -1,13 +1,13 @@
 {
-  "latest_version": "1.0.25",
-  "build_number": 26,
-  "min_native_build": 26,
-  "release_date": "2026-11-13T10:35:00Z",
+  "latest_version": "1.0.26",
+  "build_number": 27,
+  "min_native_build": 27,
+  "release_date": "2026-11-17T14:35:00Z",
   "title": "Update Tersedia!",
-  "description": "Perubahan teks branding di splash screen menjadi 'JagaCuan' dan penghapusan tombol floating pensil di pojok kanan bawah detail tabungan.",
+  "description": "Penambahan Tanggal Dibuat dan Notifikasi Pengingat di Ruang Nabar, serta penghapusan teks Estimasi di Tabungan Pribadi.",
   "changelog": [
-    "Ubah teks splash screen branding dari 'JAGA CUAN' menjadi 'JagaCuan'",
-    "Hapus tombol floating pencil (FAB) di kanan bawah halaman detail tabungan karena fungsinya sudah diwakili tombol aksi setoran & edit bar atas"
+    "Tambahkan informasi Tanggal Dibuat tabungan dan tombol Notifikasi Pengingat di halaman Ruang Nabung Bareng (Nabar)",
+    "Hapus teks Estimasi di halaman detail Tabungan Pribadi sehingga tampilan lebih ringkas dengan Tanggal Dibuat saja"
   ],
   "update_type": "apk",
   "patch_url": "https://jagacuan-app.vercel.app/patch.json",
