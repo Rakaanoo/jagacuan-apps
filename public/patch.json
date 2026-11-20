@@ -1,8 +1,8 @@
 {
-  "patch_id": "patch-v1.0.28-b29",
-  "version": "1.0.28",
-  "build_number": 29,
-  "min_native_build": 29,
+  "patch_id": "patch-v1.0.29-b30",
+  "version": "1.0.29",
+  "build_number": 30,
+  "min_native_build": 30,
   "runtime_config": {
     "stats_bars_right_margin": 28.0,
     "strict_single_source_deposit_sum": true,
