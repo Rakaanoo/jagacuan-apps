@@ -26,14 +26,15 @@ export default function Home() {
     if (typeof window !== 'undefined') {
       const urlParams = new URLSearchParams(window.location.search)
       const code = urlParams.get('code')
+      const noRedirect = urlParams.get('no_redirect') === '1'
       if (code) {
         if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
           window.location.href = `io.supabase.jagacuan://login-callback?code=${code}`
         }
-      } else if (/Android/i.test(navigator.userAgent)) {
-        // Attempt to open installed app quietly while loading animation plays
-        window.location.href =
-          'intent://open#Intent;scheme=jagacuan;package=com.jagacuan.jagacuan_app;end'
+      } else if (!noRedirect && /Android/i.test(navigator.userAgent)) {
+        // Attempt to open installed app; if not installed, fall back to this Vercel download page (never Play Store)
+        const fallbackUrl = `${window.location.origin}/?no_redirect=1`
+        window.location.href = `intent://open#Intent;scheme=jagacuan;package=com.jagacuan.jagacuan_app;S.browser_fallback_url=${encodeURIComponent(fallbackUrl)};end`
       }
     }
 
@@ -68,8 +69,8 @@ export default function Home() {
 
   const handleOpenApp = () => {
     if (typeof window !== 'undefined') {
-      window.location.href =
-        'intent://open#Intent;scheme=jagacuan;package=com.jagacuan.jagacuan_app;end'
+      const fallbackUrl = `${window.location.origin}/?no_redirect=1`
+      window.location.href = `intent://open#Intent;scheme=jagacuan;package=com.jagacuan.jagacuan_app;S.browser_fallback_url=${encodeURIComponent(fallbackUrl)};end`
       setTimeout(() => {
         window.location.href = 'jagacuan://open'
       }, 500)

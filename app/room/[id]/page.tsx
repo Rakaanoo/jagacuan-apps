@@ -46,14 +46,14 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
     fetchRoomData()
 
     if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search)
+      const noRedirect = urlParams.get('no_redirect') === '1'
       const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
       setIsMobileDevice(isMobile)
 
-      if (isMobile) {
-        window.location.href = `intent://room/${roomId}#Intent;scheme=jagacuan;package=com.jagacuan.jagacuan_app;end`
-        setTimeout(() => {
-          window.location.href = `jagacuan://room/${roomId}`
-        }, 500)
+      if (isMobile && !noRedirect) {
+        const fallbackUrl = `${window.location.origin}/room/${roomId}?no_redirect=1`
+        window.location.href = `intent://room/${roomId}#Intent;scheme=jagacuan;package=com.jagacuan.jagacuan_app;S.browser_fallback_url=${encodeURIComponent(fallbackUrl)};end`
       }
     }
 
@@ -73,10 +73,8 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
 
   const handleOpenApp = () => {
     if (typeof window !== 'undefined') {
-      window.location.href = `intent://room/${roomId}#Intent;scheme=jagacuan;package=com.jagacuan.jagacuan_app;end`
-      setTimeout(() => {
-        window.location.href = `jagacuan://room/${roomId}`
-      }, 600)
+      const fallbackUrl = `${window.location.origin}/room/${roomId}?no_redirect=1`
+      window.location.href = `intent://room/${roomId}#Intent;scheme=jagacuan;package=com.jagacuan.jagacuan_app;S.browser_fallback_url=${encodeURIComponent(fallbackUrl)};end`
     }
   }
 
