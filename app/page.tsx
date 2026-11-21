@@ -15,7 +15,7 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true)
   const [loadingPhase, setLoadingPhase] = useState<DribbbleLoadingPhase>('spinning')
   const [versionInfo, setVersionInfo] = useState<VersionMeta>({
-    latest_version: '1.0.31',
+    latest_version: '1.0.32',
     apk_size_mb: 60.3,
     apk_url: '/download/jagacuan.apk',
   })

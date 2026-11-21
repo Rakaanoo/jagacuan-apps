@@ -1,8 +1,8 @@
 {
-  "patch_id": "patch-v1.0.31-b32",
-  "version": "1.0.31",
-  "build_number": 32,
-  "min_native_build": 32,
+  "patch_id": "patch-v1.0.32-b33",
+  "version": "1.0.32",
+  "build_number": 33,
+  "min_native_build": 33,
   "runtime_config": {
     "stats_bars_right_margin": 28.0,
     "strict_single_source_deposit_sum": true,
