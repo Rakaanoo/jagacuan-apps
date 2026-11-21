@@ -1,12 +1,13 @@
 {
-  "latest_version": "1.0.30",
-  "build_number": 31,
-  "min_native_build": 31,
-  "release_date": "2026-11-21T03:50:00Z",
+  "latest_version": "1.0.31",
+  "build_number": 32,
+  "min_native_build": 32,
+  "release_date": "2026-11-21T06:00:00Z",
   "title": "Update Tersedia!",
-  "description": "Alur pembuatan ruang Nabung Bareng lebih ringkas tanpa sub-menu tambahan saat memilih jenis target.",
+  "description": "Perbaikan tombol switch notifikasi pengingat yang macet saat dimatikan dan penjadwalan tepat waktu sesuai jam & hari di Tabungan Pribadi maupun Nabar.",
   "changelog": [
-    "Menekan Nabung Bareng (Nabar) pada modal Pilih Jenis Target kini langsung membuka form pembuatan ruang tanpa sub-modal Buat Room Baru / Gabung via Link Room"
+    "Perbaiki bug switch notifikasi pengingat yang sebelumnya macet saat dinonaktifkan (OFF)",
+    "Perbaiki penjadwalan alarm pengingat agar berbunyi tepat sesuai jam, menit, AM/PM, dan hari yang dipilih menggunakan zona waktu lokal"
   ],
   "update_type": "apk",
   "patch_url": "https://jagacuan-app.vercel.app/patch.json",
@@ -20,5 +21,5 @@
     }
   },
   "apk_url": "https://jagacuan-app.vercel.app/download/jagacuan.apk",
-  "apk_size_mb": 59.0
+  "apk_size_mb": 60.3
 }
