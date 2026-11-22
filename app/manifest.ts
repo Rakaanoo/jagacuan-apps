@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "JagaCuan — Pencatat Tabungan Digital",
+    name: "JagaCuan | Pencatat Tabungan Digital",
     short_name: "JagaCuan",
     description: "Aplikasi pencatat tabungan bertarget dan celengan digital.",
     start_url: "/",

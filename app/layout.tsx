@@ -1,23 +1,33 @@
 import "./globals.css";
 import type { Metadata, Viewport } from "next";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 import AppDeepLinkRedirect from "@/components/AppDeepLinkRedirect";
 
+const plusJakartaSans = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-jakarta",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
-  title: "JagaCuan — Unduh Aplikasi Resmi Android",
-  description: "Unduh aplikasi JagaCuan untuk pencatatan tabungan pribadi dan nabung bareng.",
+  title: "JagaCuan | Celengan Pintar & Nabung Bareng",
+  description:
+    "Atur target tabungan pribadi dan nabung bareng teman, keluarga, atau pasangan lebih terarah. Pantau kedisiplinan menabung lewat statistik dan pengingat otomatis.",
   icons: {
-    icon: "/icons/icon-512.png",
-    apple: "/icons/icon-512.png",
+    icon: "/icons/jagacuan-brand.png",
+    apple: "/icons/jagacuan-brand.png",
   },
   openGraph: {
-    title: "JagaCuan — Unduh Aplikasi Resmi Android",
-    description: "Aplikasi pencatat tabungan pribadi & nabung bareng teman.",
-    images: ["/icons/icon-512.png"],
+    title: "JagaCuan | Celengan Pintar & Nabung Bareng",
+    description:
+      "Aplikasi pencatat tabungan pribadi & nabung bareng untuk Android. Gratis, ringan, dan terarah.",
+    images: ["/icons/jagacuan-brand.png"],
   },
   appleWebApp: {
     capable: true,
-    statusBarStyle: "default",
+    statusBarStyle: "black-translucent",
     title: "JagaCuan",
   },
 };
@@ -25,7 +35,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#0E1117",
+  themeColor: "#12141B",
 };
 
 export default function RootLayout({
@@ -34,9 +44,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="id" className="dark">
+    <html lang="id" className={`${plusJakartaSans.variable} dark`}>
       <head />
-      <body className="bg-[#0E1117] text-[#FFFFFF]" data-theme="dark">
+      <body className="bg-[#12141B] text-white font-sans antialiased">
         <AppDeepLinkRedirect />
         {children}
         <ServiceWorkerRegister />
