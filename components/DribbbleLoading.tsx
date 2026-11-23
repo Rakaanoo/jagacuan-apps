@@ -22,11 +22,8 @@ export default function DribbbleLoading({
       animate={{ opacity: 1 }}
       exit={{ opacity: 0, scale: 0.96 }}
       transition={{ duration: 0.25 }}
-      className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#0E1117] px-6 select-none"
+      className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#12141B] px-6 select-none"
     >
-      {/* Subtle JagaCuan ambient glow */}
-      <div className="absolute w-64 h-64 rounded-full bg-[#7C8BFF]/10 blur-3xl pointer-events-none" />
-
       <div className="relative flex items-center justify-center w-28 h-28">
         <AnimatePresence mode="wait">
           {phase === 'spinning' ? (
@@ -52,7 +49,7 @@ export default function DribbbleLoading({
 
               {/* Rotating JagaCuan Accent Arc */}
               <motion.svg
-                className="w-24 h-24 absolute inset-0 drop-shadow-[0_0_12px_rgba(124,139,255,0.45)]"
+                className="w-24 h-24 absolute inset-0"
                 viewBox="0 0 100 100"
                 animate={{ rotate: 360 }}
                 transition={{
@@ -104,7 +101,7 @@ export default function DribbbleLoading({
               </motion.svg>
 
               {/* JagaCuan Emerald Circle + Animated White Checkmark */}
-              <div className="w-24 h-24 rounded-full bg-[#10B981] flex items-center justify-center shadow-[0_0_40px_rgba(16,185,129,0.45)]">
+              <div className="w-24 h-24 rounded-full bg-[#10B981] flex items-center justify-center">
                 <svg className="w-12 h-12" viewBox="0 0 52 52" fill="none">
                   <motion.path
                     d="M14 27 L22.5 35.5 L38.5 17.5"
