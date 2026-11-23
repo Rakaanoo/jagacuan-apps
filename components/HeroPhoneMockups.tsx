@@ -158,10 +158,13 @@ export default function HeroPhoneMockups() {
       initial={{ opacity: 0, y: 14 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.45 }}
-      className="flex flex-col sm:flex-row items-center justify-center gap-7 sm:gap-9 mb-12 sm:mb-14"
+      className="w-full flex justify-center mb-7 sm:mb-14"
     >
-      {/* DUMMY IPHONE 1: REAL JAGACUAN SPLASH SCREEN */}
-      <RealisticIphoneFrame tiltClass="sm:-rotate-[2.5deg]">
+      {/* On mobile (< sm): compact side-by-side scaled pair so both Splash + Beranda fit cleanly above the fold */}
+      <div className="h-[310px] sm:h-auto flex items-center justify-center">
+        <div className="flex flex-row items-center justify-center gap-5 sm:gap-9 scale-[0.56] sm:scale-100 origin-center shrink-0">
+          {/* DUMMY IPHONE 1: REAL JAGACUAN SPLASH SCREEN */}
+          <RealisticIphoneFrame tiltClass="-rotate-[2.5deg]">
         <div
           className="flex-1 flex flex-col justify-between relative"
           style={{
@@ -207,7 +210,7 @@ export default function HeroPhoneMockups() {
       </RealisticIphoneFrame>
 
       {/* DUMMY IPHONE 2: REAL JAGACUAN BERANDA (HOME) */}
-      <RealisticIphoneFrame tiltClass="sm:rotate-[2.5deg]">
+      <RealisticIphoneFrame tiltClass="rotate-[2.5deg]">
         <div className="flex-1 flex flex-col bg-[#16171B] relative">
           <IosStatusBar time="16:42" />
 
@@ -350,6 +353,8 @@ export default function HeroPhoneMockups() {
           </div>
         </div>
       </RealisticIphoneFrame>
+        </div>
+      </div>
     </motion.div>
   )
 }

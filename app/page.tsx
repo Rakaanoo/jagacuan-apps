@@ -74,7 +74,7 @@ export default function Home() {
   const sizeLabel = (versionInfo.apk_size_mb ?? 60.3).toFixed(0)
 
   return (
-    <div className="min-h-screen bg-[#12141B] text-white">
+    <div className="min-h-screen bg-[#12141B] text-white overflow-x-hidden">
       {/* Sticky Minimal Navbar */}
       <header className="sticky top-0 z-50 border-b border-[#242836] bg-[#12141B]/95 backdrop-blur-md">
         <div className="max-w-6xl mx-auto px-5 sm:px-6 h-16 flex items-center justify-between gap-4">
@@ -169,7 +169,7 @@ export default function Home() {
 
       <main>
         {/* HERO SECTION: Dual Realistic iPhone Dummy Frames (Splash + Beranda) ABOVE Hero Headline */}
-        <section className="max-w-6xl mx-auto px-5 sm:px-6 pt-10 pb-16 sm:pt-14 sm:pb-24">
+        <section className="max-w-6xl mx-auto px-4 sm:px-6 pt-6 pb-12 sm:pt-14 sm:pb-24">
           <HeroPhoneMockups />
 
           {/* HERO TEXT BLOCK (Directly below the 2 iPhone dummies, without the pill badge) */}
@@ -178,7 +178,7 @@ export default function Home() {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.35, delay: 0.08 }}
-              className="text-4xl sm:text-5xl lg:text-[56px] font-extrabold tracking-[-0.03em] leading-[1.08] text-white mb-5"
+              className="text-[28px] sm:text-5xl lg:text-[56px] font-extrabold tracking-[-0.03em] leading-[1.12] sm:leading-[1.08] text-white mb-4 sm:mb-5"
             >
               Atur target tabungan pribadi &amp; nabung bareng lebih terarah.
             </motion.h1>
@@ -187,7 +187,7 @@ export default function Home() {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.35, delay: 0.14 }}
-              className="text-base sm:text-lg leading-relaxed max-w-2xl mx-auto text-[#9BA2B5]"
+              className="text-sm sm:text-lg leading-relaxed max-w-2xl mx-auto text-[#9BA2B5]"
             >
               JagaCuan membantu kamu mencatat celengan harian, memantau
               kedisiplinan menabung lewat statistik, hingga patungan transparan
