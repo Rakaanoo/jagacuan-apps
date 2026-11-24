@@ -1,12 +1,13 @@
 {
-  "latest_version": "1.0.32",
-  "build_number": 33,
-  "min_native_build": 33,
-  "release_date": "2026-11-21T07:25:00Z",
+  "latest_version": "1.0.33",
+  "build_number": 34,
+  "min_native_build": 34,
+  "release_date": "2026-11-24T05:40:00Z",
   "title": "Update Tersedia!",
-  "description": "Splash screen kini otomatis mengikuti tema Light Mode atau Dark Mode yang dipilih pengguna sejak frame pertama.",
+  "description": "Animasi Splash Screen baru dengan gerakan morphing logo JagaCuan yang lebih halus, modern, dan tetap adaptif terhadap Light & Dark Mode.",
   "changelog": [
-    "Warna latar, maskot, tipografi, dan progress bar Splash Screen kini otomatis menyesuaikan tema Light Mode (Warm Cream) atau Dark Mode"
+    "Animasi Splash Screen baru bergaya motion modern: drop bounce, orbital ring, squircle morph logo JagaCuan, dan horizontal wordmark reveal",
+    "Tetap adaptif otomatis terhadap tema Light Mode (Warm Cream) dan Dark Mode"
   ],
   "update_type": "apk",
   "patch_url": "https://jagacuan-app.vercel.app/patch.json",
