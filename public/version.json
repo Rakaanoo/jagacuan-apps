@@ -1,13 +1,13 @@
 {
-  "latest_version": "1.0.33",
-  "build_number": 34,
-  "min_native_build": 34,
-  "release_date": "2026-11-24T05:40:00Z",
+  "latest_version": "1.0.34",
+  "build_number": 35,
+  "min_native_build": 35,
+  "release_date": "2026-11-24T06:20:00Z",
   "title": "Update Tersedia!",
-  "description": "Animasi Splash Screen baru dengan gerakan morphing logo JagaCuan yang lebih halus, modern, dan tetap adaptif terhadap Light & Dark Mode.",
+  "description": "Perbaikan bug notifikasi update berulang dan animasi Splash Screen baru: maskot JagaCuan berlari mengejar koin!",
   "changelog": [
-    "Animasi Splash Screen baru bergaya motion modern: drop bounce, orbital ring, squircle morph logo JagaCuan, dan horizontal wordmark reveal",
-    "Tetap adaptif otomatis terhadap tema Light Mode (Warm Cream) dan Dark Mode"
+    "Fix bug popup update muncul terus-menerus: versi build kini dibaca otomatis langsung dari PackageInfo Android",
+    "Animasi Splash Screen baru: maskot babi JagaCuan berlari mengejar dan menangkap koin emas"
   ],
   "update_type": "apk",
   "patch_url": "https://jagacuan-app.vercel.app/patch.json",
